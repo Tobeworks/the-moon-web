@@ -17,7 +17,7 @@ const release = releasesData.releases.find(
 
 if (!release) return Astro.redirect('/404');
 
-const { catalog, artist, title, format, year, genre, artwork, cover, tracks, bandcamp } = release;
+const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms } = release;
 
 const art1500webp = artwork?.['1500']?.webp;
 const art1500jpg  = artwork?.['1500']?.jpg;
@@ -93,19 +93,19 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
 
           <p class="font-label font-normal text-[0.75rem] tracking-[0.22em] uppercase text-accent">{artist}</p>
 
-          <!-- Track count + Bandcamp -->
-          <div class="flex items-center gap-6 pb-4 border-b border-border">
+          <!-- Track count + Platforms -->
+          <div class="flex items-center gap-6 pb-4 border-b border-border flex-wrap">
             <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
               {tracks.length} track{tracks.length !== 1 ? 's' : ''}
             </span>
-            {bandcamp && (
+            {platforms?.map((p) => (
               <a
-                href={bandcamp}
+                href={p.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent no-underline transition-opacity duration-200 hover:opacity-70"
-              >Bandcamp ↗</a>
-            )}
+              >{p.name} ↗</a>
+            ))}
           </div>
 
           <!-- Phase indicator row -->
