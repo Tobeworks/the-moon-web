@@ -8,61 +8,67 @@ import pkg from "../../package.json";
 
 <BaseLayout
   title="THE MOON RECORDS"
-  description="Beatless music label. Ambient, drone, soundscape. Independent, direct, precise."
-  canonicalUrl={new URL('', Astro.site).href}
->
-
+  description="Independent beatless music label. Ambient, Drone, Soundscape."
+  canonicalUrl={new URL("", Astro.site).href}>
   <!-- ── Fixed Header ── -->
   <header
     id="header"
-    class="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 lg:px-10 h-16 border-b border-transparent transition-[background,border-color] duration-300"
-  >
-    <div class="font-label font-bold text-[0.75rem] tracking-[0.22em] uppercase text-fg">
+    class="fixed top-0 left-0 right-0 z-[100] flex items-center justify-between px-6 lg:px-10 h-16 border-b border-transparent transition-[background,border-color] duration-300">
+    <div
+      class="font-label font-bold text-[0.75rem] tracking-[0.22em] uppercase text-fg">
       The Moon Records
     </div>
     <nav class="hidden sm:block">
       <ul class="flex gap-8 lg:gap-10 list-none p-0 m-0">
-        {[['#releases','Releases'],['#field','Field'],['#subscribe','Subscribe']].map(([href, label]) => (
-          <li>
-            <a
-              href={href}
-              class="font-label text-[0.7rem] tracking-[0.25em] uppercase text-fg-dim no-underline transition-colors duration-200 hover:text-fg"
-            >{label}</a>
-          </li>
-        ))}
+        {
+          [
+            ["#releases", "Releases"],
+            ["#field", "Field"],
+            ["#subscribe", "Subscribe"],
+          ].map(([href, label]) => (
+            <li>
+              <a
+                href={href}
+                class="font-label text-[0.7rem] tracking-[0.25em] uppercase text-fg-dim no-underline transition-colors duration-200 hover:text-fg">
+                {label}
+              </a>
+            </li>
+          ))
+        }
       </ul>
     </nav>
     <PhaseCircle phase={0.74} size={20} label="Current lunar phase" />
   </header>
 
   <!-- ── Hero ── -->
-  <section class="min-h-screen grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-6 lg:px-10 pb-12 relative overflow-hidden">
-
+  <section
+    class="min-h-screen grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-6 lg:px-10 pb-12 relative overflow-hidden">
     <!-- Atmospheric glow — barely visible radial hint -->
     <div
       class="absolute inset-0 pointer-events-none"
       style="background: radial-gradient(ellipse 55% 50% at 72% 48%, rgba(196,185,138,0.025) 0%, transparent 65%);"
-      aria-hidden="true"
-    ></div>
+      aria-hidden="true">
+    </div>
 
     <!-- Left: text content -->
-    <div class="flex flex-col justify-center pt-16 z-[1] order-2 md:order-1">
-      <span class="flex items-center gap-3 font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
+    <div class="flex flex-col justify-center pt-16 z-1 order-2 md:order-1">
+      <span
+        class="flex items-center gap-3 font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
         <span class="block w-8 h-px bg-accent opacity-50 shrink-0"></span>
         01 — Lunar Program
       </span>
 
       <h1
         class="font-label font-bold uppercase text-fg mb-8"
-        style="font-size: clamp(3.5rem, 8.5vw, 7.5rem); letter-spacing: 0.03em; line-height: 0.9;"
-      >
+        style="font-size: clamp(3.5rem, 8.5vw, 7.5rem); letter-spacing: 0.03em; line-height: 0.9;">
         The Moon<br />Records
       </h1>
 
       <div class="w-full h-px bg-border mb-6"></div>
 
-      <p class="font-label font-light text-[0.75rem] tracking-[0.3em] uppercase text-fg-dim mb-12">
-        Ambient &nbsp;·&nbsp; Drone &nbsp;·&nbsp; Soundscape
+      <p
+        class="font-label font-light text-[0.75rem] tracking-[0.3em] uppercase text-fg-dim mb-12">
+        AN ARCHITECTURAL EXPLORATION OF SOUNDSCAPES
       </p>
 
       <div class="flex gap-3 flex-wrap">
@@ -72,7 +78,8 @@ import pkg from "../../package.json";
     </div>
 
     <!-- Right: large precision circle -->
-    <div class="flex items-center justify-center pt-16 pb-8 md:pb-0 order-1 md:order-2">
+    <div
+      class="flex items-center justify-center pt-16 pb-8 md:pb-0 order-1 md:order-2">
       <PhaseCircle
         phase={0.74}
         size={420}
@@ -83,20 +90,21 @@ import pkg from "../../package.json";
     </div>
 
     <!-- Bottom meta strip -->
-    <div class="col-span-full flex gap-8 lg:gap-12 pt-10 border-t border-border flex-wrap order-3">
-      {[
-        ['Label', 'The Moon Records'],
-        ['Field', 'Beatless'],
-        ['Est.', '2026'],
-        ['OS', 'github.com/Tobeworks/the-moon-os'],
-      ].map(([label, value]) => (
-        <div class="flex gap-4 font-mono text-[0.575rem] tracking-[0.25em] uppercase">
-          <span class="text-fg-muted">{label}</span>
-          <span class="text-fg-dim">{value}</span>
-        </div>
-      ))}
+    <div
+      class="col-span-full flex gap-8 lg:gap-12 pt-10 border-t border-border flex-wrap order-3">
+      {
+        [
+          ["Label", "The Moon Records"],
+          ["Field", "Beatless"],
+          ["Est.", "2026"],
+        ].map(([label, value]) => (
+          <div class="flex gap-4 font-mono text-[0.575rem] tracking-[0.25em] uppercase">
+            <span class="text-fg-muted">{label}</span>
+            <span class="text-fg-dim">{value}</span>
+          </div>
+        ))
+      }
     </div>
-
   </section>
 
   <!-- ── 01 Current Phase — Releases ── -->
@@ -120,32 +128,46 @@ import pkg from "../../package.json";
         <span class="tmr-section-sub">About</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-20 items-start">
-
+      <div
+        class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-20 items-start">
         <!-- Text -->
-        <div class="flex flex-col gap-5 font-label font-light text-[0.975rem] leading-[2] text-fg-dim">
-          <p>The Moon Records is a beatless label. Ambient and drone across the full spectrum — lo-fi warmth, field recording and synthesis, sustained tones, deep drone.</p>
-          <p>The music here does not push. It accumulates. It holds still long enough to be heard.</p>
-          <p>The label name originates with Logic Moon, the founding artist whose sound defined the initial position. The scope has since opened: any artist operating within the beatless spectrum belongs here, provided the work has internal logic and was made with intention.</p>
+        <div
+          class="flex flex-col gap-5 font-label font-light text-[0.975rem] leading-[2] text-fg-dim">
+          <p>
+            The Moon Records is a beatless label. Ambient and drone across the
+            full spectrum — lo-fi warmth, field recording and synthesis,
+            sustained tones, deep drone.
+          </p>
+          <p>
+            The music here does not push. It accumulates. It holds still long
+            enough to be heard.
+          </p>
+          <p>
+            The label name originates with Logic Moon, the founding artist whose
+            sound defined the initial position. The scope has since opened: any
+            artist operating within the beatless spectrum belongs here, provided
+            the work has internal logic and was made with intention.
+          </p>
         </div>
 
         <!-- Data table -->
         <div class="border-t border-border">
-          {[
-            ['Founded',  '2026'],
-            ['Format',   'Digital / Limited Physical'],
-            ['Catalog',  'TMR-001 →'],
-            ['Spectrum', 'Ambient — Drone — Soundscape'],
-            ['Beatless', 'Always'],
-            ['Platform', 'Bandcamp / Direct'],
-          ].map(([label, value]) => (
-            <div class="flex gap-4 py-3 border-b border-border font-mono text-[0.6rem] tracking-[0.14em] uppercase">
-              <span class="text-fg-muted min-w-[5.5rem]">{label}</span>
-              <span class="text-fg-dim">{value}</span>
-            </div>
-          ))}
+          {
+            [
+              ["Founded", "2026"],
+              ["Format", "Digital / Limited Physical"],
+              ["Catalog", "TMR-001 →"],
+              ["Spectrum", "Ambient — Drone — Soundscape"],
+              ["Beatless", "Always"],
+              ["Platform", "Bandcamp / Direct"],
+            ].map(([label, value]) => (
+              <div class="flex gap-4 py-3 border-b border-border font-mono text-[0.6rem] tracking-[0.14em] uppercase">
+                <span class="text-fg-muted min-w-[5.5rem]">{label}</span>
+                <span class="text-fg-dim">{value}</span>
+              </div>
+            ))
+          }
         </div>
-
       </div>
     </div>
   </section>
@@ -159,22 +181,19 @@ import pkg from "../../package.json";
         <span class="tmr-section-sub">New Phase / Notify</span>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 items-start">
-        <div class="flex flex-col gap-4">
-          <div>
-            <PhaseCircle phase={0.74} size={96} label="Phase indicator" />
-          </div>
-          <h2 class="font-label font-light text-[1.5rem] tracking-[0.12em] uppercase text-fg m-0">
-            New Phase Incoming
-          </h2>
-          <p class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted m-0">
-            Receive notification when the next release arrives.
-          </p>
-          <a href="/newsletter" class="font-label text-[0.7rem] tracking-[0.25em] uppercase text-fg-muted no-underline hover:text-accent transition-colors duration-200">
-            Newsletter page →
-          </a>
+      <div class="max-w-[32rem] mx-auto text-center pt-4">
+        <div class="flex justify-center mb-10">
+          <PhaseCircle phase={0.74} size={56} label="Phase indicator" />
         </div>
-        <div class="border border-border bg-surface-low p-8">
+        <h2
+          class="font-label font-light text-[1.5rem] tracking-[0.12em] uppercase text-fg mb-2">
+          Stay in the field.
+        </h2>
+        <p
+          class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted mb-10">
+          Releases and transmissions — nothing else.
+        </p>
+        <div class="text-left">
           <NewsletterForm />
         </div>
       </div>
@@ -182,51 +201,63 @@ import pkg from "../../package.json";
   </section>
 
   <!-- ── Footer ── -->
-  <footer class="px-6 lg:px-10 py-8 border-t border-border flex items-center justify-between gap-8 flex-wrap">
-    <div class="font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg">The Moon Records</div>
+  <footer
+    class="px-6 lg:px-10 py-8 border-t border-border flex items-center justify-between gap-8 flex-wrap">
+    <div
+      class="font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg">
+      The Moon Records
+    </div>
     <nav>
       <ul class="flex gap-8 list-none p-0 m-0">
-        {[
-          ['#releases', 'Releases'],
-          ['#field', 'Field'],
-        ].map(([href, label]) => (
-          <li>
-            <a href={href} class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-              {label}
-            </a>
-          </li>
-        ))}
+        {
+          [
+            ["#releases", "Releases"],
+            ["#field", "Field"],
+          ].map(([href, label]) => (
+            <li>
+              <a
+                href={href}
+                class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
+                {label}
+              </a>
+            </li>
+          ))
+        }
         <li>
           <a
             href="https://bandcamp.com"
             target="_blank"
             rel="noopener noreferrer"
             class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
-          >Bandcamp</a>
+            >Bandcamp</a
+          >
         </li>
       </ul>
     </nav>
-    <div class="font-mono text-[0.53rem] tracking-[0.2em] uppercase text-[rgba(232,228,216,0.1)]">
+    <div
+      class="font-mono text-[0.53rem] tracking-[0.2em] uppercase text-[rgba(232,228,216,0.1)]">
       EST. 2026 — v{pkg.version}
     </div>
   </footer>
-
 </BaseLayout>
 
 <style>
-  /* Only what Tailwind can't express: JS-triggered .scrolled state */
+  /* JS-triggered .scrolled state — cannot be expressed in Tailwind */
   #header.scrolled {
     background: rgba(20, 20, 20, 0.96);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-color: var(--color-border);
   }
-
 </style>
 
 <script>
-  const header = document.getElementById('header');
-  window.addEventListener('scroll', () => {
-    header?.classList.toggle('scrolled', window.scrollY > 20);
-  }, { passive: true });
+  const header = document.getElementById("header");
+  window.addEventListener(
+    "scroll",
+    () => {
+      header?.classList.toggle("scrolled", window.scrollY > 20);
+    },
+    { passive: true },
+  );
 </script>

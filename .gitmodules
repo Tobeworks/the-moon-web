@@ -1,0 +1,3 @@
+[submodule "the-moon-os"]
+	path = the-moon-os
+	url = https://github.com/Tobeworks/the-moon-os
