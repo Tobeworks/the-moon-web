@@ -4,13 +4,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PhaseCircle from '../components/PhaseCircle.astro';
 import ReleaseCard from '../components/ReleaseCard.astro';
 import ReleaseList from '../components/ReleaseList.astro';
-import releasesData from '../../../the-moon-os/data/releases.json';
+import releasesData from '../../the-moon-os/data/releases.json';
 
 const exampleRelease = releasesData.releases[0];
 
 const codeSnippets = {
   phaseCircleUsage: `import PhaseCircle from '../components/PhaseCircle.astro';\n---\n\n<!-- phase = 0–1 illumination (0.74 = waxing gibbous 74%) -->\n<PhaseCircle phase={0.74} size={200} phaseCode="WXG / 74%" />`,
-  releaseCardUsage: `import ReleaseCard from '../components/ReleaseCard.astro';\nimport releasesData from '../../../the-moon-os/data/releases.json';\n\nconst release = releasesData.releases[0];\n---\n\n<ReleaseCard release={release} />`,
+  releaseCardUsage: `import ReleaseCard from '../components/ReleaseCard.astro';\nimport releasesData from '../../the-moon-os/data/releases.json';\n\nconst release = releasesData.releases[0];\n---\n\n<ReleaseCard release={release} />`,
   releaseListUsage: `import ReleaseList from '../components/ReleaseList.astro';\n---\n\n<ReleaseList />`,
 };
 ---

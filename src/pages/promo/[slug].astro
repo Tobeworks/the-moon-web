@@ -6,7 +6,7 @@ import AudioPlayer from '../../components/AudioPlayer.astro';
 import PhaseCircle from '../../components/PhaseCircle.astro';
 import { getPromoByToken, getFeedbackForRelease } from '../../lib/pocketbase';
 import { promoErrorPage } from '../../lib/errorPages';
-import releasesData from '../../../../the-moon-os/data/releases.json';
+import releasesData from '../../../the-moon-os/data/releases.json';
 
 const { slug } = Astro.params;
 const token = Astro.url.searchParams.get('t');

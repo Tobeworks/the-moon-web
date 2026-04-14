@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIContext } from 'astro';
 import { getPromoByToken, logDownload } from '../../../lib/pocketbase';
-import releasesData from '../../../../../the-moon-os/data/releases.json';
+import releasesData from '../../../../the-moon-os/data/releases.json';
 import { Zip, ZipPassThrough } from 'fflate';
 
 export const GET = async ({ request, url }: APIContext) => {

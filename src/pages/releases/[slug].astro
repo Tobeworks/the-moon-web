@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AudioPlayer from '../../components/AudioPlayer.astro';
 import PhaseCircle from '../../components/PhaseCircle.astro';
-import releasesData from '../../../../the-moon-os/data/releases.json';
+import releasesData from '../../../the-moon-os/data/releases.json';
 
 export function getStaticPaths() {
   return releasesData.releases.map((r) => ({
