@@ -1,0 +1,102 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NewsletterForm from '../../components/NewsletterForm.astro';
+
+const error = Astro.url.searchParams.get('error') ?? undefined;
+---
+
+<BaseLayout
+  title="Newsletter — THE MOON RECORDS"
+  description="Subscribe to The Moon Records newsletter. New releases, no noise."
+>
+  <div class="nl-page">
+    <div class="nl-page__inner">
+
+      <header class="nl-page__header">
+        <span class="text-eyebrow">// TRANSMISSION_OPEN</span>
+        <h1 class="nl-page__title">Join the List.</h1>
+        <p class="nl-page__sub">
+          New releases. Label transmissions. No algorithm. No noise.
+          Straight to your inbox when something worth hearing drops.
+        </p>
+      </header>
+
+      <div class="nl-page__form">
+        <NewsletterForm error={error} />
+      </div>
+
+      <a href="/" class="nl-page__back">← BACK TO GRID</a>
+
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nl-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+  }
+
+  .nl-page__inner {
+    width: 100%;
+    max-width: 38rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .nl-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nl-page__title {
+    font-family: var(--font-label);
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  .nl-page__sub {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 32rem;
+  }
+
+  .nl-page__form {
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-low);
+  }
+
+  .nl-page__back {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .nl-page__back:hover {
+    color: var(--color-accent);
+  }
+</style>

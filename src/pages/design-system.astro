@@ -1,0 +1,416 @@
+---
+import { Code } from 'astro:components';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhaseCircle from '../components/PhaseCircle.astro';
+import ReleaseCard from '../components/ReleaseCard.astro';
+import ReleaseList from '../components/ReleaseList.astro';
+import releasesData from '../../../the-moon-os/data/releases.json';
+
+const exampleRelease = releasesData.releases[0];
+
+const codeSnippets = {
+  phaseCircleUsage: `import PhaseCircle from '../components/PhaseCircle.astro';\n---\n\n<!-- phase = 0–1 illumination (0.74 = waxing gibbous 74%) -->\n<PhaseCircle phase={0.74} size={200} phaseCode="WXG / 74%" />`,
+  releaseCardUsage: `import ReleaseCard from '../components/ReleaseCard.astro';\nimport releasesData from '../../../the-moon-os/data/releases.json';\n\nconst release = releasesData.releases[0];\n---\n\n<ReleaseCard release={release} />`,
+  releaseListUsage: `import ReleaseList from '../components/ReleaseList.astro';\n---\n\n<ReleaseList />`,
+};
+---
+
+<BaseLayout title="THE MOON RECORDS — Design System">
+  <div class="design-sys">
+
+    <!-- ── Header ── -->
+    <header class="design-sys__header">
+      <span class="text-eyebrow block mb-3">The Moon Records</span>
+      <h1 class="design-sys__title">Design System</h1>
+      <p class="design-sys__subtitle">Visual language reference — tokens, typography, components.</p>
+    </header>
+
+    <!-- ── Colors ── -->
+    <section class="design-sys__section">
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">01</span>
+        <span class="tmr-section-title">Color Tokens</span>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Accent — Moon Sand</h3>
+        <div class="swatch-row">
+          <div class="swatch">
+            <div class="swatch__preview" style="background:#C4B98A;"></div>
+            <code class="swatch__token">--color-accent</code>
+            <span class="swatch__hex">#C4B98A</span>
+            <span class="swatch__name">Moon Sand</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:rgba(196,185,138,0.35);"></div>
+            <code class="swatch__token">--color-accent-glow</code>
+            <span class="swatch__hex">rgba(196,185,138,0.35)</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:rgba(196,185,138,0.2);"></div>
+            <code class="swatch__token">--color-accent-border</code>
+            <span class="swatch__hex">rgba(196,185,138,0.2)</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:rgba(196,185,138,0.08);"></div>
+            <code class="swatch__token">--color-accent-dim</code>
+            <span class="swatch__hex">rgba(196,185,138,0.08)</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Surfaces — Warm Near-Black</h3>
+        <div class="swatch-row">
+          <div class="swatch">
+            <div class="swatch__preview" style="background:#0C0C0C; border:1px solid rgba(196,185,138,0.15);"></div>
+            <code class="swatch__token">--color-bg</code>
+            <span class="swatch__hex">#0C0C0C</span>
+            <span class="swatch__name">Void</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:#141414; border:1px solid rgba(196,185,138,0.15);"></div>
+            <code class="swatch__token">--color-surface-low</code>
+            <span class="swatch__hex">#141414</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:#1C1C1C; border:1px solid rgba(196,185,138,0.15);"></div>
+            <code class="swatch__token">--color-surface</code>
+            <span class="swatch__hex">#1C1C1C</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:#252525; border:1px solid rgba(196,185,138,0.15);"></div>
+            <code class="swatch__token">--color-surface-high</code>
+            <span class="swatch__hex">#252525</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Foreground — Warm Off-White</h3>
+        <div class="swatch-row">
+          <div class="swatch">
+            <div class="swatch__preview" style="background:#E8E4D8;"></div>
+            <code class="swatch__token">--color-fg</code>
+            <span class="swatch__hex">#E8E4D8</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:rgba(232,228,216,0.55);"></div>
+            <code class="swatch__token">--color-fg-dim</code>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:rgba(232,228,216,0.3);"></div>
+            <code class="swatch__token">--color-fg-faint</code>
+          </div>
+          <div class="swatch">
+            <div class="swatch__preview" style="background:rgba(232,228,216,0.15);"></div>
+            <code class="swatch__token">--color-fg-muted</code>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Typography ── -->
+    <section class="design-sys__section">
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">02</span>
+        <span class="tmr-section-title">Typography</span>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Josefin Sans — Label Font (Display / UI)</h3>
+        <div class="type-samples">
+          <div class="type-sample">
+            <span class="type-sample__meta">Hero / 700 / clamp(3.5–7.5rem) / tracking 0.03em</span>
+            <span style="font-family:var(--font-label);font-weight:700;font-size:clamp(2rem,6vw,4rem);letter-spacing:0.03em;text-transform:uppercase;line-height:0.9;">The Moon</span>
+          </div>
+          <div class="type-sample">
+            <span class="type-sample__meta">Display / 700 / tracking 0.08em</span>
+            <span class="text-display">Ambient — Drone</span>
+          </div>
+          <div class="type-sample">
+            <span class="type-sample__meta">Section title / 700 / 0.85rem / tracking 0.28em</span>
+            <span class="tmr-section-title" style="border:none;padding:0;">Current Phase</span>
+          </div>
+          <div class="type-sample">
+            <span class="type-sample__meta">Label / 400 / 0.75rem / tracking 0.22em</span>
+            <span class="text-label">Releases · Field · Subscribe</span>
+          </div>
+          <div class="type-sample">
+            <span class="type-sample__meta">Light body / 300 / 0.975rem / lh 2.0</span>
+            <span style="font-family:var(--font-label);font-weight:300;font-size:0.975rem;line-height:2;color:var(--color-fg-dim);">The Moon Records is a beatless label. Ambient and drone across the full spectrum.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Space Mono — Data / Technical</h3>
+        <div class="type-samples">
+          <div class="type-sample">
+            <span class="type-sample__meta">Eyebrow / 0.6rem / tracking 0.35em</span>
+            <span class="text-eyebrow">01 — Lunar Program</span>
+          </div>
+          <div class="type-sample">
+            <span class="type-sample__meta">Micro / 0.55rem / tracking 0.2em</span>
+            <span class="text-micro">TMR-001 / WXG / 74% — Duration 38:14</span>
+          </div>
+          <div class="type-sample">
+            <span class="type-sample__meta">Data / 0.6rem / tracking 0.2em</span>
+            <span class="text-data">Founded · 2026 · Beatless · Always</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Phase Circle ── -->
+    <section class="design-sys__section">
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">03</span>
+        <span class="tmr-section-title">Phase Circle</span>
+      </div>
+
+      <p class="design-sys__subtitle">
+        The primary graphic element. Instrument-grade precision circle — references the sextant, telescope aperture, Bauhaus circle, lunar disc. No glow. No atmosphere.
+      </p>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Sizes — Same Component, Different Context</h3>
+        <div class="phase-samples">
+          <div class="phase-sample">
+            <PhaseCircle phase={0.74} size={20} />
+            <span class="text-micro">20px — header</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={0.74} size={48} />
+            <span class="text-micro">48px — card</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={0.74} size={96} />
+            <span class="text-micro">96px — subscribe</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={0.74} size={200} phaseCode="WXG / 74%" />
+            <span class="text-micro">200px — hero variant</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Phase Variants</h3>
+        <div class="phase-samples">
+          <div class="phase-sample">
+            <PhaseCircle phase={0} size={80} />
+            <span class="text-micro">New Moon 0%</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={0.25} size={80} />
+            <span class="text-micro">Crescent 25%</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={0.5} size={80} />
+            <span class="text-micro">Quarter 50%</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={0.74} size={80} />
+            <span class="text-micro">Gibbous 74%</span>
+          </div>
+          <div class="phase-sample">
+            <PhaseCircle phase={1} size={80} />
+            <span class="text-micro">Full Moon 100%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Usage</h3>
+        <Code code={codeSnippets.phaseCircleUsage} lang="astro" theme="dracula" />
+      </div>
+    </section>
+
+    <!-- ── Components ── -->
+    <section class="design-sys__section">
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">04</span>
+        <span class="tmr-section-title">Components</span>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Buttons — No Rounded Corners, No Glow</h3>
+        <div class="flex flex-wrap gap-4 items-center">
+          <button class="btn btn--primary">Current Phase</button>
+          <button class="btn btn--ghost">Archive</button>
+          <button class="btn btn--muted">Field Notes</button>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Badges</h3>
+        <div class="flex flex-wrap gap-3 items-center">
+          <span class="badge">TMR-001</span>
+          <span class="badge">WXG</span>
+          <span class="badge badge--muted">Ambient</span>
+          <span class="badge badge--muted">2026</span>
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Input — Bottom Border Only</h3>
+        <div style="max-width:20rem;">
+          <input class="pg-input" placeholder="your@email.com" />
+        </div>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Section Header — Bauhaus Numbered</h3>
+        <div class="tmr-section-header" style="margin-bottom:0;">
+          <span class="tmr-section-num">01</span>
+          <span class="tmr-section-title">Current Phase</span>
+          <span class="tmr-section-sub">TMR / Latest</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Release Components ── -->
+    <section class="design-sys__section">
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">05</span>
+        <span class="tmr-section-title">Release Components</span>
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Release Card — Live</h3>
+        {exampleRelease ? (
+          <div style="max-width:240px;">
+            <ReleaseCard release={exampleRelease} />
+          </div>
+        ) : (
+          <p class="text-micro">No releases in releases.json yet.</p>
+        )}
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Release List — Live</h3>
+        <ReleaseList />
+      </div>
+
+      <div class="design-sys__group">
+        <h3 class="design-sys__group-title">Usage</h3>
+        <Code code={codeSnippets.releaseCardUsage} lang="astro" theme="dracula" />
+      </div>
+    </section>
+
+  </div>
+</BaseLayout>
+
+<style>
+  .design-sys {
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 5rem 2.5rem 8rem;
+  }
+
+  .design-sys__header {
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 3rem;
+    margin-bottom: 5rem;
+  }
+
+  .design-sys__title {
+    font-family: var(--font-label);
+    font-weight: 700;
+    font-size: 2rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    margin: 0.5rem 0;
+  }
+
+  .design-sys__subtitle {
+    font-family: var(--font-label);
+    font-weight: 300;
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--color-fg-dim);
+    margin-bottom: 2rem;
+  }
+
+  .design-sys__section {
+    margin-bottom: 5rem;
+  }
+
+  .design-sys__group {
+    margin-bottom: 3rem;
+  }
+  .design-sys__group:last-child { margin-bottom: 0; }
+
+  .design-sys__group-title {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(196,185,138,0.1);
+  }
+
+  /* ── Swatches ── */
+  .swatch-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+
+  .swatch {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 120px;
+    font-size: 0.6rem;
+    color: var(--color-fg-dim);
+  }
+
+  .swatch__preview {
+    height: 3rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .swatch__token { color: var(--color-fg); font-family: var(--font-mono); }
+  .swatch__hex   { font-family: var(--font-mono); }
+  .swatch__name  { color: var(--color-accent); }
+
+  /* ── Type samples ── */
+  .type-samples { display: flex; flex-direction: column; gap: 0; }
+
+  .type-sample {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1.25rem 0;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .type-sample:last-child { border-bottom: none; }
+
+  .type-sample__meta {
+    font-family: var(--font-mono);
+    font-size: 0.5rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+
+  /* ── Phase samples ── */
+  .phase-samples {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3rem;
+    align-items: flex-end;
+  }
+
+  .phase-sample {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+  }
+</style>

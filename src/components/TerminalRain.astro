@@ -1,0 +1,92 @@
+---
+// Subtle Matrix-style binary rain — Phantom Grid red on dark background
+// Purely decorative, aria-hidden
+---
+
+<canvas class="terminal-rain" aria-hidden="true"></canvas>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('.terminal-rain');
+  if (!canvas) throw new Error('TerminalRain: canvas not found');
+
+  const ctx = canvas.getContext('2d')!;
+
+  const FONT_SIZE  = 13;
+  const CHARS      = '01001101'; // weighted toward 0/1
+
+  // Read CSS variables at runtime — single source of truth from @theme
+  const rootStyle  = getComputedStyle(document.documentElement);
+  const accentRgb  = rootStyle.getPropertyValue('--color-accent-rgb').trim();   // "214, 82, 76"
+  const bgRgb      = rootStyle.getPropertyValue('--color-bg-rgb').trim();       // "14, 14, 14"
+  const FG         = `rgba(${accentRgb},`;
+  const FADE       = `rgba(${bgRgb}, 0.055)`; // bg fade per frame — controls trail length
+
+  let columns: number[] = [];
+  let raf: number;
+
+  function resize() {
+    canvas.width  = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    const count   = Math.floor(canvas.width / FONT_SIZE);
+    // preserve existing drops, fill new columns
+    columns = Array.from({ length: count }, (_, i) => columns[i] ?? Math.random() * -canvas.height);
+    ctx.fillStyle = `rgb(${bgRgb})`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function draw() {
+    // fade existing pixels toward background
+    ctx.fillStyle = FADE;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    ctx.font = `${FONT_SIZE}px 'Barlow Condensed', monospace`;
+
+    for (let i = 0; i < columns.length; i++) {
+      const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+      const x    = i * FONT_SIZE;
+      const y    = columns[i];
+
+      // Head char — brighter glow
+      ctx.fillStyle = `${FG} 0.9)`;
+      ctx.shadowColor   = `rgba(${accentRgb}, 0.7)`;
+      ctx.shadowBlur    = 6;
+      ctx.fillText(char, x, y);
+
+      ctx.shadowBlur = 0;
+
+      // Advance drop
+      columns[i] += FONT_SIZE;
+
+      // Reset when off-screen — random delay so columns stagger
+      if (columns[i] > canvas.height && Math.random() > 0.975) {
+        columns[i] = -FONT_SIZE * Math.floor(Math.random() * 8 + 2);
+      }
+    }
+
+    raf = requestAnimationFrame(draw);
+  }
+
+  // Init
+  resize();
+  draw();
+
+  // Handle resize
+  const ro = new ResizeObserver(() => {
+    cancelAnimationFrame(raf);
+    resize();
+    draw();
+  });
+  ro.observe(canvas);
+</script>
+
+<style>
+  .terminal-rain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.22;
+    z-index: 0;
+  }
+</style>

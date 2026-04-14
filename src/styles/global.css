@@ -1,0 +1,310 @@
+@import "tailwindcss";
+@source "../**/*.{astro,ts,js,mjs}";
+
+@theme {
+  /* ── Accent — Moon Sand ── */
+  --color-accent:        #C4B98A;
+  --color-accent-dim:    rgba(196,185,138,0.08);
+  --color-accent-border: rgba(196,185,138,0.2);
+  --color-accent-glow:   rgba(196,185,138,0.35);
+  --color-accent-strong: rgba(196,185,138,0.6);
+  --color-accent-subtle: rgba(196,185,138,0.08);
+
+  /* Helper for JS Canvas — raw RGB components */
+  --color-accent-rgb:    196, 185, 138;
+  --color-bg-rgb:        12, 12, 12;
+
+  /* ── Surfaces — warm near-black, no blue ── */
+  --color-bg:            #0C0C0C;
+  --color-surface-low:   #141414;
+  --color-surface:       #1C1C1C;
+  --color-surface-high:  #252525;
+  --color-border:        rgba(196,185,138,0.18);
+
+  /* ── Foreground — warm off-white ── */
+  --color-fg:            #E8E4D8;
+  --color-fg-dim:        rgba(232,228,216,0.55);
+  --color-fg-faint:      rgba(232,228,216,0.3);
+  --color-fg-muted:      rgba(232,228,216,0.15);
+
+  /* ── Typography ── */
+  --font-label:          'Josefin Sans', 'Futura', Arial, sans-serif;
+  --font-mono:           'Space Mono', 'Courier New', monospace;
+
+  /* ── Spacing / Grid — 24px base unit ── */
+  --spacing-unit:        1.5rem;
+
+  /* ── Container sizes ── */
+  --container-sm:   40rem;
+  --container-md:   48rem;
+  --container-lg:   56rem;
+  --container-xl:   72rem;
+  --container-2xl:  80rem;
+  --container-3xl:  96rem;
+  --container-4xl: 112rem;
+  --container-5xl:  56rem;
+  --container-6xl:  64rem;
+  --container-7xl:  72rem;
+}
+
+@layer base {
+  html, body {
+    width: 100%;
+    min-height: 100%;
+    background: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-label);
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   COMPONENT LAYER
+───────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+
+  /* ── Typography Scale ───────────────────────────────────────────────────── */
+
+  /* Hero display — full-page only */
+  .text-hero {
+    font-family: var(--font-label);
+    font-size: clamp(3.5rem, 8.5vw, 7.5rem);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 0.9;
+    color: var(--color-fg);
+  }
+
+  /* Large release / section display */
+  .text-display {
+    font-family: var(--font-label);
+    font-size: clamp(1.6rem, 4vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    line-height: 1.1;
+  }
+
+  /* Section heading */
+  .text-headline {
+    font-family: var(--font-label);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+  }
+
+  /* Standard label — nav, UI elements */
+  .text-label {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+  }
+
+  /* Technical / catalog data — Space Mono */
+  .text-data {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg-faint);
+  }
+
+  /* Eyebrow / accent label */
+  .text-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+
+  /* Metadata / smallest text */
+  .text-micro {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+  }
+
+  /* ── Section number header — Bauhaus style ──────────────────────────────── */
+
+  .tmr-section-header {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 3.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .tmr-section-num {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .tmr-section-title {
+    font-family: var(--font-label);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+  }
+
+  .tmr-section-sub {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.22em;
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+  }
+
+  /* Compatibility alias for promo page */
+  .pg-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 400;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    padding-bottom: 0.5rem;
+    border-bottom: 0.0625rem solid var(--color-border);
+    margin-bottom: 2rem;
+  }
+
+  /* ── Horizontal rule ────────────────────────────────────────────────────── */
+
+  .tmr-rule {
+    width: 100%;
+    height: 1px;
+    background: var(--color-border);
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────────  */
+
+  .btn {
+    font-family: var(--font-label);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    padding: 0.75rem 1.75rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 0;
+    transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
+  }
+
+  .btn--primary {
+    background: var(--color-accent);
+    color: var(--color-bg);
+    border: none;
+  }
+
+  .btn--primary:hover {
+    background: #D4C99A;
+  }
+
+  .btn--ghost {
+    background: transparent;
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent-glow);
+  }
+
+  .btn--ghost:hover {
+    border-color: var(--color-accent);
+  }
+
+  .btn--muted {
+    background: transparent;
+    color: var(--color-fg-dim);
+    border: 1px solid rgba(232,228,216,0.12);
+  }
+
+  .btn--muted:hover {
+    border-color: rgba(232,228,216,0.3);
+    color: var(--color-fg);
+  }
+
+  /* ── Badge ────────────────────────────────────────────────────────────────  */
+
+  .badge {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    border: 0.0625rem solid var(--color-accent-border);
+    padding: 0.2rem 0.5rem;
+  }
+
+  .badge--muted {
+    color: var(--color-fg-faint);
+    border-color: rgba(232,228,216,0.1);
+  }
+
+  /* ── Input fields ─────────────────────────────────────────────────────────  */
+
+  .pg-input {
+    background: transparent;
+    border: none;
+    border-bottom: 0.0625rem solid rgba(196,185,138,0.3);
+    color: var(--color-fg);
+    font-family: var(--font-label);
+    font-size: 0.875rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    padding: 0.75rem 0;
+    outline: none;
+    width: 100%;
+    transition: border-color 200ms ease-out;
+  }
+
+  .pg-input:focus {
+    border-color: var(--color-accent);
+  }
+
+  .pg-input::placeholder {
+    color: var(--color-fg-muted);
+  }
+
+  /* ── Divider ──────────────────────────────────────────────────────────────  */
+
+  .pg-divider {
+    width: 100%;
+    height: 0.0625rem;
+    background: var(--color-border);
+  }
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────────  */
+
+  .tmr-surface {
+    background: var(--color-surface);
+    border: 0.0625rem solid var(--color-border);
+  }
+
+  .tmr-surface-low {
+    background: var(--color-surface-low);
+    border: 0.0625rem solid var(--color-border);
+  }
+
+}

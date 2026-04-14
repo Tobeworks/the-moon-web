@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Subscription Confirmed — THE MOON RECORDS"
+  description="You are now subscribed to The Moon Records newsletter."
+>
+  <div class="nl-status">
+    <div class="nl-status__inner">
+      <span class="text-eyebrow">// SIGNAL_CONFIRMED</span>
+      <h1 class="nl-status__title">You're in.</h1>
+      <p class="nl-status__body">
+        Subscription confirmed. You'll receive transmissions when new releases drop.
+        No spam. Unsubscribe any time via the link in any email.
+      </p>
+      <div class="nl-status__actions">
+        <a href="/" class="btn btn--primary">BACK TO GRID</a>
+        <a href="/releases" class="btn btn--ghost">BROWSE RELEASES</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nl-status {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+  }
+
+  .nl-status__inner {
+    width: 100%;
+    max-width: 36rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .nl-status__title {
+    font-family: var(--font-label);
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    margin: 0;
+    line-height: 1;
+  }
+
+  .nl-status__body {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .nl-status__actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+</style>

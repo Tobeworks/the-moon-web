@@ -1,0 +1,67 @@
+---
+// Each character of the code is ASCII-encoded as one row of 8 bits.
+// "PG-001" → 6 rows × 8 cols — the LED matrix literally shows the binary
+// representation of the catalog number.
+
+interface Props {
+  code?: string;
+  size?: 'sm' | 'md';  // sm = cards, md = hero (default)
+}
+
+const { code = 'PG-001', size = 'md' } = Astro.props;
+
+const pattern = code.split('').flatMap(char => {
+  const byte = char.charCodeAt(0);
+  return Array.from({ length: 8 }, (_, i) => (byte >> (7 - i)) & 1);
+});
+
+const uid = `led-${Math.random().toString(36).slice(2, 9)}`;
+const dotSize = size === 'sm' ? '0.4375rem' : '1.25rem';
+const gapSize = size === 'sm' ? '0.25rem'   : '0.625rem';
+---
+
+<div
+  class="led-array"
+  id={uid}
+  style={`--led-size:${dotSize}; --led-gap:${gapSize};`}
+>
+  {pattern.map(state => (
+    <div class={`led-array__dot${state ? ' led-array__dot--on' : ''}`} />
+  ))}
+</div>
+
+<script define:vars={{ uid }}>
+  const grid = document.getElementById(uid);
+  if (grid) {
+    setInterval(() => {
+      const leds = grid.querySelectorAll('.led-array__dot--on');
+      const target = leds[Math.floor(Math.random() * leds.length)];
+      if (target) {
+        target.style.opacity = '0.4';
+        setTimeout(() => { target.style.opacity = ''; }, 300);
+      }
+    }, 800);
+  }
+</script>
+
+<style>
+  .led-array {
+    display: grid;
+    grid-template-columns: repeat(8, var(--led-size, 1.25rem));
+    gap: var(--led-gap, 0.625rem);
+  }
+
+  .led-array__dot {
+    width: var(--led-size, 1.25rem);
+    height: var(--led-size, 1.25rem);
+    border-radius: 50%;
+    border: 0.09375rem solid var(--color-accent);
+    opacity: 0.18;
+    transition: opacity 0.3s step-end, box-shadow 0.3s step-end;
+  }
+
+  .led-array__dot--on {
+    opacity: 1;
+    box-shadow: 0 0 0.5rem var(--color-accent-strong);
+  }
+</style>

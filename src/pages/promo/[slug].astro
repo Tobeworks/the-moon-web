@@ -1,0 +1,255 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AudioPlayer from '../../components/AudioPlayer.astro';
+import PhaseCircle from '../../components/PhaseCircle.astro';
+import { getPromoByToken, getFeedbackForRelease } from '../../lib/pocketbase';
+import { promoErrorPage } from '../../lib/errorPages';
+import releasesData from '../../../../the-moon-os/data/releases.json';
+
+const { slug } = Astro.params;
+const token = Astro.url.searchParams.get('t');
+
+if (!token) return Astro.redirect('/404');
+
+const promo = await getPromoByToken(token);
+
+if (!promo || promo.release_slug !== slug) {
+  return new Response(
+    promoErrorPage(404, 'INVALID PROMO LINK', 'THIS TOKEN DOES NOT EXIST OR HAS BEEN REVOKED.'),
+    { status: 404, headers: { 'content-type': 'text/html' } }
+  );
+}
+
+const isExpired = promo.expires_at ? new Date(promo.expires_at) < new Date() : false;
+if (isExpired) {
+  return new Response(
+    promoErrorPage(410, 'PROMO LINK EXPIRED', 'CONTACT THE MOON RECORDS FOR AN UPDATED LINK.'),
+    { status: 410, headers: { 'content-type': 'text/html' } }
+  );
+}
+
+const release = releasesData.releases.find((r) => r.catalog.toLowerCase() === slug);
+if (!release) return Astro.redirect('/404');
+
+const { catalog, artist, title, format, year, genre, artwork, cover, tracks } = release;
+
+const playerTracks = tracks.map((t) => ({ number: t.number, title: t.title, url: t.url }));
+
+const artWebp = artwork?.['600']?.webp || cover;
+const artJpg  = artwork?.['600']?.jpg  || cover;
+
+const feedbacks = await getFeedbackForRelease(slug!);
+---
+
+<BaseLayout
+  title={`${artist} — ${title} // PROMO`}
+  description="Restricted promo listening page — The Moon Records."
+>
+  <div class="min-h-screen pb-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-[48rem]">
+
+      <!-- Box -->
+      <div class="bg-surface-low border border-border">
+
+        <!-- Box header -->
+        <div class="flex items-center justify-between px-6 py-3.5 border-b border-border bg-surface">
+          <span class="text-eyebrow">RESTRICTED // PROMO USE ONLY</span>
+          <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted hidden sm:block">The Moon Records</span>
+        </div>
+
+        <!-- Body -->
+        <div class="flex flex-col">
+
+          <!-- Release header -->
+          <div class="flex gap-6 items-start p-6 border-b border-border bg-surface">
+            {artJpg && (
+              <picture class="shrink-0">
+                <source srcset={artWebp} type="image/webp" />
+                <img
+                  src={artJpg}
+                  alt={`${artist} — ${title}`}
+                  width="160"
+                  height="160"
+                  class="block w-24 h-24 sm:w-32 sm:h-32 object-cover border border-border [filter:grayscale(0.3)_brightness(0.85)]"
+                />
+              </picture>
+            )}
+            <div class="flex flex-col gap-1.5 pt-0.5 min-w-0">
+              <div class="flex gap-1.5 flex-wrap">
+                <span class="badge">{catalog}</span>
+                {format && <span class="badge badge--muted">{format}</span>}
+                {genre  && <span class="badge badge--muted">{genre}</span>}
+                {year   && <span class="badge badge--muted">{year}</span>}
+              </div>
+              <h1 class="font-label font-bold uppercase text-fg text-[1.2rem] sm:text-[1.5rem] tracking-[0.08em] leading-tight mt-1">
+                {title}
+              </h1>
+              <p class="font-label text-[0.7rem] tracking-[0.2em] uppercase text-fg-dim">{artist}</p>
+              <p class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">For: {promo.recipient_name.toUpperCase()}</p>
+              {promo.expires_at && (
+                <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+                  Valid until: {new Date(promo.expires_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <!-- Audio player -->
+          <div class="p-6 border-b border-border bg-surface [&_.audio-player]:border-0 [&_.audio-player]:p-0 [&_.audio-player]:bg-transparent">
+            <AudioPlayer tracks={playerTracks} />
+          </div>
+
+          <!-- Downloads -->
+          <div class="p-6 border-b border-border bg-surface">
+            <p class="pg-section-title">DOWNLOAD</p>
+            <div class="flex gap-3 mb-6 flex-wrap">
+              <a href={`/api/promo/download?t=${token}&q=128`} class="btn btn--ghost" data-dl download>
+                ↓ All Tracks · 128K
+              </a>
+              <a href={`/api/promo/download?t=${token}&q=320`} class="btn btn--primary" data-dl download>
+                ↓ All Tracks · 320K
+              </a>
+            </div>
+            <ol class="list-none border border-border mt-3">
+              {tracks.map((track) => {
+                const label = track.title.replace(/^.*?\s{2,}/, '').trim() || track.title;
+                return (
+                  <li class="flex items-center gap-3 px-3 py-2.5 border-b border-border last:border-b-0 flex-wrap">
+                    <span class="font-mono text-[0.55rem] tracking-[0.1em] text-fg-muted w-6 shrink-0">
+                      {String(track.number).padStart(2, '0')}
+                    </span>
+                    <span class="font-label text-[0.85rem] tracking-[0.1em] uppercase text-fg-dim flex-1 min-w-0 truncate">
+                      {label}
+                    </span>
+                    <div class="flex gap-2 shrink-0 ml-auto sm:ml-0">
+                      <a href={`/api/promo/download?t=${token}&q=128&track=${track.number}`} class="btn btn--ghost py-1 px-3" data-dl download>128K</a>
+                      <a href={`/api/promo/download?t=${token}&q=320&track=${track.number}`} class="btn btn--primary py-1 px-3" data-dl download>320K</a>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <!-- Feedback form -->
+          <div class="p-6 border-b border-border bg-surface" id="promo-feedback-wrap">
+            <p class="pg-section-title">FEEDBACK</p>
+            <form id="promo-feedback-form" class="flex flex-col gap-5">
+              <input type="hidden" name="token" value={token} />
+              <div class="flex flex-col gap-2">
+                <label class="text-eyebrow" for="fb-name">Name</label>
+                <input id="fb-name" name="name" type="text" class="pg-input" placeholder="Your name" required />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-eyebrow" for="fb-email">Email</label>
+                <input id="fb-email" name="email" type="email" class="pg-input" placeholder="your@email.com" required />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-eyebrow" for="fb-comment">Feedback</label>
+                <textarea id="fb-comment" name="comment" rows={5} class="pg-input resize-y min-h-[6rem] leading-relaxed" placeholder="Your thoughts on the release..." required />
+              </div>
+              <div class="flex items-center gap-4">
+                <button type="submit" class="btn btn--primary">Send Feedback</button>
+                <span id="fb-status" class="text-micro" aria-live="polite"></span>
+              </div>
+            </form>
+            <div id="promo-feedback-success" class="hidden p-6 border border-accent-border bg-accent-dim flex flex-col gap-3">
+              <span class="text-eyebrow">Feedback received</span>
+              <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-fg-dim">The Moon Records thanks you.</p>
+            </div>
+          </div>
+
+          <!-- Feedback list -->
+          {feedbacks.length > 0 && (
+            <div class="p-6 bg-surface">
+              <p class="pg-section-title">TRANSMISSIONS ({feedbacks.length})</p>
+              <ol class="flex flex-col gap-5 list-none">
+                {feedbacks.map((fb) => (
+                  <li class="border-b border-border pb-5 last:border-b-0 last:pb-0">
+                    <div class="flex items-baseline justify-between gap-4 mb-2">
+                      <span class="font-label font-semibold text-[0.85rem] tracking-[0.12em] uppercase text-fg">{fb.name}</span>
+                      <span class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted shrink-0">
+                        {fb.created ? new Date(fb.created).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}
+                      </span>
+                    </div>
+                    <p class="font-label font-light text-[0.9rem] leading-[1.7] text-fg-dim">{fb.comment}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  /* Download spinner — needs pseudo-element + animation */
+  [data-dl].dl--loading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+  [data-dl].dl--loading::after {
+    content: '';
+    display: inline-block;
+    width: 0.7em; height: 0.7em;
+    border: 0.1em solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: dl-spin 0.7s linear infinite;
+    margin-left: 0.5em;
+    vertical-align: middle;
+  }
+  @keyframes dl-spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+  // Download spinner
+  document.querySelectorAll<HTMLAnchorElement>('[data-dl]').forEach((link) => {
+    link.addEventListener('click', () => {
+      const original = link.innerHTML;
+      link.classList.add('dl--loading');
+      link.innerHTML = 'Preparing&hellip;';
+      setTimeout(() => {
+        link.classList.remove('dl--loading');
+        link.innerHTML = original;
+      }, 8000);
+    });
+  });
+
+  // Feedback form
+  const form    = document.getElementById('promo-feedback-form') as HTMLFormElement | null;
+  const success = document.getElementById('promo-feedback-success');
+  const status  = document.getElementById('fb-status');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!form || !status) return;
+    status.textContent = 'Sending...';
+
+    const fd = new FormData(form);
+    const body: Record<string, string> = {};
+    fd.forEach((v, k) => { body[k] = String(v); });
+
+    try {
+      const res = await fetch('/api/promo/feedback', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: 'Unknown error' }));
+        status.textContent = `Error: ${(err as { error: string }).error}`;
+        return;
+      }
+      form.classList.add('hidden');
+      success?.classList.remove('hidden');
+    } catch {
+      status.textContent = 'Connection failed. Try again.';
+    }
+  });
+</script>

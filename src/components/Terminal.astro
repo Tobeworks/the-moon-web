@@ -1,0 +1,148 @@
+---
+interface Props {
+  lines?: string[];
+  prompt?: string;
+  title?: string;
+}
+
+const {
+  lines = [],
+  prompt = 'PHANTOM_GRID:~$',
+  title = 'TERMINAL',
+} = Astro.props;
+---
+
+<div class="terminal">
+  <div class="terminal__header">
+    <div class="terminal__dots">
+      <span class="terminal__dot terminal__dot--active"></span>
+      <span class="terminal__dot"></span>
+      <span class="terminal__dot"></span>
+    </div>
+    <span class="terminal__title">{title}</span>
+  </div>
+  <div class="terminal__body">
+    {lines.map((line) => (
+      <div class="terminal__line">
+        {line.startsWith('>') ? (
+          <span class="terminal__output">{line.slice(1).trim()}</span>
+        ) : (
+          <>
+            <span class="terminal__prompt">{prompt}</span>
+            <span class="terminal__cmd">{line}</span>
+          </>
+        )}
+      </div>
+    ))}
+    <div class="terminal__line">
+      <span class="terminal__prompt">{prompt}</span>
+      <span class="terminal__cursor"></span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .terminal {
+    background: var(--color-bg);
+    border: 0.0625rem solid var(--color-accent-border);
+    box-shadow:
+      0 0 1.875rem var(--color-accent-subtle),
+      inset 0 0 3.75rem rgba(0, 0, 0, 0.4);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    overflow: hidden;
+  }
+
+  .terminal__header {
+    background: var(--color-surface-low);
+    border-bottom: 0.0625rem solid var(--color-accent-dim);
+    padding: 0.5rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .terminal__dots {
+    display: flex;
+    gap: 0.3125rem;
+  }
+
+  .terminal__dot {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background: var(--color-accent-border);
+    box-shadow: 0 0 0.375rem var(--color-accent-border);
+  }
+
+  .terminal__dot--active {
+    background: var(--color-accent-strong);
+    box-shadow: 0 0 0.5rem var(--color-accent-glow);
+  }
+
+  .terminal__title {
+    font-family: var(--font-label);
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    color: var(--color-fg-dim);
+    text-transform: uppercase;
+    flex: 1;
+    text-align: center;
+  }
+
+  .terminal__body {
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    min-height: 12.5rem;
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0rem,
+      transparent 0.125rem,
+      rgba(0, 0, 0, 0.06) 0.125rem,
+      rgba(0, 0, 0, 0.06) 0.25rem
+    );
+  }
+
+  .terminal__line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    line-height: 1.6;
+  }
+
+  .terminal__prompt {
+    color: var(--color-accent);
+    text-shadow: 0 0 0.5rem var(--color-accent-glow);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .terminal__cmd {
+    color: var(--color-fg);
+    text-shadow: 0 0 0.375rem var(--color-fg-muted);
+  }
+
+  .terminal__output {
+    color: var(--color-fg-dim);
+    padding-left: 0.25rem;
+    font-style: italic;
+  }
+
+  .terminal__cursor {
+    display: inline-block;
+    width: 0.5rem;
+    height: 1rem;
+    background: var(--color-accent);
+    box-shadow: 0 0 0.625rem var(--color-accent-strong);
+    animation: blink 1.2s step-end infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+</style>

@@ -1,0 +1,133 @@
+---
+/**
+ * PhaseCircle — reusable precision circle SVG component.
+ *
+ * @prop phase      - illumination 0–1 (e.g. 0.74 = waxing gibbous / 74%)
+ * @prop size       - diameter in px (default 200)
+ * @prop phaseCode  - optional text label rendered at center (e.g. "WXG / 74%")
+ * @prop label      - aria-label for accessibility
+ */
+
+interface Props {
+  phase?:     number;
+  size?:      number;
+  phaseCode?: string;
+  label?:     string;
+  class?:     string;
+}
+
+const {
+  phase     = 0.74,
+  size      = 200,
+  phaseCode,
+  label     = 'Lunar phase indicator',
+  class:    className,
+} = Astro.props;
+
+// The circle is drawn on a 400×400 viewBox, scaled via size prop.
+// r=174 gives clean 26px margins on all sides.
+const cx = 200, cy = 200, r = 174;
+
+// Build the phase arc path (waxing side — right hemisphere illuminated).
+// At phase=0: new moon (no fill). At phase=1: full moon (circle fill).
+// We use a two-arc approximation: outer circle arc + inner ellipse arc.
+// The inner ellipse x-radius scales from r (new) through 0 (quarter) to -r (full).
+// Negative radius (phase > 0.5) flips the ellipse to simulate the gibbous shape.
+const illumination = Math.max(0, Math.min(1, phase));
+let phasePath = '';
+if (illumination > 0.01 && illumination < 0.99) {
+  // Map 0→1 to ellipse x-radius: phase=0.5 → rx=0, phase=0 → rx=r, phase=1 → rx=-r
+  const rx = r * (1 - 2 * illumination);
+  const sweep = illumination > 0.5 ? 1 : 0;
+  // Top to bottom, using large-arc-flag=1 for the outer arc
+  phasePath = `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx} ${cy + r} A ${Math.abs(rx)} ${r} 0 1 ${sweep} ${cx} ${cy - r} Z`;
+} else if (illumination >= 0.99) {
+  // Full moon — complete circle
+  phasePath = `M ${cx} ${cy - r} A ${r} ${r} 0 1 1 ${cx - 0.01} ${cy - r} Z`;
+}
+---
+
+<svg
+  width={size}
+  height={size}
+  viewBox="0 0 400 400"
+  fill="none"
+  aria-label={label}
+  aria-hidden={!label ? 'true' : undefined}
+  class={`phase-circle${className ? ` ${className}` : ''}`}
+>
+  <!-- Ghost ring — the full moon, always present -->
+  <circle
+    cx={cx} cy={cy} r={r}
+    stroke="rgba(196,185,138,0.12)"
+    stroke-width="0.8"
+  />
+
+  <!-- Inner concentric ring — depth through geometry -->
+  <circle
+    cx={cx} cy={cy} r={r * 0.85}
+    stroke="rgba(196,185,138,0.07)"
+    stroke-width="0.5"
+  />
+
+  <!-- Phase body — low opacity fill -->
+  {phasePath && (
+    <path
+      d={phasePath}
+      fill="rgba(196,185,138,0.07)"
+      clip-path="url(#pcClip)"
+    />
+  )}
+
+  <!-- Clip path so phase fill stays within circle -->
+  <defs>
+    <clipPath id="pcClip">
+      <circle cx={cx} cy={cy} r={r} />
+    </clipPath>
+  </defs>
+
+  <!-- Primary outer ring -->
+  <circle
+    cx={cx} cy={cy} r={r}
+    stroke="#C4B98A"
+    stroke-width="1.5"
+    opacity="0.65"
+  />
+
+  <!-- Cardinal tick marks at 0°/90°/180°/270° — instrument notation -->
+  <!-- North (0°) -->
+  <line x1={cx}     y1={cy-r}   x2={cx}     y2={cy-r+20} stroke="#C4B98A" stroke-width="1"   opacity="0.5" />
+  <!-- East (90°) -->
+  <line x1={cx+r}   y1={cy}     x2={cx+r-20} y2={cy}     stroke="#C4B98A" stroke-width="1"   opacity="0.5" />
+  <!-- South (180°) -->
+  <line x1={cx}     y1={cy+r}   x2={cx}     y2={cy+r-20} stroke="#C4B98A" stroke-width="1"   opacity="0.5" />
+  <!-- West (270°) -->
+  <line x1={cx-r}   y1={cy}     x2={cx-r+20} y2={cy}     stroke="#C4B98A" stroke-width="1"   opacity="0.5" />
+
+  <!-- 45° minor tick marks -->
+  <line x1="323" y1="77"  x2="312" y2="88"  stroke="#C4B98A" stroke-width="0.6" opacity="0.22" />
+  <line x1="323" y1="323" x2="312" y2="312" stroke="#C4B98A" stroke-width="0.6" opacity="0.22" />
+  <line x1="77"  y1="323" x2="88"  y2="312" stroke="#C4B98A" stroke-width="0.6" opacity="0.22" />
+  <line x1="77"  y1="77"  x2="88"  y2="88"  stroke="#C4B98A" stroke-width="0.6" opacity="0.22" />
+
+  <!-- Degree labels — Space Mono, 40% opacity -->
+  <text x={cx}     y={cy-r-6}  text-anchor="middle" font-family="Space Mono, monospace" font-size="9" fill="#C4B98A" opacity="0.35" letter-spacing="1">0°</text>
+  <text x={cx+r+8} y={cy+4}    text-anchor="start"  font-family="Space Mono, monospace" font-size="9" fill="#C4B98A" opacity="0.35" letter-spacing="1">90°</text>
+  <text x={cx}     y={cy+r+14} text-anchor="middle" font-family="Space Mono, monospace" font-size="9" fill="#C4B98A" opacity="0.35" letter-spacing="1">180°</text>
+  <text x={cx-r-8} y={cy+4}    text-anchor="end"    font-family="Space Mono, monospace" font-size="9" fill="#C4B98A" opacity="0.35" letter-spacing="1">270°</text>
+
+  <!-- Optional phase code label at center -->
+  {phaseCode && (
+    <text
+      x={cx} y={cy + 4}
+      text-anchor="middle"
+      font-family="Space Mono, monospace"
+      font-size="8"
+      fill="#C4B98A"
+      opacity="0.45"
+      letter-spacing="2"
+    >
+      {phaseCode}
+    </text>
+  )}
+</svg>

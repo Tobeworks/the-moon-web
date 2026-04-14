@@ -1,0 +1,30 @@
+---
+import ReleaseCard from './ReleaseCard.astro';
+import releasesData from '../../../the-moon-os/data/releases.json';
+
+const releases = releasesData.releases;
+---
+
+{releases.length > 0 ? (
+  <div class="grid grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-6">
+    {releases.map(release => (
+      <ReleaseCard release={release} />
+    ))}
+  </div>
+) : (
+  <div class="flex flex-col items-center py-20 gap-4">
+    <!-- Ghost phase circle -->
+    <div class="opacity-60 mb-2">
+      <svg viewBox="0 0 80 80" fill="none" width="64" height="64" aria-hidden="true">
+        <clipPath id="epc"><circle cx="40" cy="40" r="28"/></clipPath>
+        <circle cx="40" cy="40" r="28" stroke="#C4B98A" stroke-width="0.8" opacity="0.12"/>
+        <g clip-path="url(#epc)">
+          <path d="M 40 12 A 28 28 0 1 1 40 68 A 11 28 0 1 0 40 12 Z" fill="#C4B98A" opacity="0.07"/>
+        </g>
+        <circle cx="40" cy="40" r="28" stroke="#C4B98A" stroke-width="0.8" opacity="0.18"/>
+      </svg>
+    </div>
+    <p class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-fg-muted">Next phase pending</p>
+    <p class="font-mono text-[0.55rem] tracking-[0.22em] uppercase text-[rgba(232,228,216,0.1)]">Subscribe for notification</p>
+  </div>
+)}

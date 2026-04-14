@@ -1,0 +1,198 @@
+---
+const { error } = Astro.props as { error?: string };
+---
+
+<div class="nl-form" id="nl-form-wrap">
+  {error === 'expired' && (
+    <p class="nl-form__notice nl-form__notice--warn">
+      // LINK EXPIRED — please resubmit to receive a new confirmation link.
+    </p>
+  )}
+  {error === 'invalid' && (
+    <p class="nl-form__notice nl-form__notice--warn">
+      // INVALID LINK — please resubmit your email address.
+    </p>
+  )}
+
+  <form id="nl-form" novalidate>
+    <div class="nl-form__fields">
+      <div class="nl-form__field">
+        <label class="nl-form__label" for="nl-email">// EMAIL_ADDRESS *</label>
+        <input
+          class="tmr-input nl-form__input"
+          type="email"
+          id="nl-email"
+          name="email"
+          placeholder="YOUR@EMAIL.COM"
+          required
+          autocomplete="email"
+        />
+      </div>
+      <div class="nl-form__field">
+        <label class="nl-form__label" for="nl-name">// NAME (OPTIONAL)</label>
+        <input
+          class="tmr-input nl-form__input"
+          type="text"
+          id="nl-name"
+          name="name"
+          placeholder="HANDLE / ALIAS"
+          maxlength="100"
+          autocomplete="name"
+        />
+      </div>
+    </div>
+
+    <div class="nl-form__footer">
+      <button type="submit" class="btn btn--primary" id="nl-submit">
+        <span id="nl-btn-label">SUBSCRIBE</span>
+        <span class="tmr-cursor" id="nl-cursor" style="display:none;"></span>
+      </button>
+      <p class="nl-form__hint">
+        Double opt-in — you'll receive a confirmation link via email.
+        No spam. Unsubscribe any time.
+      </p>
+    </div>
+
+    <p class="nl-form__error" id="nl-error" style="display:none;"></p>
+  </form>
+
+  <div id="nl-success" class="nl-form__success" style="display:none;">
+    <span class="text-eyebrow">// TRANSMISSION QUEUED</span>
+    <p class="nl-form__success-body">
+      Check your inbox and confirm your subscription to complete the sign-up.
+    </p>
+  </div>
+</div>
+
+<script>
+  const form     = document.getElementById('nl-form')      as HTMLFormElement;
+  const success  = document.getElementById('nl-success')   as HTMLElement;
+  const errorEl  = document.getElementById('nl-error')     as HTMLElement;
+  const submit   = document.getElementById('nl-submit')    as HTMLButtonElement;
+  const btnLabel = document.getElementById('nl-btn-label') as HTMLElement;
+  const cursor   = document.getElementById('nl-cursor')    as HTMLElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.style.display = 'none';
+
+    const email = (form.querySelector('#nl-email') as HTMLInputElement).value.trim();
+    const name  = (form.querySelector('#nl-name')  as HTMLInputElement).value.trim();
+
+    if (!email) {
+      errorEl.textContent = '// ERROR: Email address required.';
+      errorEl.style.display = 'block';
+      return;
+    }
+
+    submit.disabled = true;
+    btnLabel.textContent = 'SENDING';
+    cursor.style.display = 'inline-block';
+
+    try {
+      const res = await fetch('/api/newsletter/subscribe', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email, name }),
+      });
+
+      if (!res.ok) throw new Error('Server error');
+
+      form.style.display = 'none';
+      success.style.display = 'block';
+    } catch {
+      errorEl.textContent = '// ERROR: Transmission failed. Please try again.';
+      errorEl.style.display = 'block';
+      submit.disabled = false;
+      btnLabel.textContent = 'SUBSCRIBE';
+      cursor.style.display = 'none';
+    }
+  });
+</script>
+
+<style>
+  .nl-form__fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .nl-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .nl-form__label {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+  }
+
+  .nl-form__input {
+    width: 100%;
+  }
+
+  .nl-form__footer {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .nl-form__hint {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    line-height: 1.7;
+    max-width: 24rem;
+    margin: 0;
+  }
+
+  .nl-form__error {
+    margin-top: 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--color-accent);
+    letter-spacing: 0.05em;
+  }
+
+  .nl-form__notice {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+    line-height: 1.6;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .nl-form__notice--warn {
+    color: var(--color-accent);
+    border: 1px solid var(--color-border);
+    background: rgba(196, 185, 138, 0.04);
+  }
+
+  .nl-form__success {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .nl-form__success-body {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+    line-height: 1.7;
+    margin: 0;
+  }
+</style>

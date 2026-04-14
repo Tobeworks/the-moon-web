@@ -1,0 +1,127 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AudioPlayer from '../../components/AudioPlayer.astro';
+import PhaseCircle from '../../components/PhaseCircle.astro';
+import releasesData from '../../../../the-moon-os/data/releases.json';
+
+export function getStaticPaths() {
+  return releasesData.releases.map((r) => ({
+    params: { slug: r.catalog.toLowerCase() },
+  }));
+}
+
+const { slug } = Astro.params;
+const release = releasesData.releases.find(
+  (r) => r.catalog.toLowerCase() === slug
+);
+
+if (!release) return Astro.redirect('/404');
+
+const { catalog, artist, title, format, year, genre, artwork, cover, tracks, bandcamp } = release;
+
+const art1500webp = artwork?.['1500']?.webp;
+const art1500jpg  = artwork?.['1500']?.jpg;
+
+const playerTracks = tracks.map((t) => ({
+  number: t.number,
+  title:  t.title,
+  url:    t.url,
+}));
+
+const seoTitle       = `${artist} — ${title} | THE MOON RECORDS`;
+const seoDescription = `${catalog}${genre ? ` · ${genre}` : ''}${year ? ` · ${year}` : ''} · ${tracks.length} track${tracks.length !== 1 ? 's' : ''}. Beatless music on The Moon Records.`;
+const seoImage       = artwork?.['1500']?.jpg || cover;
+const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
+---
+
+<BaseLayout
+  title={seoTitle}
+  description={seoDescription}
+  image={seoImage}
+  canonicalUrl={seoUrl}
+  type="music.album"
+>
+  <div class="min-h-screen pb-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+
+      <!-- Back nav -->
+      <nav class="mb-12 pt-6">
+        <a
+          href="/"
+          class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
+        >← The Moon Records</a>
+      </nav>
+
+      <!-- Hero grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-12 lg:gap-16 items-start">
+
+        <!-- Artwork -->
+        <div class="sm:sticky sm:top-8">
+          {art1500jpg ? (
+            <picture>
+              {art1500webp && <source srcset={art1500webp} type="image/webp" />}
+              <img
+                class="release-artwork w-full aspect-square object-cover block [filter:grayscale(0.2)_brightness(0.9)] hover:[filter:grayscale(0)_brightness(1)] transition-[filter] duration-300"
+                src={art1500jpg}
+                alt={`${artist} — ${title}`}
+                width="600"
+                height="600"
+              />
+            </picture>
+          ) : (
+            <div class="w-full aspect-square bg-surface border border-border flex items-center justify-center">
+              <PhaseCircle phase={0.74} size={120} label="No cover art" />
+            </div>
+          )}
+        </div>
+
+        <!-- Info column -->
+        <div class="flex flex-col gap-5">
+
+          <!-- Badges -->
+          <div class="flex gap-1.5 flex-wrap">
+            <span class="badge">{catalog}</span>
+            {format && <span class="badge badge--muted">{format}</span>}
+            {genre  && <span class="badge badge--muted">{genre}</span>}
+            {year   && <span class="badge badge--muted">{year}</span>}
+          </div>
+
+          <h1
+            class="font-label font-bold uppercase text-fg leading-[1.05]"
+            style="font-size: clamp(1.5rem, 4vw, 2.5rem); letter-spacing: 0.06em;"
+          >{title}</h1>
+
+          <p class="font-label font-normal text-[0.75rem] tracking-[0.22em] uppercase text-accent">{artist}</p>
+
+          <!-- Track count + Bandcamp -->
+          <div class="flex items-center gap-6 pb-4 border-b border-border">
+            <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+              {tracks.length} track{tracks.length !== 1 ? 's' : ''}
+            </span>
+            {bandcamp && (
+              <a
+                href={bandcamp}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent no-underline transition-opacity duration-200 hover:opacity-70"
+              >Bandcamp ↗</a>
+            )}
+          </div>
+
+          <!-- Phase indicator row -->
+          <div class="flex items-center gap-4">
+            <PhaseCircle phase={0.74} size={48} label="Phase indicator" />
+            <span class="font-mono text-[0.55rem] tracking-[0.22em] uppercase text-fg-muted">
+              {catalog} / TMR
+            </span>
+          </div>
+
+          <!-- Audio player -->
+          <AudioPlayer tracks={playerTracks} />
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+</BaseLayout>
