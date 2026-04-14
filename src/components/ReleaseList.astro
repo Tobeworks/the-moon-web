@@ -2,7 +2,9 @@
 import ReleaseCard from './ReleaseCard.astro';
 import releasesData from '../../the-moon-os/data/releases.json';
 
-const releases = releasesData.releases;
+const releases = [...releasesData.releases].sort((a, b) =>
+  b.catalog.localeCompare(a.catalog, undefined, { numeric: true })
+);
 ---
 
 {releases.length > 0 ? (
