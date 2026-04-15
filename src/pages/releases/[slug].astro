@@ -17,7 +17,7 @@ const release = releasesData.releases.find(
 
 if (!release) return Astro.redirect('/404');
 
-const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms } = release;
+const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms, release_date } = release;
 
 const art1500webp = artwork?.['1500']?.webp;
 const art1500jpg  = artwork?.['1500']?.jpg;
@@ -27,6 +27,17 @@ const playerTracks = tracks.map((t) => ({
   title:  t.title,
   url:    t.url,
 }));
+
+// Only show platform links if release_date is in the past
+const now = new Date();
+const releaseDate = release_date ? new Date(release_date) : null;
+const isReleased = releaseDate ? releaseDate <= now : true;
+const visiblePlatforms = isReleased ? platforms?.filter((p) => p.url) : [];
+
+// Format release date for display
+const formattedReleaseDate = releaseDate
+  ? releaseDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  : null;
 
 const seoTitle       = `${artist} — ${title} | THE MOON RECORDS`;
 const seoDescription = `${catalog}${genre ? ` · ${genre}` : ''}${year ? ` · ${year}` : ''} · ${tracks.length} track${tracks.length !== 1 ? 's' : ''}. Beatless music on The Moon Records.`;
@@ -98,7 +109,7 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
             <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
               {tracks.length} track{tracks.length !== 1 ? 's' : ''}
             </span>
-            {platforms?.map((p) => (
+            {visiblePlatforms?.map((p) => (
               <a
                 href={p.url}
                 target="_blank"
@@ -107,6 +118,13 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
               >{p.name} ↗</a>
             ))}
           </div>
+
+          <!-- Release date -->
+          {formattedReleaseDate && (
+            <div class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+              {isReleased ? 'Released' : 'Releasing'} {formattedReleaseDate}
+            </div>
+          )}
 
           <!-- Phase indicator row -->
           <div class="flex items-center gap-4">
