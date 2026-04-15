@@ -119,10 +119,18 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
             ))}
           </div>
 
-          <!-- Release date -->
+          <!-- Release date + Newsletter CTA -->
           {formattedReleaseDate && (
-            <div class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
-              {isReleased ? 'Released' : 'Releasing'} {formattedReleaseDate}
+            <div class="flex items-center gap-6 flex-wrap">
+              <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+                {isReleased ? 'Released' : 'Releasing'} {formattedReleaseDate}
+              </span>
+              {!isReleased && (
+                <a
+                  href="/newsletter"
+                  class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent no-underline transition-opacity duration-200 hover:opacity-70"
+                >Get notified ↗</a>
+              )}
             </div>
           )}
 

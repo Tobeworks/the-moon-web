@@ -14,7 +14,7 @@ import {
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export const POST = async ({ request, url }: APIContext) => {
-  const siteUrl = url.origin;
+  const siteUrl = process.env.PUBLIC_SITE_URL ?? url.origin;
   let body: Record<string, string>;
   try {
     const ct = request.headers.get('content-type') ?? '';
