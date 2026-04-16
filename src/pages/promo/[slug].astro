@@ -92,6 +92,96 @@ const feedbacks = await getFeedbackForRelease(slug!);
                   Valid until: {new Date(promo.expires_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
                 </p>
               )}
+            </div>
+          </div>
+
+          <!-- Audio player -->
+          <div class="p-6 border-b border-border bg-surface [&_.audio-player]:border-0 [&_.audio-player]:p-0 [&_.audio-player]:bg-transparent">
+            <AudioPlayer tracks={playerTracks} />
+          </div>
+
+          <!-- Downloads -->
+          <div class="p-6 border-b border-border bg-surface">
+            <p class="pg-section-title">DOWNLOAD</p>
+            <div class="flex gap-3 mb-6 flex-wrap">
+              <a href={`/api/promo/download?t=${token}&q=128`} class="btn btn--ghost" data-dl download>
+                ↓ All Tracks · 128K
+              </a>
+              <a href={`/api/promo/download?t=${token}&q=320`} class="btn btn--primary" data-dl download>
+                ↓ All Tracks · 320K
+              </a>
+            </div>
+            <ol class="list-none border border-border mt-3">
+              {tracks.map((track) => {
+                const label = track.title.replace(/^.*?\s{2,}/, '').trim() || track.title;
+                return (
+                  <li class="flex items-center gap-3 px-3 py-2.5 border-b border-border last:border-b-0 flex-wrap">
+                    <span class="font-mono text-[0.55rem] tracking-[0.1em] text-fg-muted w-6 shrink-0">
+                      {String(track.number).padStart(2, '0')}
+                    </span>
+                    <span class="font-label text-[0.85rem] tracking-[0.1em] uppercase text-fg-dim flex-1 min-w-0 truncate">
+                      {label}
+                    </span>
+                    <div class="flex gap-2 shrink-0 ml-auto sm:ml-0">
+                      <a href={`/api/promo/download?t=${token}&q=128&track=${track.number}`} class="btn btn--ghost py-1 px-3" data-dl download>128K</a>
+                      <a href={`/api/promo/download?t=${token}&q=320&track=${track.number}`} class="btn btn--primary py-1 px-3" data-dl download>320K</a>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
+
+          <!-- Feedback form -->
+          <div class="p-6 border-b border-border bg-surface" id="promo-feedback-wrap">
+            <p class="pg-section-title">FEEDBACK</p>
+            <form id="promo-feedback-form" class="flex flex-col gap-5">
+              <input type="hidden" name="token" value={token} />
+              <div class="flex flex-col gap-2">
+                <label class="text-eyebrow" for="fb-name">Name</label>
+                <input id="fb-name" name="name" type="text" class="pg-input" placeholder="Your name" required />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-eyebrow" for="fb-email">Email</label>
+                <input id="fb-email" name="email" type="email" class="pg-input" placeholder="your@email.com" required />
+              </div>
+              <div class="flex flex-col gap-2">
+                <label class="text-eyebrow" for="fb-comment">Feedback</label>
+                <textarea id="fb-comment" name="comment" rows={5} class="pg-input resize-y min-h-[6rem] leading-relaxed" placeholder="Your thoughts on the release..." required />
+              </div>
+              <div class="flex items-center gap-4">
+                <button type="submit" class="btn btn--primary">Send Feedback</button>
+                <span id="fb-status" class="text-micro" aria-live="polite"></span>
+              </div>
+            </form>
+            <div id="promo-feedback-success" class="hidden p-6 border border-accent-border bg-accent-dim flex flex-col gap-3">
+              <span class="text-eyebrow">Feedback received</span>
+              <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-fg-dim">The Moon Records thanks you.</p>
+            </div>
+          </div>
+
+          <!-- Feedback list -->
+          {feedbacks.length > 0 && (
+            <div class="p-6 bg-surface">
+              <p class="pg-section-title">TRANSMISSIONS ({feedbacks.length})</p>
+              <ol class="flex flex-col gap-5 list-none">
+                {feedbacks.map((fb) => (
+                  <li class="border-b border-border pb-5 last:border-b-0 last:pb-0">
+                    <div class="flex items-baseline justify-between gap-4 mb-2">
+                      <span class="font-label font-semibold text-[0.85rem] tracking-[0.12em] uppercase text-fg">{fb.name}</span>
+                      <span class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted shrink-0">
+                        {fb.created ? new Date(fb.created).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) : ''}
+                      </span>
+                    </div>
+                    <p class="font-label font-light text-[0.9rem] leading-[1.7] text-fg-dim">{fb.comment}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          )}
+
+        </div>
+      </div>
     </div>
   </div>
 </BaseLayout>
