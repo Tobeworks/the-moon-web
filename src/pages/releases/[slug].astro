@@ -141,8 +141,17 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
             </span>
           </div>
 
-          <!-- Audio player -->
-          <AudioPlayer tracks={playerTracks} />
+          <!-- Audio player (only if released) -->
+          {isReleased ? (
+            <AudioPlayer tracks={playerTracks} />
+          ) : (
+            <div class="border border-border p-5 flex flex-col gap-2">
+              <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// TRANSMISSION_PENDING</span>
+              <p class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted">
+                Available {formattedReleaseDate}
+              </p>
+            </div>
+          )}
 
           <!-- Feedback -->
           {feedback.length > 0 && (
