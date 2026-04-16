@@ -153,6 +153,9 @@ const feedbacks = await getFeedbackForRelease(slug!);
                 <button type="submit" class="btn btn--primary">Send Feedback</button>
                 <span id="fb-status" class="text-micro" aria-live="polite"></span>
               </div>
+              <p class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted mt-1">
+                Your name and comment may be published on the release page.
+              </p>
             </form>
             <div id="promo-feedback-success" class="hidden p-6 border border-accent-border bg-accent-dim flex flex-col gap-3">
               <span class="text-eyebrow">Feedback received</span>
