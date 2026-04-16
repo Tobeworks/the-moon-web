@@ -1,14 +1,11 @@
 ---
+export const prerender = false;
+
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import AudioPlayer from '../../components/AudioPlayer.astro';
 import PhaseCircle from '../../components/PhaseCircle.astro';
 import releasesData from '../../../the-moon-os/data/releases.json';
-
-export function getStaticPaths() {
-  return releasesData.releases.map((r) => ({
-    params: { slug: r.catalog.toLowerCase() },
-  }));
-}
+import { getFeedbackForRelease } from '../../lib/pocketbase';
 
 const { slug } = Astro.params;
 const release = releasesData.releases.find(
@@ -16,6 +13,8 @@ const release = releasesData.releases.find(
 );
 
 if (!release) return Astro.redirect('/404');
+
+const feedback = await getFeedbackForRelease(slug!);
 
 const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms, release_date } = release;
 
@@ -144,6 +143,19 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
 
           <!-- Audio player -->
           <AudioPlayer tracks={playerTracks} />
+
+          <!-- Feedback -->
+          {feedback.length > 0 && (
+            <div class="flex flex-col gap-4 pt-2">
+              <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// TRANSMISSIONS_RECEIVED</span>
+              {feedback.map((f) => (
+                <div class="border border-border p-4 flex flex-col gap-2">
+                  <p class="font-label text-[0.75rem] tracking-[0.08em] text-fg-dim leading-relaxed">"{f.comment}"</p>
+                  <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">{f.name}</span>
+                </div>
+              ))}
+            </div>
+          )}
 
         </div>
       </div>
