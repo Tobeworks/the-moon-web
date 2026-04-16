@@ -30,7 +30,7 @@ const baseHtml = (content: string) => `<!DOCTYPE html>
         <tr>
           <td style="padding:16px 32px;border-top:1px solid rgba(196,185,138,0.12);">
             <p style="margin:0;color:rgba(232,228,216,0.2);font-size:10px;letter-spacing:0.2em;text-transform:uppercase;">
-              THE MOON RECORDS &mdash; TRANSMITTING FROM THE DARK SIDE
+              THE MOON RECORDS &mdash; TRANSMITTING FROM THE MOON
             </p>
           </td>
         </tr>

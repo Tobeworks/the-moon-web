@@ -1,0 +1,97 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="IMPRESSUM — THE MOON RECORDS"
+  description="Impressum für die The Moon Records Website.">
+  <div class="max-w-7xl mx-auto px-6 lg:px-10 py-8 pb-24 min-h-screen">
+    <!-- Back nav -->
+    <nav class="mb-12">
+      <a
+        href="/"
+        class="font-label text-[0.7rem] tracking-[0.22em] uppercase text-fg-dim no-underline transition-colors duration-200 hover:text-fg">
+        ← THE MOON RECORDS
+      </a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="mb-16">
+      <span class="text-eyebrow">LEGAL</span>
+      <h1
+        class="font-label font-bold uppercase text-fg leading-[1.1] tracking-[0.1em] text-[clamp(2rem,5vw,3.5rem)] mt-4">
+        Impressum
+      </h1>
+    </section>
+
+    <!-- Content -->
+    <section class="tmr-surface p-8 md:p-12 max-w-4xl">
+      <div class="legal-prose">
+        <div class="mb-12">
+          <div
+            class="font-label font-bold text-[0.85rem] tracking-[0.22em] uppercase text-fg mb-4">
+            Tobeworks — Tobias Lorsbach
+          </div>
+          <div class="space-y-4">
+            <p>
+              Neue Universitätsstraße 7<br />
+              55116 Mainz
+            </p>
+            <p>
+              Mobil: 0179/1259004<br />
+              <span class="reverseaddr">ed.skrowebot@ollah</span>
+            </p>
+            <p>
+              Geschäftsführung: Tobias Lorsbach<br />
+              Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:
+              DE 021 843 01420
+            </p>
+            <p class="mt-4">
+              <a
+                href="https://tobeworks.de"
+                target="_blank"
+                class="text-accent no-underline transition-colors duration-200 hover:opacity-75">
+                tobeworks.de ↗
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <div class="border-t border-border pt-8">
+          <h3 class="mt-0 mb-4">Haftungshinweis</h3>
+          <p>
+            Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine
+            Haftung für die Inhalte externer Links. Für den Inhalt der
+            verlinkten Seiten sind ausschließlich deren Betreiber
+            verantwortlich.
+          </p>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .legal-prose h3 {
+    font-family: var(--font-label);
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+  }
+
+  .legal-prose p {
+    font-family: var(--font-label);
+    font-size: 0.875rem;
+    font-weight: 300;
+    letter-spacing: 0.04em;
+    color: var(--color-fg-dim);
+    line-height: 1.8;
+  }
+
+  .reverseaddr {
+    unicode-bidi: bidi-override;
+    direction: rtl;
+  }
+</style>
