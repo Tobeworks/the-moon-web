@@ -1,0 +1,40 @@
+---
+import { ExternalLink } from 'lucide-astro';
+import pkg from '../../package.json';
+---
+
+<footer class="px-6 lg:px-10 py-8 border-t border-border flex items-center justify-between gap-8 flex-wrap">
+  <a href="/" class="font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200">
+    The Moon Records
+  </a>
+
+  <nav class="flex items-center gap-8 flex-wrap">
+    <a href="/#releases" class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
+      Releases
+    </a>
+    <a href="/#field" class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
+      Field
+    </a>
+    <div class="w-px h-4 bg-border"></div>
+    <a
+      href="https://logicmoon.bandcamp.com/"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-fg-muted transition-colors duration-200 hover:text-fg-dim"
+      aria-label="Bandcamp">
+      <ExternalLink size={16} />
+    </a>
+  </nav>
+
+  <div class="flex items-center gap-6 flex-wrap">
+    <a href="/impressum" class="font-label text-[0.6rem] tracking-[0.2em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
+      Impressum
+    </a>
+    <a href="/datenschutz" class="font-label text-[0.6rem] tracking-[0.2em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
+      Datenschutz
+    </a>
+    <span class="font-mono text-[0.53rem] tracking-[0.2em] uppercase text-fg-muted">
+      EST. 2026 — v{pkg.version}
+    </span>
+  </div>
+</footer>

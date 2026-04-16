@@ -1,0 +1,136 @@
+---
+import { Menu, X } from 'lucide-astro';
+import PhaseCircle from './PhaseCircle.astro';
+
+const navLinks = [
+  { label: 'Releases', href: '/#releases' },
+  { label: 'Field', href: '/#field' },
+  { label: 'Subscribe', href: '/#subscribe' },
+];
+---
+
+<header
+  id="tmr-header"
+  class="fixed top-0 left-0 right-0 z-100 flex items-center justify-between px-6 lg:px-10 h-16 border-b border-transparent transition-[background,border-color] duration-300">
+  <a href="/" class="font-label font-bold text-[0.75rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200">
+    The Moon Records
+  </a>
+
+  <!-- Desktop nav -->
+  <nav class="hidden sm:flex items-center gap-8 lg:gap-10">
+    {navLinks.map(({ label, href }) => (
+      <a
+        href={href}
+        class="font-label text-[0.7rem] tracking-[0.25em] uppercase text-fg-dim no-underline transition-colors duration-200 hover:text-fg">
+        {label}
+      </a>
+    ))}
+    <PhaseCircle phase={0.74} size={20} label="Current lunar phase" />
+  </nav>
+
+  <!-- Mobile hamburger -->
+  <button
+    type="button"
+    class="sm:hidden text-fg p-2 transition-colors duration-200 hover:text-accent"
+    aria-label="Open menu"
+    data-tmr-menu-toggle>
+    <Menu size={20} />
+  </button>
+</header>
+
+<!-- Mobile overlay -->
+<div id="tmr-mobile-menu" class="fixed inset-0 z-200 pointer-events-none opacity-0 transition-opacity duration-300">
+  <div class="absolute inset-0 bg-bg/95 backdrop-blur-lg" data-tmr-menu-backdrop></div>
+  <div class="relative h-full flex flex-col items-center justify-center px-8">
+    <button
+      type="button"
+      class="absolute top-5 right-6 text-fg p-2 transition-colors duration-200 hover:text-accent"
+      aria-label="Close menu"
+      data-tmr-menu-toggle>
+      <X size={24} />
+    </button>
+    <nav class="text-center space-y-1">
+      {navLinks.map(({ label, href }, i) => (
+        <a
+          href={href}
+          class="mobile-nav-item block py-3 font-label font-bold uppercase text-2xl tracking-widest text-fg-dim no-underline transition-colors duration-200 hover:text-accent"
+          style={`animation-delay: ${100 + i * 50}ms`}
+          data-tmr-menu-close>
+          {label}
+        </a>
+      ))}
+    </nav>
+    <div class="flex items-center gap-4 mt-12">
+      <PhaseCircle phase={0.74} size={48} label="Current lunar phase" />
+    </div>
+  </div>
+</div>
+
+<script>
+  const toggleButtons = document.querySelectorAll('[data-tmr-menu-toggle]');
+  const menu = document.getElementById('tmr-mobile-menu');
+  const closeLinks = document.querySelectorAll('[data-tmr-menu-close]');
+  const backdrop = document.querySelector('[data-tmr-menu-backdrop]');
+  const header = document.getElementById('tmr-header');
+
+  function openMenu() {
+    menu?.classList.remove('pointer-events-none', 'opacity-0');
+    menu?.classList.add('pointer-events-auto', 'opacity-100');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMenu() {
+    menu?.classList.add('pointer-events-none', 'opacity-0');
+    menu?.classList.remove('pointer-events-auto', 'opacity-100');
+    document.body.style.overflow = '';
+  }
+
+  toggleButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (menu?.classList.contains('opacity-100')) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    });
+  });
+
+  closeLinks.forEach((link) => {
+    link.addEventListener('click', closeMenu);
+  });
+
+  backdrop?.addEventListener('click', closeMenu);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+
+  // Scroll effect on header
+  window.addEventListener('scroll', () => {
+    header?.classList.toggle('scrolled', window.scrollY > 20);
+  }, { passive: true });
+</script>
+
+<style>
+  @keyframes mobile-nav-enter {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .mobile-nav-item {
+    animation: mobile-nav-enter 0.35s ease-out both;
+  }
+
+  #tmr-header.scrolled {
+    background: rgba(20, 20, 20, 0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: var(--color-border);
+  }
+</style>

@@ -3,42 +3,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PhaseCircle from "../components/PhaseCircle.astro";
 import ReleaseList from "../components/ReleaseList.astro";
 import NewsletterForm from "../components/NewsletterForm.astro";
-import pkg from "../../package.json";
 ---
 
 <BaseLayout
   title="THE MOON RECORDS"
   description="Independent beatless music label. Ambient, Drone, Soundscape."
   canonicalUrl={new URL("", Astro.site).href}>
-  <!-- ── Fixed Header ── -->
-  <header
-    id="header"
-    class="fixed top-0 left-0 right-0 z-100 flex items-center justify-between px-6 lg:px-10 h-16 border-b border-transparent transition-[background,border-color] duration-300">
-    <div
-      class="font-label font-bold text-[0.75rem] tracking-[0.22em] uppercase text-fg">
-      The Moon Records
-    </div>
-    <nav class="hidden sm:block">
-      <ul class="flex gap-8 lg:gap-10 list-none p-0 m-0">
-        {
-          [
-            ["#releases", "Releases"],
-            ["#field", "Field"],
-            ["#subscribe", "Subscribe"],
-          ].map(([href, label]) => (
-            <li>
-              <a
-                href={href}
-                class="font-label text-[0.7rem] tracking-[0.25em] uppercase text-fg-dim no-underline transition-colors duration-200 hover:text-fg">
-                {label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
-    <PhaseCircle phase={0.74} size={20} label="Current lunar phase" />
-  </header>
 
   <!-- ── Hero ── -->
   <section
@@ -182,9 +152,6 @@ import pkg from "../../package.json";
       </div>
 
       <div class="max-w-[32rem] mx-auto text-center pt-4">
-        <div class="flex justify-center mb-10">
-          <PhaseCircle phase={0.74} size={56} label="Phase indicator" />
-        </div>
         <h2
           class="font-label font-light text-[1.5rem] tracking-[0.12em] uppercase text-fg mb-2">
           Stay in the field.
@@ -199,79 +166,4 @@ import pkg from "../../package.json";
       </div>
     </div>
   </section>
-
-  <!-- ── Footer ── -->
-  <footer
-    class="px-6 lg:px-10 py-8 border-t border-border flex items-center justify-between gap-8 flex-wrap">
-    <div
-      class="font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg">
-      The Moon Records
-    </div>
-    <nav>
-      <ul class="flex gap-8 list-none p-0 m-0">
-        {
-          [
-            ["#releases", "Releases"],
-            ["#field", "Field"],
-          ].map(([href, label]) => (
-            <li>
-              <a
-                href={href}
-                class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-                {label}
-              </a>
-            </li>
-          ))
-        }
-        <li>
-          <a
-            href="/impressum"
-            class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-            Impressum
-          </a>
-        </li>
-        <li>
-          <a
-            href="/datenschutz"
-            class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-            Datenschutz
-          </a>
-        </li>
-        <li>
-          <a
-            href="https://bandcamp.com"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
-            >Bandcamp</a
-          >
-        </li>
-      </ul>
-    </nav>
-    <div
-      class="font-mono text-[0.53rem] tracking-[0.2em] uppercase text-[rgba(232,228,216,0.1)]">
-      EST. 2026 — v{pkg.version}
-    </div>
-  </footer>
 </BaseLayout>
-
-<style>
-  /* JS-triggered .scrolled state — cannot be expressed in Tailwind */
-  #header.scrolled {
-    background: rgba(20, 20, 20, 0.96);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-color: var(--color-border);
-  }
-</style>
-
-<script>
-  const header = document.getElementById("header");
-  window.addEventListener(
-    "scroll",
-    () => {
-      header?.classList.toggle("scrolled", window.scrollY > 20);
-    },
-    { passive: true },
-  );
-</script>
