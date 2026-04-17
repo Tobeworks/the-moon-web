@@ -1,0 +1,25 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PhaseCircle from '../components/PhaseCircle.astro';
+---
+
+<BaseLayout title="404 — THE MOON RECORDS" description="Signal lost.">
+  <div class="min-h-screen flex flex-col items-center justify-center px-6 text-center gap-8">
+
+    <PhaseCircle phase={0} size={80} label="Signal lost" />
+
+    <div class="flex flex-col gap-3">
+      <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// SIGNAL_LOST</span>
+      <h1 class="font-label font-bold uppercase text-fg tracking-[0.08em]" style="font-size: clamp(3rem, 10vw, 6rem); line-height: 1;">404</h1>
+      <p class="font-mono text-[0.6rem] tracking-[0.22em] uppercase text-fg-muted">
+        This transmission does not exist.
+      </p>
+    </div>
+
+    <a
+      href="/"
+      class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent no-underline transition-opacity duration-200 hover:opacity-70"
+    >← Return to base</a>
+
+  </div>
+</BaseLayout>
