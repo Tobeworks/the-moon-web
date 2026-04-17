@@ -3,6 +3,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PhaseCircle from "../components/PhaseCircle.astro";
 import ReleaseList from "../components/ReleaseList.astro";
 import NewsletterForm from "../components/NewsletterForm.astro";
+import releasesData from "../../the-moon-os/data/releases.json";
+
+const latestCatalog = releasesData.releases
+  .map((r) => r.catalog)
+  .sort()
+  .at(-1) ?? "TMR-001";
 ---
 
 <BaseLayout
@@ -126,7 +132,7 @@ import NewsletterForm from "../components/NewsletterForm.astro";
             [
               ["Founded", "2026"],
               ["Format", "Digital / Limited Physical"],
-              ["Catalog", "TMR-001 →"],
+              ["Catalog", `${latestCatalog} →`],
               ["Spectrum", "Ambient — Drone — Soundscape"],
               ["Beatless", "Always"],
               ["Platform", "Bandcamp / Direct"],
