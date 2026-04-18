@@ -30,6 +30,7 @@ export interface FeedbackRecord {
   id: string;
   name: string;
   comment: string;
+  url?: string;
   created: string;
 }
 
@@ -55,7 +56,7 @@ export async function getFeedbackForRelease(releaseSlug: string): Promise<Feedba
     const promoIdSet = new Set(promoIds);
     return (feedbackData.items ?? [])
       .filter((item: any) => promoIdSet.has(item.promo))
-      .map((item: any) => ({ id: item.id, name: item.name, comment: item.comment, created: item.created ?? '' }));
+      .map((item: any) => ({ id: item.id, name: item.name, comment: item.comment, url: item.url ?? '', created: item.created ?? '' }));
   } catch {
     return [];
   }
@@ -67,6 +68,7 @@ export async function createFeedback(payload: {
   name: string;
   email: string;
   comment: string;
+  url?: string;
   user_agent: string;
   ip: string;
 }): Promise<{ id: string }> {

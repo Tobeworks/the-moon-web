@@ -21,7 +21,7 @@ export const POST = async ({ request }: APIContext) => {
     });
   }
 
-  const { token, name, email, comment } = body;
+  const { token, name, email, comment, url } = body;
 
   if (!token || !name || !email || !comment) {
     return new Response(JSON.stringify({ error: 'Missing required fields' }), {
@@ -51,7 +51,7 @@ export const POST = async ({ request }: APIContext) => {
   const user_agent = request.headers.get('user-agent') ?? 'unknown';
 
   try {
-    await createFeedback({ promo: promo.id, name, email, comment, ip, user_agent });
+    await createFeedback({ promo: promo.id, name, email, comment, url: url || undefined, ip, user_agent });
   } catch {
     return new Response(JSON.stringify({ error: 'Failed to save feedback' }), {
       status: 500,

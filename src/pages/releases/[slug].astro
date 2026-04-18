@@ -160,7 +160,17 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
               {feedback.map((f) => (
                 <div class="border border-border p-4 flex flex-col gap-2">
                   <p class="font-label text-[0.75rem] tracking-[0.08em] text-fg-dim leading-relaxed">"{f.comment}"</p>
-                  <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">{f.name}</span>
+                  <div class="flex items-baseline gap-3 flex-wrap">
+                    <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">{f.name}</span>
+                    {f.url && (
+                      <a
+                        href={f.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-accent no-underline opacity-70 hover:opacity-100 transition-opacity"
+                      >{new URL(f.url).hostname} ↗</a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

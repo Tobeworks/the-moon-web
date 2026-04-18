@@ -17,6 +17,7 @@ migrate((app) => {
       { name: "name",       type: "text",  required: true },
       { name: "email",      type: "email", required: true },
       { name: "comment",    type: "text",  required: true },
+      { name: "url",        type: "url",   required: false },
       { name: "user_agent", type: "text",  required: false },
       { name: "ip",         type: "text",  required: false },
     ],

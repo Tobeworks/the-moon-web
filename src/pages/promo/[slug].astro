@@ -145,6 +145,15 @@ const feedbacks = await getFeedbackForRelease(slug!);
                 <label class="text-eyebrow" for="fb-email">Email</label>
                 <input id="fb-email" name="email" type="email" class="pg-input" placeholder="your@email.com" required />
               </div>
+              <div class="flex flex-col gap-3">
+                <label class="text-eyebrow" for="fb-url">
+                  Your website / publication <span class="text-accent" style="font-size:0.6rem;">(optional)</span>
+                </label>
+                <input id="fb-url" name="url" type="url" class="pg-input" placeholder="https://yoursite.com" />
+                <p class="font-mono text-[0.55rem] tracking-[0.15em] text-fg-muted leading-relaxed">
+                  Leave a link to your blog, label, or publication — it will appear next to your comment on the release page.
+                </p>
+              </div>
               <div class="flex flex-col gap-2">
                 <label class="text-eyebrow" for="fb-comment">Feedback</label>
                 <textarea id="fb-comment" name="comment" rows={5} class="pg-input resize-y min-h-[6rem] leading-relaxed" placeholder="Your thoughts on the release..." required />
