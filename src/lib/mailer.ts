@@ -87,6 +87,50 @@ export async function sendWelcomeEmail(to: string, name: string, unsubscribeToke
   await transporter.sendMail({ from: FROM, to, subject: 'You\'re in — THE MOON RECORDS Newsletter', html, text });
 }
 
+/**
+ * Send a campaign email. `bodyHtml` is the content only — header/footer are
+ * added automatically from the shared baseHtml template. Write plain HTML
+ * paragraphs, headings, or links. No need to include the outer email shell.
+ */
+export async function sendCampaignEmail(
+  to: string,
+  name: string,
+  subject: string,
+  bodyHtml: string,
+  bodyText: string,
+  unsubscribeToken: string,
+  siteUrl: string,
+) {
+  const unsubscribeUrl = `${siteUrl}/api/newsletter/unsubscribe?token=${unsubscribeToken}`;
+  const greeting = name ? `<p style="margin:0 0 20px;color:rgba(232,228,216,0.6);font-size:13px;letter-spacing:0.08em;">${name},</p>` : '';
+
+  // Apply inline styles to markdown-generated tags for email client compatibility
+  const styledHtml = bodyHtml
+    .replace(/<h1>/g, '<h1 style="margin:0 0 16px;color:#E8E4D8;font-size:20px;letter-spacing:0.1em;font-weight:700;">')
+    .replace(/<h2>/g, '<h2 style="margin:24px 0 12px;color:#E8E4D8;font-size:16px;letter-spacing:0.08em;font-weight:700;">')
+    .replace(/<h3>/g, '<h3 style="margin:20px 0 8px;color:rgba(232,228,216,0.8);font-size:13px;letter-spacing:0.08em;font-weight:600;">')
+    .replace(/<p>/g, '<p style="margin:0 0 16px;color:rgba(232,228,216,0.75);font-size:13px;letter-spacing:0.05em;line-height:1.9;">')
+    .replace(/<a /g, '<a style="color:#C4B98A;text-decoration:underline;" ')
+    .replace(/<strong>/g, '<strong style="color:#E8E4D8;font-weight:700;">')
+    .replace(/<ul>/g, '<ul style="margin:0 0 16px;padding-left:20px;color:rgba(232,228,216,0.75);font-size:13px;line-height:1.9;">')
+    .replace(/<ol>/g, '<ol style="margin:0 0 16px;padding-left:20px;color:rgba(232,228,216,0.75);font-size:13px;line-height:1.9;">')
+    .replace(/<hr>/g, '<hr style="border:none;border-top:1px solid rgba(196,185,138,0.12);margin:24px 0;">');
+
+  const html = baseHtml(`
+    ${greeting}
+    <div>
+      ${styledHtml}
+    </div>
+    <p style="margin:32px 0 0;color:rgba(232,228,216,0.2);font-size:10px;letter-spacing:0.15em;">
+      <a href="${unsubscribeUrl}" style="color:rgba(196,185,138,0.5);text-decoration:underline;">Unsubscribe</a>
+    </p>
+  `);
+
+  const plainText = `${name ? `${name},\n\n` : ''}${bodyText || bodyHtml.replace(/<[^>]+>/g, '').trim()}\n\nUnsubscribe: ${unsubscribeUrl}`;
+
+  await transporter.sendMail({ from: FROM, to, subject, html, text: plainText });
+}
+
 export async function sendAlreadySubscribedEmail(to: string, name: string, unsubscribeToken: string, siteUrl: string) {
   const unsubscribeUrl = `${siteUrl}/api/newsletter/unsubscribe?token=${unsubscribeToken}`;
   const greeting = name ? `${name},` : 'Hey,';

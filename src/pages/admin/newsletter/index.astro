@@ -1,0 +1,21 @@
+---
+export const prerender = false;
+import '../../../styles/global.css';
+import { getConfirmedSubscribers } from '../../../lib/pocketbase';
+import CampaignList from '../../../components/admin/CampaignList.vue';
+
+const subscribers = await getConfirmedSubscribers();
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Newsletter Admin — THE MOON RECORDS</title>
+</head>
+<body class="bg-base min-h-screen px-6 py-10 text-fg">
+  <div class="max-w-3xl mx-auto">
+    <CampaignList client:load subscriberCount={subscribers.length} />
+  </div>
+</body>
+</html>

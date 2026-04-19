@@ -1,0 +1,45 @@
+---
+export const prerender = false;
+import '../../../styles/global.css';
+import { getCampaign, getConfirmedSubscribers } from '../../../lib/pocketbase';
+import CampaignEditor from '../../../components/admin/CampaignEditor.vue';
+
+const { id } = Astro.params;
+const campaign = await getCampaign(id!);
+if (!campaign) return Astro.redirect('/admin/newsletter');
+
+const subscribers = await getConfirmedSubscribers();
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit Campaign — THE MOON RECORDS</title>
+</head>
+<body class="bg-base min-h-screen px-6 py-10 text-fg">
+  <div class="max-w-4xl mx-auto flex flex-col gap-8">
+
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex flex-col gap-1">
+        <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// EDIT_CAMPAIGN</span>
+        <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Edit Campaign</h1>
+      </div>
+      <a href="/admin/newsletter" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted hover:text-fg transition-colors">← Back</a>
+    </div>
+
+    <CampaignEditor
+      client:load
+      campaignId={campaign.id}
+      initialSubject={campaign.subject}
+      initialBodyMd={campaign.body_md || campaign.body_text || ''}
+      initialStatus={campaign.status}
+      subscriberCount={subscribers.length}
+      initialSentCount={campaign.sent_count ?? 0}
+      initialFailedCount={campaign.failed_count ?? 0}
+      initialSentAt={campaign.sent_at ?? ''}
+    />
+
+  </div>
+</body>
+</html>

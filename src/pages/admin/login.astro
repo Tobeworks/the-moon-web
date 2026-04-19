@@ -1,0 +1,58 @@
+---
+export const prerender = false;
+import '../../styles/global.css';
+
+const error = Astro.url.searchParams.get('error');
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — THE MOON RECORDS</title>
+</head>
+<body class="bg-base min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-sm flex flex-col gap-6">
+    <div class="flex flex-col gap-1">
+      <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// ADMIN_ACCESS</span>
+      <h1 class="font-label font-bold uppercase tracking-[0.1em] text-fg text-xl">The Moon Records</h1>
+    </div>
+
+    {error && (
+      <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">Wrong password.</p>
+    )}
+
+    <form id="login-form" class="flex flex-col gap-4">
+      <div class="flex flex-col gap-1.5">
+        <label for="email" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Email</label>
+        <input id="email" name="email" type="email" class="tmr-input w-full" autocomplete="email" required />
+      </div>
+      <div class="flex flex-col gap-1.5">
+        <label for="password" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Password</label>
+        <input id="password" name="password" type="password" class="tmr-input w-full" autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn--primary w-full">Enter</button>
+    </form>
+
+    <script>
+      document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email    = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const res = await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email, password }),
+          credentials: 'same-origin',
+        });
+        const data = await res.json();
+        if (data.ok) {
+          window.location.href = '/admin/newsletter';
+        } else {
+          window.location.href = '/admin/login?error=1';
+        }
+      });
+    </script>
+  </div>
+</body>
+</html>

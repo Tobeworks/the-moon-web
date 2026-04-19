@@ -215,6 +215,75 @@ export async function unsubscribeByToken(token: string): Promise<boolean> {
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaigns
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface Campaign {
+  id: string;
+  subject: string;
+  body_html: string;
+  body_md?: string;
+  body_text?: string;
+  status: 'draft' | 'sending' | 'sent';
+  sent_at?: string;
+  sent_count?: number;
+  failed_count?: number;
+  created: string;
+  updated: string;
+}
+
+export async function getCampaigns(): Promise<Campaign[]> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/campaigns/records?perPage=100`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []) as Campaign[];
+  } catch { return []; }
+}
+
+export async function getCampaign(id: string): Promise<Campaign | null> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/campaigns/records/${id}`);
+    if (!res.ok) return null;
+    return await res.json() as Campaign;
+  } catch { return null; }
+}
+
+export async function createCampaign(subject: string, bodyHtml: string, bodyText: string): Promise<Campaign> {
+  const res = await fetch(`${PB_URL}/api/collections/campaigns/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subject, body_html: bodyHtml || ' ', body_text: bodyText, status: 'draft', sent_count: 0, failed_count: 0 }),
+  });
+  if (!res.ok) throw new Error(`Failed to create campaign: ${res.status}`);
+  return res.json();
+}
+
+export async function updateCampaign(id: string, fields: Partial<Campaign>): Promise<Campaign> {
+  const res = await fetch(`${PB_URL}/api/collections/campaigns/records/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  });
+  if (!res.ok) throw new Error(`Failed to update campaign: ${res.status}`);
+  return res.json();
+}
+
+export async function deleteCampaign(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/campaigns/records/${id}`, { method: 'DELETE' });
+}
+
+export async function getConfirmedSubscribers(): Promise<NewsletterSubscriber[]> {
+  try {
+    const filter = encodeURIComponent(`confirmed=true`);
+    const res = await fetch(`${PB_URL}/api/collections/newsletter_subscribers/records?filter=${filter}&perPage=1000`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []) as NewsletterSubscriber[];
+  } catch { return []; }
+}
+
 /** Logs a download event. Fire-and-forget — swallows errors. */
 export async function logDownload(payload: {
   promo: string;
