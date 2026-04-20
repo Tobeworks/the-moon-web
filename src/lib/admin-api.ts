@@ -83,3 +83,37 @@ export const adminApi = {
     return res.json();
   },
 };
+
+export interface PromoSubscriber {
+  id: string;
+  email: string;
+  name?: string;
+  unsubscribe_token: string;
+  created: string;
+}
+
+export const promoApi = {
+  async getSubscribers(): Promise<PromoSubscriber[]> {
+    const res = await fetch('/api/admin/promo-list/subscribers');
+    if (!res.ok) throw new Error('Failed to load promo subscribers');
+    return res.json();
+  },
+
+  async addSubscriber(email: string, name: string): Promise<PromoSubscriber> {
+    const res = await fetch('/api/admin/promo-list/subscribers', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ email, name }),
+    });
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data.error ?? 'Failed to add subscriber');
+    }
+    return res.json();
+  },
+
+  async deleteSubscriber(id: string): Promise<void> {
+    const res = await fetch(`/api/admin/promo-list/subscribers/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete subscriber');
+  },
+};

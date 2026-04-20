@@ -1,0 +1,189 @@
+---
+export const prerender = false;
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Promo List — THE MOON RECORDS"
+  description="Join the The Moon Records promo list to receive new releases and press materials."
+>
+  <div class="pl-page">
+    <div class="pl-page__inner">
+
+      <header class="pl-page__header">
+        <span class="text-eyebrow">// PROMO_ACCESS</span>
+        <h1 class="pl-page__title">Promo List.</h1>
+        <p class="pl-page__sub">
+          For press, blogs, radio, and DJs.<br>
+          Get new releases and promo materials directly in your inbox.
+        </p>
+      </header>
+
+      <div class="pl-page__form" id="form-wrap">
+        <div class="pl-form">
+          <div class="pl-form__field">
+            <label for="name" class="pl-form__label">Name <span class="pl-form__optional">(optional)</span></label>
+            <input id="name" name="name" type="text" class="tmr-input w-full" autocomplete="name" />
+          </div>
+          <div class="pl-form__field">
+            <label for="email" class="pl-form__label">Email *</label>
+            <input id="email" name="email" type="email" class="tmr-input w-full" autocomplete="email" required />
+          </div>
+          <button id="submit-btn" type="button" class="btn btn--primary w-full">Join Promo List</button>
+          <p id="form-msg" class="pl-form__msg" style="display:none;"></p>
+        </div>
+      </div>
+
+      <a href="/" class="pl-page__back">← Back to The Moon</a>
+
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const btn   = document.getElementById('submit-btn') as HTMLButtonElement;
+  const email = document.getElementById('email') as HTMLInputElement;
+  const name  = document.getElementById('name')  as HTMLInputElement;
+  const msg   = document.getElementById('form-msg') as HTMLParagraphElement;
+
+  btn?.addEventListener('click', async () => {
+    if (!email.value.trim()) { email.focus(); return; }
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    msg.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/promo-list/subscribe', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: email.value.trim(), name: name.value.trim() }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        document.getElementById('form-wrap')!.innerHTML =
+          '<p class="pl-form__success">You\'re on the list. Check your inbox for a confirmation.</p>';
+      } else {
+        msg.textContent = data.error ?? 'Something went wrong. Please try again.';
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Join Promo List';
+      }
+    } catch {
+      msg.textContent = 'Network error. Please try again.';
+      msg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Join Promo List';
+    }
+  });
+</script>
+
+<style>
+  .pl-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+  }
+
+  .pl-page__inner {
+    width: 100%;
+    max-width: 38rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .pl-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .pl-page__title {
+    font-family: var(--font-label);
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    margin: 0;
+    line-height: 1.1;
+  }
+
+  .pl-page__sub {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .pl-page__form {
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-low);
+  }
+
+  .pl-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .pl-form__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+  }
+
+  .pl-form__label {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+  }
+
+  .pl-form__optional {
+    color: var(--color-fg-muted);
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  .pl-form__msg {
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #f87171;
+    margin: 0;
+  }
+
+  .pl-form__success {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+    margin: 0;
+    line-height: 1.7;
+  }
+
+  .pl-page__back {
+    font-family: var(--font-label);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .pl-page__back:hover { color: var(--color-accent); }
+</style>

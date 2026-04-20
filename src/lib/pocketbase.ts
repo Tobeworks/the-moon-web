@@ -284,6 +284,61 @@ export async function getConfirmedSubscribers(): Promise<NewsletterSubscriber[]>
   } catch { return []; }
 }
 
+// ── Promo Subscribers ─────────────────────────────────────────────────────
+
+export interface PromoSubscriber {
+  id: string;
+  email: string;
+  name?: string;
+  unsubscribe_token: string;
+  created: string;
+}
+
+export async function getPromoSubscribers(): Promise<PromoSubscriber[]> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/promo_subscribers/records?perPage=1000&sort=-created`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []) as PromoSubscriber[];
+  } catch { return []; }
+}
+
+export async function getPromoSubscriberByEmail(email: string): Promise<PromoSubscriber | null> {
+  try {
+    const filter = encodeURIComponent(`email="${email}"`);
+    const res = await fetch(`${PB_URL}/api/collections/promo_subscribers/records?filter=${filter}&perPage=1`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.items?.[0] ?? null;
+  } catch { return null; }
+}
+
+export async function getPromoSubscriberByToken(token: string): Promise<PromoSubscriber | null> {
+  try {
+    const filter = encodeURIComponent(`unsubscribe_token="${token}"`);
+    const res = await fetch(`${PB_URL}/api/collections/promo_subscribers/records?filter=${filter}&perPage=1`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.items?.[0] ?? null;
+  } catch { return null; }
+}
+
+export async function createPromoSubscriber(email: string, name: string, token: string): Promise<PromoSubscriber> {
+  const res = await fetch(`${PB_URL}/api/collections/promo_subscribers/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, name, unsubscribe_token: token }),
+  });
+  if (!res.ok) throw new Error(`Failed to create promo subscriber: ${res.status}`);
+  return res.json();
+}
+
+export async function deletePromoSubscriber(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/promo_subscribers/records/${id}`, { method: 'DELETE' });
+}
+
+// ── Download Events ────────────────────────────────────────────────────────
+
 /** Logs a download event. Fire-and-forget — swallows errors. */
 export async function logDownload(payload: {
   promo: string;

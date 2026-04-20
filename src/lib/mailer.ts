@@ -152,3 +152,29 @@ export async function sendAlreadySubscribedEmail(to: string, name: string, unsub
 
   await transporter.sendMail({ from: FROM, to, subject: 'Already subscribed — THE MOON RECORDS', html, text });
 }
+
+export async function sendPromoWelcomeEmail(
+  to: string,
+  name: string,
+  unsubscribeToken: string,
+  siteUrl: string,
+): Promise<void> {
+  const greeting = name ? `Hello ${name},` : 'Hello,';
+  const unsubscribeUrl = `${siteUrl}/api/promo-list/unsubscribe?token=${unsubscribeToken}`;
+
+  const html = baseHtml(`
+    <p style="margin:0 0 1.5rem;color:rgba(232,228,216,0.85);font-size:14px;letter-spacing:0.04em;line-height:1.8;">${greeting}</p>
+    <p style="margin:0 0 1.5rem;color:rgba(232,228,216,0.85);font-size:14px;letter-spacing:0.04em;line-height:1.8;">
+      You are now on the <strong style="color:#E8E4D8;">The Moon Records Promo List</strong>.<br>
+      We'll send you new releases and promo materials as they come.
+    </p>
+    <p style="margin:2rem 0 0;color:rgba(232,228,216,0.25);font-size:11px;letter-spacing:0.08em;line-height:1.7;">
+      To unsubscribe from the promo list:
+      <a href="${unsubscribeUrl}" style="color:rgba(196,185,138,0.7);text-decoration:underline;">click here</a>
+    </p>
+  `);
+
+  const text = `${greeting}\n\nYou are now on the The Moon Records Promo List.\nWe'll send you new releases and promo materials as they come.\n\nUnsubscribe: ${unsubscribeUrl}`;
+
+  await transporter.sendMail({ from: FROM, to, subject: 'Welcome to the Promo List — THE MOON RECORDS', html, text });
+}

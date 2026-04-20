@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+const error = Astro.url.searchParams.get('error');
+---
+
+<BaseLayout
+  title="Unsubscribed — THE MOON RECORDS"
+  description="You have been removed from the The Moon Records promo list."
+>
+  <div class="nl-status">
+    <div class="nl-status__inner">
+      <span class="text-eyebrow">{ error ? '// ERROR' : '// SIGNAL_TERMINATED' }</span>
+      <h1 class="nl-status__title">{ error ? 'Invalid link.' : 'Done.' }</h1>
+      <p class="nl-status__body">
+        { error
+          ? 'This unsubscribe link is invalid or has already been used.'
+          : 'You have been removed from the promo list.'
+        }
+      </p>
+      <div class="nl-status__actions">
+        <a href="/" class="btn btn--primary">Back to The Moon</a>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .nl-status {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+  }
+  .nl-status__inner {
+    width: 100%;
+    max-width: 36rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .nl-status__title {
+    font-family: var(--font-label);
+    font-size: clamp(2rem, 6vw, 3.5rem);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-fg);
+    margin: 0;
+    line-height: 1;
+  }
+  .nl-status__body {
+    font-family: var(--font-label);
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-fg-dim);
+    line-height: 1.7;
+    margin: 0;
+  }
+  .nl-status__actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+</style>
