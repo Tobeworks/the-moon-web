@@ -30,15 +30,15 @@ export const POST = async ({ request }: APIContext) => {
 
   for (const sub of subscribers) {
     try {
-      const token = randomBytes(32).toString('hex');
+      const token = randomBytes(6).toString('base64url').toUpperCase().replace(/[^A-Z]/g, '').padEnd(8, 'X').slice(0, 8);
       await createPromoRecord({
         token,
-        release_slug: releaseSlug,
+        release_slug: releaseSlug.toLowerCase(),
         recipient_name: sub.name ?? sub.email,
         recipient_email: sub.email,
         ...(expiresAt ? { expires_at: expiresAt } : {}),
       });
-      const promoUrl = `${siteUrl}/promo/${token}`;
+      const promoUrl = `${siteUrl}/promo/${releaseSlug.toLowerCase()}?t=${token}`;
       await sendPromoEmail(sub.email, sub.name ?? '', releaseTitle, releaseArtist, promoUrl, sub.unsubscribe_token, siteUrl);
       sent++;
     } catch (e: any) {
