@@ -296,7 +296,7 @@ export interface PromoSubscriber {
 
 export async function getPromoSubscribers(): Promise<PromoSubscriber[]> {
   try {
-    const res = await fetch(`${PB_URL}/api/collections/promo_subscribers/records?perPage=1000&sort=-created`);
+    const res = await fetch(`${PB_URL}/api/collections/promo_subscribers/records?perPage=1000`);
     if (!res.ok) return [];
     const data = await res.json();
     return (data.items ?? []) as PromoSubscriber[];
