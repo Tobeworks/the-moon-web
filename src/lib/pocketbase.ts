@@ -337,6 +337,26 @@ export async function deletePromoSubscriber(id: string): Promise<void> {
   await fetch(`${PB_URL}/api/collections/promo_subscribers/records/${id}`, { method: 'DELETE' });
 }
 
+/** Creates a promo record for a specific recipient. Returns the new record. */
+export async function createPromoRecord(payload: {
+  token: string;
+  release_slug: string;
+  recipient_name: string;
+  recipient_email: string;
+  expires_at?: string;
+}): Promise<PromoRecord> {
+  const res = await fetch(`${PB_URL}/api/collections/promos/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase promo create failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
 // ── Download Events ────────────────────────────────────────────────────────
 
 /** Logs a download event. Fire-and-forget — swallows errors. */

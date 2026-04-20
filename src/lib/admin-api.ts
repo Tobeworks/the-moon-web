@@ -116,4 +116,33 @@ export const promoApi = {
     const res = await fetch(`/api/admin/promo-list/subscribers/${id}`, { method: 'DELETE' });
     if (!res.ok) throw new Error('Failed to delete subscriber');
   },
+
+  async sendPromo(payload: {
+    releaseSlug: string;
+    releaseTitle: string;
+    releaseArtist: string;
+    expiresAt?: string;
+  }): Promise<{ ok: boolean; sent: number; failed: number; errors: string[] }> {
+    const res = await fetch('/api/admin/promo-list/send', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Failed to send promo');
+    return res.json();
+  },
+
+  async testPromo(payload: {
+    releaseSlug: string;
+    releaseTitle: string;
+    releaseArtist: string;
+    testEmail: string;
+  }): Promise<{ ok: boolean; promoUrl?: string; error?: string }> {
+    const res = await fetch('/api/admin/promo-list/test', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return res.json();
+  },
 };

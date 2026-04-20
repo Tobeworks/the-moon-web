@@ -153,6 +153,40 @@ export async function sendAlreadySubscribedEmail(to: string, name: string, unsub
   await transporter.sendMail({ from: FROM, to, subject: 'Already subscribed — THE MOON RECORDS', html, text });
 }
 
+export async function sendPromoEmail(
+  to: string,
+  name: string,
+  releaseTitle: string,
+  releaseArtist: string,
+  promoUrl: string,
+  unsubscribeToken: string,
+  siteUrl: string,
+): Promise<void> {
+  const greeting = name ? `Hello ${name},` : 'Hello,';
+  const unsubscribeUrl = `${siteUrl}/api/promo-list/unsubscribe?token=${unsubscribeToken}`;
+
+  const html = baseHtml(`
+    <p style="margin:0 0 1.5rem;color:rgba(232,228,216,0.85);font-size:14px;letter-spacing:0.04em;line-height:1.8;">${greeting}</p>
+    <p style="margin:0 0 0.5rem;color:rgba(232,228,216,0.5);font-size:11px;letter-spacing:0.3em;text-transform:uppercase;">// NEW RELEASE</p>
+    <h1 style="margin:0 0 0.25rem;color:#E8E4D8;font-size:22px;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;">${releaseTitle}</h1>
+    <p style="margin:0 0 2rem;color:rgba(196,185,138,0.8);font-size:12px;letter-spacing:0.25em;text-transform:uppercase;">${releaseArtist}</p>
+    <p style="margin:0 0 2rem;color:rgba(232,228,216,0.65);font-size:13px;letter-spacing:0.05em;line-height:1.8;">
+      A promo copy is ready for you. Your personal link gives you access to stream and download the release.
+    </p>
+    <a href="${promoUrl}" style="display:inline-block;background:#C4B98A;color:#1A1710;font-size:12px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;padding:13px 28px;text-decoration:none;">
+      ACCESS PROMO
+    </a>
+    <p style="margin:2.5rem 0 0;color:rgba(232,228,216,0.2);font-size:11px;letter-spacing:0.08em;line-height:1.7;">
+      This link is personal and generated for you only. Please do not share it publicly.<br>
+      <a href="${unsubscribeUrl}" style="color:rgba(196,185,138,0.5);text-decoration:underline;">Unsubscribe from promo list</a>
+    </p>
+  `);
+
+  const text = `${greeting}\n\nNew release: ${releaseTitle} — ${releaseArtist}\n\nYour personal promo link:\n${promoUrl}\n\nPlease do not share this link publicly.\n\nUnsubscribe: ${unsubscribeUrl}`;
+
+  await transporter.sendMail({ from: FROM, to, subject: `Promo: ${releaseTitle} — THE MOON RECORDS`, html, text });
+}
+
 export async function sendPromoWelcomeEmail(
   to: string,
   name: string,
