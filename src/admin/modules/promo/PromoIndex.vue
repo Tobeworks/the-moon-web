@@ -47,9 +47,9 @@
             class="btn btn--muted flex-shrink-0"
           >{{ testing ? 'Sending…' : 'Send Test' }}</button>
         </div>
-        <p v-if="testResult" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase"
+        <p v-if="testResult" class="font-mono text-[0.6rem] tracking-[0.15em] uppercase"
           :class="testResult.ok ? 'text-green-400' : 'text-red-400'">
-          {{ testResult.ok ? `✓ Test sent — ${testResult.promoUrl}` : `✗ ${testResult.error}` }}
+          {{ testResult.ok ? `✓ Test sent — <a href="${testResult.promoUrl}">${testResult.promoUrl}</a>` : `✗ ${testResult.error}` }}
         </p>
       </div>
 
