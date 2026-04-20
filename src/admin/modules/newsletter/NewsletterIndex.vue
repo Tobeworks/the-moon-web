@@ -4,18 +4,13 @@
     <!-- Header -->
     <div class="flex items-start justify-between gap-4 flex-wrap">
       <div class="flex flex-col gap-1">
-        <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// NEWSLETTER_ADMIN</span>
+        <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// NEWSLETTER</span>
         <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Campaigns</h1>
         <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
           {{ subscriberCount }} confirmed subscriber{{ subscriberCount !== 1 ? 's' : '' }}
         </p>
       </div>
-      <div class="flex gap-3">
-        <button @click="showNew = true" class="btn btn--primary">New Campaign</button>
-        <form method="POST" action="/api/admin/logout">
-          <button type="submit" class="btn btn--muted">Logout</button>
-        </form>
-      </div>
+      <button @click="showNew = true" class="btn btn--primary">New Campaign</button>
     </div>
 
     <!-- New campaign form -->
@@ -34,13 +29,9 @@
       <p v-if="createError" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-red-400">{{ createError }}</p>
     </div>
 
-    <!-- Error -->
+    <!-- Error / Loading / Empty -->
     <p v-if="loadError" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">{{ loadError }}</p>
-
-    <!-- Loading -->
     <p v-else-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Loading…</p>
-
-    <!-- Empty -->
     <p v-else-if="campaigns.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">No campaigns yet.</p>
 
     <!-- List -->
@@ -55,15 +46,19 @@
           <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">
             <template v-if="c.status === 'sent'">
               Sent {{ c.sent_count ?? 0 }} · Failed {{ c.failed_count ?? 0 }}
-              <template v-if="c.sent_at"> · {{ formatDate(c.sent_at) }}</template>
+              <template v-if="c.sent_at"> · {{ new Date(c.sent_at).toLocaleDateString('de-DE') }}</template>
             </template>
             <template v-else>{{ c.status.toUpperCase() }}</template>
           </span>
         </div>
         <div class="flex gap-2 flex-shrink-0">
-          <a :href="`/admin/newsletter/${c.id}`" class="btn btn--muted" style="font-size:0.6rem;padding:0.3rem 0.75rem;">
+          <RouterLink
+            :to="`/newsletter/${c.id}`"
+            class="btn btn--muted"
+            style="font-size:0.6rem;padding:0.3rem 0.75rem;"
+          >
             {{ c.status === 'sent' ? 'View' : 'Edit' }}
-          </a>
+          </RouterLink>
           <button
             v-if="c.status === 'draft'"
             @click="send(c)"
@@ -88,10 +83,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { adminApi, type Campaign } from '../../lib/admin-api';
+import { adminApi, type Campaign } from '../../../lib/admin-api';
 
-const props = defineProps<{ subscriberCount: number }>();
-
+const subscriberCount = ref(0);
 const campaigns   = ref<Campaign[]>([]);
 const loading     = ref(true);
 const loadError   = ref('');
@@ -103,8 +97,16 @@ const sendingId   = ref('');
 
 onMounted(async () => {
   try {
-    campaigns.value = await adminApi.getCampaigns();
-  } catch (e) {
+    const [camps, subsRes] = await Promise.all([
+      adminApi.getCampaigns(),
+      fetch('/api/admin/newsletter/subscribers/count'),
+    ]);
+    campaigns.value = camps;
+    if (subsRes.ok) {
+      const d = await subsRes.json();
+      subscriberCount.value = d.count ?? 0;
+    }
+  } catch {
     loadError.value = 'Failed to load campaigns.';
   } finally {
     loading.value = false;
@@ -125,7 +127,7 @@ async function create() {
 }
 
 async function send(c: Campaign) {
-  if (!confirm(`Send "${c.subject}" to ${props.subscriberCount} subscriber(s)?`)) return;
+  if (!confirm(`Send "${c.subject}" to ${subscriberCount.value} subscriber(s)?`)) return;
   sendingId.value = c.id;
   const result = await adminApi.sendCampaign(c.id);
   sendingId.value = '';
@@ -141,9 +143,5 @@ async function remove(id: string) {
   if (!confirm('Delete this campaign?')) return;
   await adminApi.deleteCampaign(id);
   campaigns.value = campaigns.value.filter(c => c.id !== id);
-}
-
-function formatDate(d: string) {
-  return new Date(d).toLocaleDateString('de-DE');
 }
 </script>
