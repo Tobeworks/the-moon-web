@@ -49,8 +49,8 @@
       >
         <div class="flex-1 min-w-0 flex flex-col gap-1">
           <span class="font-label font-semibold text-[0.85rem] tracking-[0.08em] text-fg">{{ s.email }}</span>
-          <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">
-            {{ s.name || '—' }} · {{ new Date(s.created).toLocaleDateString('de-DE') }}
+          <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
+            {{ s.name || '—' }} · {{ s.created ? new Date(s.created.replace(' ', 'T')).toLocaleDateString('de-DE') : '—' }}
           </span>
         </div>
         <button
