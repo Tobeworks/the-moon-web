@@ -94,6 +94,16 @@ A contact list for bloggers, journalists, DJs etc. who want to receive new relea
 **PocketBase collection:** `promo_subscribers`
 Fields: `email`, `name`, `unsubscribe_token`
 
+#### Sending a promo to the list
+
+1. Go to `/admin/promo` → click **Send Promo**
+2. Select a release from the dropdown (populated from `releases.json`)
+3. Optionally set an expiry date for the promo links
+4. **Send Test** — sends a real promo email to a single address so you can verify the link and layout before the full send
+5. **Send to all** — generates an individual `promos` record (with a unique token) for every subscriber and sends the promo email
+
+Each subscriber gets a personal link (`/promo/[token]`) — download stats are tracked per token in the `download_events` collection. The send result shows how many succeeded and how many failed.
+
 ### Newsletter (double opt-in)
 
 Subscribers sign up at `/newsletter` or via the form on the homepage.
@@ -155,6 +165,8 @@ The admin area is a Vue 3 SPA mounted at `/admin` via an Astro catch-all route.
 | `campaigns` | Newsletter campaign drafts + send history |
 | `promo_subscribers` | Promo list contacts (no opt-in required) |
 
+> **Note on collection access rules:** `promos`, `newsletter_subscribers`, `promo_subscribers`, and `campaigns` have open create/list rules (`""`). This is safe because PocketBase is not exposed externally — all writes go through Astro API routes which are protected by the admin middleware.
+
 Migrations live in `tools/pocketbase/pb_migrations/` and run automatically on PocketBase startup.
 
 ---
@@ -205,7 +217,7 @@ src/
         login.ts      # Auth (sets httpOnly cookie)
         logout.ts
         newsletter/   # Campaigns CRUD, send, test
-        promo-list/   # Promo subscriber CRUD
+        promo-list/   # Promo subscriber CRUD + send.ts + test.ts
       newsletter/     # Public API (subscribe, confirm, unsubscribe)
       promo/          # Promo API (download, feedback)
       promo-list/     # Public API (subscribe, unsubscribe)
