@@ -2,15 +2,16 @@
 
 Website for [The Moon Records](https://the-moon-records.de) — an independent ambient/beatless music label.
 
-Built with Astro, Tailwind CSS v4, and PocketBase.
+Built with Astro, Tailwind CSS v4, Vue 3, and PocketBase.
 
 ---
 
 ## Stack
 
-- **[Astro](https://astro.build)** v6 — static site with SSR API routes
+- **[Astro](https://astro.build)** v6 — hybrid SSR with `@astrojs/node` adapter
 - **[Tailwind CSS](https://tailwindcss.com)** v4 — utility-first styling via `@tailwindcss/vite`
-- **[PocketBase](https://pocketbase.io)** v0.36 — self-hosted backend (newsletter, promo system, feedback, campaigns)
+- **[Vue 3](https://vuejs.org)** + **[Pinia](https://pinia.vuejs.org)** + **[Vue Router](https://router.vuejs.org)** — admin SPA
+- **[PocketBase](https://pocketbase.io)** v0.36 — self-hosted backend (newsletter, promo system, feedback, campaigns, promo list)
 - **[Nodemailer](https://nodemailer.com)** — transactional email
 - **[the-moon-os](https://github.com/Tobeworks/the-moon-os)** — git submodule containing release data (`data/releases.json`) and shared assets
 
@@ -52,7 +53,7 @@ pnpm start
 | Website | http://localhost:4321 |
 | PocketBase admin | http://localhost:8090/_/ |
 | Mailpit (email preview) | http://localhost:8025 |
-| Newsletter admin | http://localhost:4321/admin/newsletter |
+| Admin dashboard | http://localhost:4321/admin |
 
 ---
 
@@ -81,6 +82,18 @@ Journalists and listeners receive a unique promo link: `/promo/[token]`
 
 **Download endpoint:** `src/pages/api/promo/download.ts` — validates token, builds zip from track URLs, streams to browser.
 
+### Promo list
+
+A contact list for bloggers, journalists, DJs etc. who want to receive new releases. No double opt-in.
+
+- Sign up at `/promo-list`
+- Welcome email sent immediately on signup
+- Unsubscribe via link in welcome email → `/api/promo-list/unsubscribe?token=...`
+- Admin manages the list at `/admin/promo`
+
+**PocketBase collection:** `promo_subscribers`
+Fields: `email`, `name`, `unsubscribe_token`
+
 ### Newsletter (double opt-in)
 
 Subscribers sign up at `/newsletter` or via the form on the homepage.
@@ -99,19 +112,35 @@ Fields: `email`, `name`, `confirmed`, `confirmation_token`, `confirmation_token_
 
 ### Newsletter campaigns (admin)
 
-Campaign sending is managed at `/admin/newsletter` (password protected via `ADMIN_PASSWORD` env var).
+Campaign sending is managed at `/admin/newsletter` (login required).
 
 **Flow:**
-1. Login at `/admin/login`
-2. Create a new campaign (subject + HTML body + optional plain text)
+1. Login at `/admin/login` with your PocketBase user credentials
+2. Create a new campaign (subject + HTML body via Markdown)
 3. Edit and preview the campaign
-4. Click Send — emails go to all confirmed subscribers
-5. Campaign is marked `sent` with sent/failed counts
+4. Send a test email to yourself
+5. Click Send — emails go to all confirmed subscribers
+6. Campaign is marked `sent` with sent/failed counts
 
 **PocketBase collection:** `campaigns`
-Fields: `subject`, `body_html`, `body_text`, `status` (draft/sending/sent), `sent_at`, `sent_count`, `failed_count`
+Fields: `subject`, `body_html`, `body_md`, `body_text`, `status` (draft/sending/sent), `sent_at`, `sent_count`, `failed_count`
 
 All emails use the branded HTML template in `src/lib/mailer.ts` and include an unsubscribe link.
+
+---
+
+## Admin dashboard
+
+The admin area is a Vue 3 SPA mounted at `/admin` via an Astro catch-all route.
+
+**Authentication:** Login at `/admin/login` with a PocketBase `users` collection account. The JWT token is stored in an httpOnly cookie (`admin_token`) and validated on every request via the Astro middleware.
+
+**Modules:**
+- `/admin` — Dashboard
+- `/admin/newsletter` — Campaign list, create, edit, send
+- `/admin/promo` — Promo list subscriber management
+
+**Stack:** Vue Router (`createWebHistory('/admin')`), Pinia, same Tailwind tokens as the public site.
 
 ---
 
@@ -121,9 +150,10 @@ All emails use the branded HTML template in `src/lib/mailer.ts` and include an u
 |-----------|---------|
 | `promos` | Promo links per release/recipient |
 | `feedback` | Reviews submitted via promo pages |
-| `download_events` | Download tracking (promo quality + timestamp) |
-| `newsletter_subscribers` | Opt-in subscriber list |
+| `download_events` | Download tracking (promo, quality, timestamp) |
+| `newsletter_subscribers` | Double opt-in subscriber list |
 | `campaigns` | Newsletter campaign drafts + send history |
+| `promo_subscribers` | Promo list contacts (no opt-in required) |
 
 Migrations live in `tools/pocketbase/pb_migrations/` and run automatically on PocketBase startup.
 
@@ -143,7 +173,8 @@ See `.env.example` for all required variables.
 | `SMTP_USER` | SMTP username |
 | `SMTP_PASS` | SMTP password |
 | `SMTP_FROM` | From address for outgoing mail |
-| `ADMIN_PASSWORD` | Password for `/admin` area |
+
+> **Note:** Admin authentication uses PocketBase `users` collection — no `ADMIN_PASSWORD` env var needed.
 
 ---
 
@@ -151,28 +182,43 @@ See `.env.example` for all required variables.
 
 ```
 src/
-  components/       # Astro components (AudioPlayer, NewsletterForm, ReleaseCard, …)
-  layouts/          # BaseLayout
+  admin/              # Vue 3 SPA (admin dashboard)
+    modules/
+      newsletter/     # Campaign list + editor
+      promo/          # Promo list management
+    App.vue           # Sidebar layout
+    router.ts         # Vue Router config
+    main.ts           # SPA entry point
+  components/         # Astro components (AudioPlayer, NewsletterForm, ReleaseCard, …)
+  layouts/            # BaseLayout
   lib/
-    mailer.ts       # Nodemailer transporter + all email templates
-    pocketbase.ts   # PocketBase REST API helpers (promos, feedback, newsletter, campaigns)
+    admin-api.ts      # Admin API client (campaigns, promo subscribers)
+    mailer.ts         # Nodemailer transporter + all email templates
+    pocketbase.ts     # PocketBase REST API helpers
+  middleware.ts       # Admin route protection (token validation)
   pages/
-    admin/          # Password-protected admin UI
-      login.astro
-      newsletter/   # Campaign list, new, edit
+    admin/
+      login.astro     # Login page
+      [...path].astro # Vue SPA catch-all
     api/
-      admin/        # Admin API routes (login, logout, campaigns CRUD, send)
-      newsletter/   # Public API (subscribe, confirm, unsubscribe)
-      promo/        # Promo API (download, feedback)
-    newsletter/     # Public newsletter pages
-    promo/          # Promo pages
-    releases/       # Release detail pages
+      admin/          # Protected admin API routes
+        login.ts      # Auth (sets httpOnly cookie)
+        logout.ts
+        newsletter/   # Campaigns CRUD, send, test
+        promo-list/   # Promo subscriber CRUD
+      newsletter/     # Public API (subscribe, confirm, unsubscribe)
+      promo/          # Promo API (download, feedback)
+      promo-list/     # Public API (subscribe, unsubscribe)
+    newsletter/       # Public newsletter pages
+    promo/            # Promo pages
+    promo-list/       # Promo list signup + unsubscribed confirmation
+    releases/         # Release detail pages
   styles/
-    global.css      # Tailwind v4 theme tokens + base styles
-the-moon-os/        # Git submodule — release data + shared assets
+    global.css        # Tailwind v4 theme tokens + base styles
+the-moon-os/          # Git submodule — release data + shared assets
 tools/
   pocketbase/
-    pb_migrations/  # PocketBase schema migrations (run on startup)
+    pb_migrations/    # PocketBase schema migrations (run on startup)
 ```
 
 ---
@@ -184,7 +230,7 @@ Deployed on Kubernetes (Netcup) via ArgoCD. Two separate deployments:
 - **the-moon-web** — the Astro app (`ghcr.io/tobeworks/the-moon-web:latest`)
 - **the-moon-pocketbase** — PocketBase with persistent volume (`ghcr.io/tobeworks/the-moon-pocketbase:latest`)
 
-GitHub Actions builds and pushes images on every push to `main`. ArgoCD Image Updater handles automatic rollout. Config lives in the `netcup` ArgoCD repo under `apps/the-moon-web/` and `apps/the-moon-pocketbase/`.
+GitHub Actions builds and pushes images on every push to `main`. ArgoCD Image Updater watches both images and handles automatic rollout. Config lives in the `netcup` ArgoCD repo under `apps/the-moon-web/` and `apps/the-moon-pocketbase/`.
 
 PocketBase is accessible externally at `pb.the-moon-records.de` (for admin access).
 
