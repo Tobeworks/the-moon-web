@@ -12,7 +12,7 @@ const navLinks = [
 <header
   id="tmr-header"
   class="fixed top-0 left-0 right-0 z-100 flex items-center justify-between px-6 lg:px-10 h-16 border-b border-transparent transition-[background,border-color] duration-300">
-  <a href="/" class="font-label font-bold text-[0.75rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200">
+  <a href="/" id="tmr-header-logo" class="font-label font-bold text-[0.75rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200 transition-opacity duration-300">
     The Moon Records
   </a>
 
@@ -109,6 +109,20 @@ const navLinks = [
   window.addEventListener('scroll', () => {
     header?.classList.toggle('scrolled', window.scrollY > 20);
   }, { passive: true });
+
+  // Hide header logo on homepage as long as the hero h1 is visible
+  const logo = document.getElementById('tmr-header-logo');
+  const heroTitle = document.querySelector('h1.hero-title') as HTMLElement | null;
+  if (logo && heroTitle) {
+    logo.style.opacity = '0';
+    logo.style.pointerEvents = 'none';
+    const obs = new IntersectionObserver(([entry]) => {
+      const hidden = entry.isIntersecting;
+      logo.style.opacity = hidden ? '0' : '1';
+      logo.style.pointerEvents = hidden ? 'none' : '';
+    }, { threshold: 0 });
+    obs.observe(heroTitle);
+  }
 </script>
 
 <style>
