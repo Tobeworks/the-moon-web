@@ -5,17 +5,17 @@ import ReleaseList from "../components/ReleaseList.astro";
 import NewsletterForm from "../components/NewsletterForm.astro";
 import releasesData from "../../the-moon-os/data/releases.json";
 
-const latestCatalog = releasesData.releases
-  .map((r) => r.catalog)
-  .sort()
-  .at(-1) ?? "TMR-001";
+const latestCatalog =
+  releasesData.releases
+    .map((r) => r.catalog)
+    .sort()
+    .at(-1) ?? "TMR-001";
 ---
 
 <BaseLayout
   title="THE MOON RECORDS"
   description="Independent beatless music label. Ambient, Drone, Soundscape."
   canonicalUrl={new URL("", Astro.site).href}>
-
   <!-- ── Hero ── -->
   <section
     class="min-h-screen grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-6 lg:px-10 pb-12 relative overflow-hidden">
@@ -71,8 +71,8 @@ const latestCatalog = releasesData.releases
       {
         [
           ["Label", "The Moon Records"],
-          ["Field", "Beatless"],
-          ["Est.", "2026"],
+          ["Field", "Ambient"],
+          ["Est.", "2024"],
         ].map(([label, value]) => (
           <div class="flex gap-4 font-mono text-[0.575rem] tracking-[0.25em] uppercase">
             <span class="text-fg-muted">{label}</span>
@@ -92,13 +92,17 @@ const latestCatalog = releasesData.releases
         <span class="tmr-section-sub">TMR / Latest</span>
       </div>
       <ReleaseList limit={12} />
-      {releasesData.releases.length > 12 && (
-        <div class="mt-10 flex justify-center">
-          <a href="/releases" class="btn btn--muted font-mono text-[0.6rem] tracking-[0.25em] uppercase">
-            All Releases ({releasesData.releases.length}) →
-          </a>
-        </div>
-      )}
+      {
+        releasesData.releases.length > 12 && (
+          <div class="mt-10 flex justify-center">
+            <a
+              href="/releases"
+              class="btn btn--muted font-mono text-[0.6rem] tracking-[0.25em] uppercase">
+              All Releases ({releasesData.releases.length}) →
+            </a>
+          </div>
+        )
+      }
     </div>
   </section>
 
@@ -115,11 +119,11 @@ const latestCatalog = releasesData.releases
         class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-20 items-start">
         <!-- Text -->
         <div
-          class="flex flex-col gap-5 font-label font-light text-[0.975rem] leading-[2] text-fg-dim">
+          class="flex flex-col gap-5 font-label font-light text-[0.975rem] leading-loose text-fg-dim">
           <p>
-            The Moon Records is a beatless label. Ambient and drone across the
-            full spectrum — lo-fi warmth, field recording and synthesis,
-            sustained tones, deep drone.
+            The Moon Records is a mostly beatless label. Ambient and Drone
+            across the full spectrum. Lo-fi warmth, field recording and
+            synthesis, sustained tones, deep drone, Space Soundscape udn more.
           </p>
           <p>
             The music here does not push. It accumulates. It holds still long
@@ -128,8 +132,8 @@ const latestCatalog = releasesData.releases
           <p>
             The label name originates with Logic Moon, the founding artist whose
             sound defined the initial position. The scope has since opened: any
-            artist operating within the beatless spectrum belongs here, provided
-            the work has internal logic and was made with intention.
+            artist operating within the spectrum belongs here, provided the work
+            has internal logic and was made with intention.
           </p>
         </div>
 
@@ -137,15 +141,15 @@ const latestCatalog = releasesData.releases
         <div class="border-t border-border">
           {
             [
-              ["Founded", "2026"],
+              ["Founded", "2024"],
               ["Format", "Digital / Limited Physical"],
-              ["Catalog", `${latestCatalog} →`],
+              ["Catalog", `TMR001 → ${latestCatalog}`],
               ["Spectrum", "Ambient — Drone — Soundscape"],
               ["Beatless", "Always"],
-              ["Platform", "Bandcamp / Direct"],
+              ["Platform", "Bandcamp / DSP"],
             ].map(([label, value]) => (
               <div class="flex gap-4 py-3 border-b border-border font-mono text-[0.6rem] tracking-[0.14em] uppercase">
-                <span class="text-fg-muted min-w-[5.5rem]">{label}</span>
+                <span class="text-fg-muted min-w-22">{label}</span>
                 <span class="text-fg-dim">{value}</span>
               </div>
             ))
@@ -164,7 +168,7 @@ const latestCatalog = releasesData.releases
         <span class="tmr-section-sub">New Phase / Notify</span>
       </div>
 
-      <div class="max-w-[32rem] mx-auto text-center pt-4">
+      <div class="max-w-128 mx-auto text-center pt-4">
         <h2
           class="font-label font-light text-[1.5rem] tracking-[0.12em] uppercase text-fg mb-2">
           Stay in the field.
