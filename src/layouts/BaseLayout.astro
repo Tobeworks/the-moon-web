@@ -70,6 +70,16 @@ const siteName = 'THE MOON RECORDS';
   </body>
 </html>
 
+<script>
+  import Lenis from 'lenis';
+  const lenis = new Lenis();
+  function raf(time: number) {
+    lenis.raf(time);
+    requestAnimationFrame(raf);
+  }
+  requestAnimationFrame(raf);
+</script>
+
 <style is:global>
   /* ── Film Grain ─────────────────────────────────────────────── */
   body::after {
