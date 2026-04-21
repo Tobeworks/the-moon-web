@@ -91,7 +91,14 @@ const latestCatalog = releasesData.releases
         <span class="tmr-section-title">Current Phase</span>
         <span class="tmr-section-sub">TMR / Latest</span>
       </div>
-      <ReleaseList />
+      <ReleaseList limit={12} />
+      {releasesData.releases.length > 12 && (
+        <div class="mt-10 flex justify-center">
+          <a href="/releases" class="btn btn--muted font-mono text-[0.6rem] tracking-[0.25em] uppercase">
+            All Releases ({releasesData.releases.length}) →
+          </a>
+        </div>
+      )}
     </div>
   </section>
 

@@ -2,9 +2,17 @@
 import ReleaseCard from './ReleaseCard.astro';
 import releasesData from '../../the-moon-os/data/releases.json';
 
-const releases = [...releasesData.releases].sort((a, b) =>
+interface Props {
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+
+const allReleases = [...releasesData.releases].sort((a, b) =>
   b.catalog.localeCompare(a.catalog, undefined, { numeric: true })
 );
+
+const releases = limit ? allReleases.slice(0, limit) : allReleases;
 ---
 
 {releases.length > 0 ? (

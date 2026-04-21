@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ReleaseList from '../../components/ReleaseList.astro';
+import releasesData from '../../../the-moon-os/data/releases.json';
+---
+
+<BaseLayout title="Releases — THE MOON RECORDS" description="All releases on The Moon Records.">
+  <section class="py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">TMR</span>
+        <span class="tmr-section-title">All Releases</span>
+        <span class="tmr-section-sub">{releasesData.releases.length} transmissions</span>
+      </div>
+
+      <ReleaseList />
+
+    </div>
+  </section>
+</BaseLayout>

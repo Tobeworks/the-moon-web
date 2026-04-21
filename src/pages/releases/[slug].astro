@@ -97,6 +97,7 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
           </div>
 
           <h1
+            id="release-title"
             class="font-label font-bold uppercase text-fg leading-[1.05]"
             style="font-size: clamp(1.5rem, 4vw, 2.5rem); letter-spacing: 0.06em;"
           >{title}</h1>
@@ -181,4 +182,15 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
 
     </div>
   </div>
+<script>
+  // On mobile, scroll the release title into view so it's clear the page changed
+  if (window.matchMedia('(max-width: 639px)').matches) {
+    const title = document.getElementById('release-title');
+    if (title) {
+      const headerHeight = 64; // h-16
+      const y = title.getBoundingClientRect().top + window.scrollY - headerHeight - 80;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
+  }
+</script>
 </BaseLayout>
