@@ -16,7 +16,7 @@ export const POST = async ({ request }: APIContext) => {
     return json({ error: 'Invalid body' }, 400);
   }
 
-  const { releaseSlug, releaseTitle, releaseArtist, testEmail } = body as Record<string, string>;
+  const { releaseSlug, releaseTitle, releaseArtist, testEmail, coverUrl } = body as Record<string, string>;
   if (!releaseSlug || !releaseTitle || !releaseArtist || !testEmail) {
     return json({ error: 'releaseSlug, releaseTitle, releaseArtist and testEmail are required' }, 422);
   }
@@ -33,7 +33,7 @@ export const POST = async ({ request }: APIContext) => {
     });
     const promoUrl = `${siteUrl}/promo/${releaseSlug.toLowerCase()}?t=${token}`;
     // Use a dummy unsubscribe token for test mails
-    await sendPromoEmail(testEmail, 'TEST', releaseTitle, releaseArtist, promoUrl, 'test-token', siteUrl);
+    await sendPromoEmail(testEmail, 'TEST', releaseTitle, releaseArtist, promoUrl, 'test-token', siteUrl, coverUrl || undefined);
     return json({ ok: true, promoUrl });
   } catch (e: any) {
     return json({ ok: false, error: e.message }, 500);

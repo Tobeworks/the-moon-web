@@ -32,7 +32,13 @@ if (isExpired) {
 const release = releasesData.releases.find((r) => r.catalog.toLowerCase() === slug);
 if (!release) return Astro.redirect('/404');
 
-const { catalog, artist, title, format, year, genre, artwork, cover, tracks } = release;
+const { catalog, artist, title, format, year, genre, artwork, cover, tracks, release_date } = release;
+
+const releaseDate = release_date ? new Date(release_date) : null;
+const formattedReleaseDate = releaseDate
+  ? releaseDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  : null;
+const isReleased = releaseDate ? releaseDate <= new Date() : true;
 
 const playerTracks = tracks.map((t) => ({ number: t.number, title: t.title, url: t.url }));
 
@@ -87,6 +93,11 @@ const feedbacks = await getFeedbackForRelease(slug!);
               </h1>
               <p class="font-label text-[0.7rem] tracking-[0.2em] uppercase text-fg-dim">{artist}</p>
               <p class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">For: {promo.recipient_name.toUpperCase()}</p>
+              {formattedReleaseDate && (
+                <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+                  {isReleased ? 'Released' : 'Release date'}: {formattedReleaseDate}
+                </p>
+              )}
               {promo.expires_at && (
                 <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
                   Valid until: {new Date(promo.expires_at).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}

@@ -92,6 +92,14 @@ export interface PromoSubscriber {
   created: string;
 }
 
+export interface PromoRelease {
+  slug: string;
+  catalog: string;
+  title: string;
+  artist: string;
+  coverUrl?: string;
+}
+
 export const promoApi = {
   async getSubscribers(): Promise<PromoSubscriber[]> {
     const res = await fetch('/api/admin/promo-list/subscribers');
@@ -122,6 +130,7 @@ export const promoApi = {
     releaseTitle: string;
     releaseArtist: string;
     expiresAt?: string;
+    coverUrl?: string;
   }): Promise<{ ok: boolean; sent: number; failed: number; errors: string[] }> {
     const res = await fetch('/api/admin/promo-list/send', {
       method: 'POST',
@@ -137,6 +146,7 @@ export const promoApi = {
     releaseTitle: string;
     releaseArtist: string;
     testEmail: string;
+    coverUrl?: string;
   }): Promise<{ ok: boolean; promoUrl?: string; error?: string }> {
     const res = await fetch('/api/admin/promo-list/test', {
       method: 'POST',

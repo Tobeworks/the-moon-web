@@ -161,12 +161,19 @@ export async function sendPromoEmail(
   promoUrl: string,
   unsubscribeToken: string,
   siteUrl: string,
+  coverUrl?: string,
 ): Promise<void> {
   const greeting = name ? `Hello ${name},` : 'Hello,';
   const unsubscribeUrl = `${siteUrl}/api/promo-list/unsubscribe?token=${unsubscribeToken}`;
 
+  const coverBlock = coverUrl
+    ? `<img src="${coverUrl}" alt="${releaseTitle}" width="200" height="200"
+         style="display:block;width:200px;height:200px;object-fit:cover;margin:0 0 2rem;border:1px solid rgba(196,185,138,0.12);" />`
+    : '';
+
   const html = baseHtml(`
     <p style="margin:0 0 1.5rem;color:rgba(232,228,216,0.85);font-size:14px;letter-spacing:0.04em;line-height:1.8;">${greeting}</p>
+    ${coverBlock}
     <p style="margin:0 0 0.5rem;color:rgba(232,228,216,0.5);font-size:11px;letter-spacing:0.3em;text-transform:uppercase;">// NEW RELEASE</p>
     <h1 style="margin:0 0 0.25rem;color:#E8E4D8;font-size:22px;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;">${releaseTitle}</h1>
     <p style="margin:0 0 2rem;color:rgba(196,185,138,0.8);font-size:12px;letter-spacing:0.25em;text-transform:uppercase;">${releaseArtist}</p>

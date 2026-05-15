@@ -131,12 +131,13 @@ import { promoApi, type PromoSubscriber } from '../../../lib/admin-api';
 // ── Releases (embedded from build-time import) ──────────────────────────────
 import releasesJson from '../../../../the-moon-os/data/releases.json';
 
-interface Release { slug: string; catalog: string; title: string; artist: string; }
+interface Release { slug: string; catalog: string; title: string; artist: string; coverUrl?: string; }
 const releases: Release[] = (releasesJson as any).releases.map((r: any) => ({
   slug: r.catalog,
   catalog: r.catalog,
   title: r.title,
   artist: r.artist,
+  coverUrl: r.artwork?.['300']?.jpg || r.cover || undefined,
 }));
 
 // ── State ────────────────────────────────────────────────────────────────────
@@ -214,6 +215,7 @@ async function sendTest() {
       releaseTitle: r.title,
       releaseArtist: r.artist,
       testEmail: testEmail.value,
+      coverUrl: r.coverUrl,
     });
   } finally {
     testing.value = false;
@@ -234,6 +236,7 @@ async function sendToAll() {
       releaseTitle: r.title,
       releaseArtist: r.artist,
       ...(expiresAt.value ? { expiresAt: expiresAt.value } : {}),
+      coverUrl: r.coverUrl,
     });
     sendResult.value = result;
   } finally {
