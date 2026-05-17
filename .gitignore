@@ -10,6 +10,9 @@ tools/pocketbase/pb_data/
 # Environment
 .env
 
+# Promo drafts — private outreach emails, never commit
+promo/
+
 # General
 .DS_Store
 __MACOSX/
