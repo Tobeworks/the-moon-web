@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIContext } from 'astro';
-import { deletePromoRecord } from '../../../../../lib/pocketbase';
+import { deletePromoRecord } from '../../../../lib/pocketbase';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });
