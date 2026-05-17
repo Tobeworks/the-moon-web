@@ -359,6 +359,22 @@ export async function createPromoRecord(payload: {
 
 // ── Download Events ────────────────────────────────────────────────────────
 
+/** Returns all promo records, optionally filtered by release_slug */
+export async function getPromoRecords(release_slug?: string): Promise<PromoRecord[]> {
+  const filter = release_slug
+    ? `?filter=${encodeURIComponent(`release_slug='${release_slug}'`)}&perPage=500&sort=-created`
+    : '?perPage=500&sort=-created'
+  const res = await fetch(`${PB_URL}/api/collections/promos/records${filter}`)
+  if (!res.ok) return []
+  const data = await res.json()
+  return data.items ?? []
+}
+
+/** Deletes a promo record by id */
+export async function deletePromoRecord(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/promos/records/${id}`, { method: 'DELETE' })
+}
+
 /** Logs a download event. Fire-and-forget — swallows errors. */
 export async function logDownload(payload: {
   promo: string;
