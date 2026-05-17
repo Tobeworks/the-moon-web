@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @source "../**/*.{astro,ts,js,mjs,vue}";
+@source "../pages/promo/*.astro";
+@source "../pages/releases/*.astro";
 
 @theme {
   /* ── Accent — Moon Sand ── */
