@@ -156,3 +156,43 @@ export const promoApi = {
     return res.json();
   },
 };
+
+export interface PromoRecord {
+  id: string;
+  token: string;
+  release_slug: string;
+  recipient_name: string;
+  recipient_email?: string;
+  notes?: string;
+  expires_at?: string;
+  created?: string;
+}
+
+export const promoRecordsApi = {
+  async getRecords(release_slug?: string): Promise<PromoRecord[]> {
+    const qs = release_slug ? `?release_slug=${encodeURIComponent(release_slug)}` : ''
+    const res = await fetch(`/api/admin/promos${qs}`)
+    if (!res.ok) throw new Error('Failed to load promo records')
+    return res.json()
+  },
+
+  async createRecord(payload: {
+    release_slug: string
+    recipient_name: string
+    recipient_email?: string
+    expires_at?: string
+  }): Promise<PromoRecord> {
+    const res = await fetch('/api/admin/promos', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) throw new Error('Failed to create promo record')
+    return res.json()
+  },
+
+  async deleteRecord(id: string): Promise<void> {
+    const res = await fetch(`/api/admin/promos/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Failed to delete promo record')
+  },
+}
