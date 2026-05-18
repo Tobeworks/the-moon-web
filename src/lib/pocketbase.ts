@@ -362,7 +362,7 @@ export async function createPromoRecord(payload: {
 /** Returns all promo records, optionally filtered by release_slug */
 export async function getPromoRecords(release_slug?: string): Promise<PromoRecord[]> {
   const filter = release_slug
-    ? `?filter=${encodeURIComponent(`release_slug='${release_slug}'`)}&perPage=500&sort=-created`
+    ? `?filter=${encodeURIComponent(`release_slug='${release_slug.toLowerCase()}'`)}&perPage=500&sort=-created`
     : '?perPage=500&sort=-created'
   const res = await fetch(`${PB_URL}/api/collections/promos/records${filter}`)
   if (!res.ok) return []

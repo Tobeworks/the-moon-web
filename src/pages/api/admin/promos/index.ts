@@ -25,6 +25,6 @@ export const POST = async ({ request }: APIContext) => {
   if (!release_slug || !recipient_name) return json({ error: 'release_slug and recipient_name required' }, 422);
 
   const token = randomBytes(16).toString('hex');
-  const record = await createPromoRecord({ token, release_slug, recipient_name, recipient_email: recipient_email ?? '', expires_at });
+  const record = await createPromoRecord({ token, release_slug: release_slug.toLowerCase(), recipient_name, recipient_email: recipient_email ?? '', expires_at });
   return json(record, 201);
 };

@@ -269,7 +269,7 @@ import releasesJson from '../../../../the-moon-os/data/releases.json';
 
 interface Release { slug: string; catalog: string; title: string; artist: string; coverUrl?: string; }
 const releases: Release[] = (releasesJson as any).releases.map((r: any) => ({
-  slug: r.catalog,
+  slug: r.catalog.toLowerCase(),
   catalog: r.catalog,
   title: r.title,
   artist: r.artist,
