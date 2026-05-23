@@ -284,6 +284,10 @@ export async function getConfirmedSubscribers(): Promise<NewsletterSubscriber[]>
   } catch { return []; }
 }
 
+export async function deleteNewsletterSubscriber(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/newsletter_subscribers/records/${id}`, { method: 'DELETE' });
+}
+
 // ── Promo Subscribers ─────────────────────────────────────────────────────
 
 export interface PromoSubscriber {

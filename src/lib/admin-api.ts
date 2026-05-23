@@ -196,3 +196,24 @@ export const promoRecordsApi = {
     if (!res.ok) throw new Error('Failed to delete promo record')
   },
 }
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  name?: string;
+  confirmed: boolean;
+  created: string;
+}
+
+export const newsletterSubscribersApi = {
+  async getAll(): Promise<NewsletterSubscriber[]> {
+    const res = await fetch('/api/admin/newsletter/subscribers')
+    if (!res.ok) throw new Error('Failed to load subscribers')
+    return res.json()
+  },
+
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`/api/admin/newsletter/subscribers/${id}`, { method: 'DELETE' })
+    if (!res.ok) throw new Error('Failed to delete subscriber')
+  },
+}
