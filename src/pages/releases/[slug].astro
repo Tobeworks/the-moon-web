@@ -6,6 +6,7 @@ import AudioPlayer from '../../components/AudioPlayer.astro';
 import PhaseCircle from '../../components/PhaseCircle.astro';
 import releasesData from '../../../the-moon-os/data/releases.json';
 import { getFeedbackForRelease } from '../../lib/pocketbase';
+import { marked } from 'marked';
 
 const { slug } = Astro.params;
 const release = releasesData.releases.find(
@@ -16,7 +17,10 @@ if (!release) return Astro.redirect('/404');
 
 const feedback = await getFeedbackForRelease(slug!);
 
-const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms, release_date } = release;
+const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms, release_date, about } = release;
+
+// Strip a leading "# Title" line — the page already renders its own <h1>
+const aboutHtml = about ? marked.parse(about.replace(/^#\s+.+\n+/, '')) : '';
 
 const art1500webp = artwork?.['1500']?.webp;
 const art1500jpg  = artwork?.['1500']?.jpg;
@@ -151,6 +155,17 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
               <p class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted">
                 Available {formattedReleaseDate}
               </p>
+            </div>
+          )}
+
+          <!-- About -->
+          {aboutHtml && (
+            <div class="flex flex-col gap-4 pt-2">
+              <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// About</span>
+              <div
+                class="font-label text-[0.75rem] tracking-[0.04em] text-fg-dim leading-relaxed flex flex-col gap-3 [&_p]:m-0"
+                set:html={aboutHtml}
+              />
             </div>
           )}
 
