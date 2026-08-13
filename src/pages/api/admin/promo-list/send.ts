@@ -16,7 +16,7 @@ export const POST = async ({ request }: APIContext) => {
     return json({ error: 'Invalid body' }, 400);
   }
 
-  const { releaseSlug, releaseTitle, releaseArtist, expiresAt, coverUrl } = body as Record<string, string>;
+  const { releaseSlug, releaseTitle, releaseArtist, expiresAt, coverUrl, about } = body as Record<string, string>;
   if (!releaseSlug || !releaseTitle || !releaseArtist) {
     return json({ error: 'releaseSlug, releaseTitle and releaseArtist are required' }, 422);
   }
@@ -39,7 +39,7 @@ export const POST = async ({ request }: APIContext) => {
         ...(expiresAt ? { expires_at: expiresAt } : {}),
       });
       const promoUrl = `${siteUrl}/promo/${releaseSlug.toLowerCase()}?t=${token}`;
-      await sendPromoEmail(sub.email, sub.name ?? '', releaseTitle, releaseArtist, promoUrl, sub.unsubscribe_token, siteUrl, coverUrl || undefined);
+      await sendPromoEmail(sub.email, sub.name ?? '', releaseTitle, releaseArtist, promoUrl, sub.unsubscribe_token, siteUrl, coverUrl || undefined, about || undefined);
       sent++;
     } catch (e: any) {
       failed++;

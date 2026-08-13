@@ -12,6 +12,9 @@ const transporter = nodemailer.createTransport({
 
 const FROM = `THE MOON RECORDS <${process.env.SMTP_FROM ?? 'newsletter@the-moon-records.de'}>`;
 
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
 const baseHtml = (content: string) => `<!DOCTYPE html>
 <html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -162,6 +165,7 @@ export async function sendPromoEmail(
   unsubscribeToken: string,
   siteUrl: string,
   coverUrl?: string,
+  about?: string,
 ): Promise<void> {
   const greeting = name ? `Hello ${name},` : 'Hello,';
   const unsubscribeUrl = `${siteUrl}/api/promo-list/unsubscribe?token=${unsubscribeToken}`;
@@ -171,15 +175,31 @@ export async function sendPromoEmail(
          style="display:block;width:200px;height:200px;object-fit:cover;margin:0 0 2rem;border:1px solid rgba(196,185,138,0.12);" />`
     : '';
 
+  // ponytail: about is plain markdown text — drop the leading "# Title" line, keep paragraphs
+  const aboutText = (about ?? '')
+    .split('\n')
+    .filter((l) => l.trim() && !l.trim().startsWith('#'))
+    .join('\n\n');
+
+  const aboutBlock = aboutText
+    ? aboutText
+        .split('\n\n')
+        .map(
+          (p) =>
+            `<p style="margin:0 0 1.25rem;color:rgba(232,228,216,0.65);font-size:13px;letter-spacing:0.05em;line-height:1.8;">${escapeHtml(p)}</p>`,
+        )
+        .join('')
+    : `<p style="margin:0 0 2rem;color:rgba(232,228,216,0.65);font-size:13px;letter-spacing:0.05em;line-height:1.8;">
+      A promo copy is ready for you. Your personal link gives you access to stream and download the release.
+    </p>`;
+
   const html = baseHtml(`
     <p style="margin:0 0 1.5rem;color:rgba(232,228,216,0.85);font-size:14px;letter-spacing:0.04em;line-height:1.8;">${greeting}</p>
     ${coverBlock}
     <p style="margin:0 0 0.5rem;color:rgba(232,228,216,0.5);font-size:11px;letter-spacing:0.3em;text-transform:uppercase;">// NEW RELEASE</p>
     <h1 style="margin:0 0 0.25rem;color:#E8E4D8;font-size:22px;letter-spacing:0.15em;text-transform:uppercase;font-weight:700;">${releaseTitle}</h1>
     <p style="margin:0 0 2rem;color:rgba(196,185,138,0.8);font-size:12px;letter-spacing:0.25em;text-transform:uppercase;">${releaseArtist}</p>
-    <p style="margin:0 0 2rem;color:rgba(232,228,216,0.65);font-size:13px;letter-spacing:0.05em;line-height:1.8;">
-      A promo copy is ready for you. Your personal link gives you access to stream and download the release.
-    </p>
+    ${aboutBlock}
     <a href="${promoUrl}" style="display:inline-block;background:#C4B98A;color:#1A1710;font-size:12px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;padding:13px 28px;text-decoration:none;">
       ACCESS PROMO
     </a>
@@ -189,7 +209,7 @@ export async function sendPromoEmail(
     </p>
   `);
 
-  const text = `${greeting}\n\nNew release: ${releaseTitle} — ${releaseArtist}\n\nYour personal promo link:\n${promoUrl}\n\nPlease do not share this link publicly.\n\nUnsubscribe: ${unsubscribeUrl}`;
+  const text = `${greeting}\n\nNew release: ${releaseTitle} — ${releaseArtist}\n${aboutText ? `\n${aboutText}\n` : ''}\nYour personal promo link:\n${promoUrl}\n\nPlease do not share this link publicly.\n\nUnsubscribe: ${unsubscribeUrl}`;
 
   await transporter.sendMail({ from: FROM, to, subject: `Promo: ${releaseTitle} — THE MOON RECORDS`, html, text });
 }

@@ -267,13 +267,14 @@ import { promoApi, promoRecordsApi, type PromoSubscriber, type PromoRecord } fro
 // ── Releases (embedded from build-time import) ──────────────────────────────
 import releasesJson from '../../../../the-moon-os/data/releases.json';
 
-interface Release { slug: string; catalog: string; title: string; artist: string; coverUrl?: string; }
+interface Release { slug: string; catalog: string; title: string; artist: string; coverUrl?: string; about?: string; }
 const releases: Release[] = (releasesJson as any).releases.map((r: any) => ({
   slug: r.catalog.toLowerCase(),
   catalog: r.catalog,
   title: r.title,
   artist: r.artist,
   coverUrl: r.artwork?.['300']?.jpg || r.cover || undefined,
+  about: r.about || undefined,
 }));
 
 // ── Tab ──────────────────────────────────────────────────────────────────────
@@ -374,6 +375,7 @@ async function sendTest() {
       releaseArtist: r.artist,
       testEmail: testEmail.value,
       coverUrl: r.coverUrl,
+      about: r.about,
     });
   } finally {
     testing.value = false;
@@ -395,6 +397,7 @@ async function sendToAll() {
       releaseArtist: r.artist,
       ...(expiresAt.value ? { expiresAt: expiresAt.value } : {}),
       coverUrl: r.coverUrl,
+      about: r.about,
     });
     sendResult.value = result;
   } finally {

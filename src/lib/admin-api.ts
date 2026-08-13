@@ -131,6 +131,7 @@ export const promoApi = {
     releaseArtist: string;
     expiresAt?: string;
     coverUrl?: string;
+    about?: string;
   }): Promise<{ ok: boolean; sent: number; failed: number; errors: string[] }> {
     const res = await fetch('/api/admin/promo-list/send', {
       method: 'POST',
@@ -147,6 +148,7 @@ export const promoApi = {
     releaseArtist: string;
     testEmail: string;
     coverUrl?: string;
+    about?: string;
   }): Promise<{ ok: boolean; promoUrl?: string; error?: string }> {
     const res = await fetch('/api/admin/promo-list/test', {
       method: 'POST',
