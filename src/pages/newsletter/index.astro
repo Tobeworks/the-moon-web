@@ -3,6 +3,7 @@ export const prerender = false;
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NewsletterForm from '../../components/NewsletterForm.astro';
+import { ArrowDown } from 'lucide-astro';
 
 const error = Astro.url.searchParams.get('error') ?? undefined;
 
@@ -28,7 +29,8 @@ const perks = [
     </div>
 
     <!-- ── Left: claim ─────────────────────────────────────────────────────── -->
-    <div class="relative flex flex-col justify-center order-1 md:pr-12 lg:pr-20 md:py-24">
+    <div
+      class="relative flex flex-col justify-center order-1 min-h-[calc(100dvh-9rem)] pb-10 md:min-h-0 md:pb-0 md:pr-12 lg:pr-20 md:py-24">
 
       <span class="flex items-center gap-3 font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
         <span class="block w-8 h-px bg-accent opacity-50 shrink-0"></span>
@@ -42,11 +44,11 @@ const perks = [
 
       <div class="w-full h-px bg-border mb-4 md:mb-6"></div>
 
-      <p class="font-label font-light text-[0.75rem] tracking-[0.3em] uppercase text-fg-dim mb-10 md:mb-12">
+      <p class="font-label font-light text-[0.75rem] tracking-[0.3em] uppercase text-fg-dim mb-8 md:mb-12">
         New releases straight to your inbox
       </p>
 
-      <ul class="flex flex-col gap-3.5 mb-12">
+      <ul class="flex flex-col gap-3.5 mb-8 md:mb-12">
         {perks.map((perk) => (
           <li class="flex items-baseline gap-3 font-mono text-[0.6rem] tracking-[0.22em] uppercase text-fg-muted">
             <span class="text-accent shrink-0">+</span>
@@ -57,13 +59,29 @@ const perks = [
 
       <a
         href="/"
-        class="font-label font-light text-[0.65rem] tracking-[0.3em] uppercase text-fg-muted no-underline hover:text-accent transition-colors duration-200 self-start">
+        class="hidden md:block self-start font-label font-light text-[0.65rem] tracking-[0.3em] uppercase text-fg-muted no-underline hover:text-accent transition-colors duration-200">
         ← Back to The Moon
+      </a>
+
+      <!-- Mobile only: scroll cue down to the form, sits in the lower third -->
+      <a
+        href="#nl-signup"
+        id="nl-scroll-cue"
+        aria-label="Jump down to the sign-up form"
+        class="nl-cue md:hidden absolute bottom-0 left-0 inline-flex items-center gap-4 no-underline">
+        <span
+          class="nl-cue-icon flex items-center justify-center w-11 h-11 shrink-0 border border-accent-border text-accent">
+          <ArrowDown size={16} stroke-width={1.25} />
+        </span>
+        <span class="font-label font-light text-[0.65rem] tracking-[0.3em] uppercase text-fg-muted">
+          Sign Up
+        </span>
       </a>
     </div>
 
     <!-- ── Right: form ─────────────────────────────────────────────────────── -->
     <div
+      id="nl-signup"
       class="relative flex flex-col justify-center order-2 mt-16 pt-12 border-t border-border md:mt-0 md:pt-0 md:border-t-0 md:border-l md:border-border md:pl-12 lg:pl-20 md:py-24">
 
       <span class="font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
@@ -75,3 +93,54 @@ const perks = [
 
   </section>
 </BaseLayout>
+
+<style>
+  /* Mobile scroll cue — gentle drift downwards, fades out once the form is in view */
+  .nl-cue {
+    transition: opacity 400ms ease-out;
+  }
+
+  .nl-cue.is-hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .nl-cue-icon {
+    animation: nl-cue-drift 2.4s ease-in-out infinite;
+    transition: border-color 200ms ease-out;
+  }
+
+  .nl-cue:active .nl-cue-icon {
+    border-color: var(--color-accent);
+  }
+
+  @keyframes nl-cue-drift {
+    0%, 100% { transform: translateY(0);       opacity: 0.7; }
+    50%      { transform: translateY(0.35rem); opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nl-cue-icon { animation: none; opacity: 1; }
+  }
+</style>
+
+<script>
+  const cue = document.getElementById('nl-scroll-cue');
+  const signup = document.getElementById('nl-signup');
+
+  if (cue && signup) {
+    cue.addEventListener('click', (e) => {
+      e.preventDefault();
+      const headerHeight = 64; // h-16
+      const y = signup.getBoundingClientRect().top + window.scrollY - headerHeight - 24;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    });
+
+    // Retire the cue as soon as the form has arrived
+    const observer = new IntersectionObserver(
+      ([entry]) => cue.classList.toggle('is-hidden', entry.isIntersecting),
+      { threshold: 0.2 },
+    );
+    observer.observe(signup);
+  }
+</script>
