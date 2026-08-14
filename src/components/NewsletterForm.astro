@@ -15,7 +15,7 @@ const { error } = Astro.props as { error?: string };
   )}
 
   <form id="nl-form" novalidate>
-    <div class="flex flex-col gap-5 mb-6">
+    <div class="flex flex-col gap-6 mb-8">
       <div class="flex flex-col gap-1.5">
         <label for="nl-name" class="font-label font-light text-[0.75rem] tracking-[0.12em] text-fg-dim">
           Name <span class="text-fg-muted">(optional)</span>
@@ -46,7 +46,7 @@ const { error } = Astro.props as { error?: string };
       </div>
     </div>
 
-    <label for="nl-consent" class="flex items-start gap-3 mb-6 cursor-pointer group">
+    <label for="nl-consent" class="flex items-start gap-3 mb-8 cursor-pointer group">
       <input
         type="checkbox"
         id="nl-consent"
