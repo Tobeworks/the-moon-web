@@ -1,25 +1,7 @@
 ---
 import { ExternalLink } from 'lucide-astro';
 import pkg from '../../package.json';
-
-// ponytail: no CTA pointing at the page you're already on
-const onNewsletter = Astro.url.pathname.startsWith('/newsletter');
 ---
-
-{!onNewsletter && (
-<section class="px-6 lg:px-10 py-10 border-t border-border flex items-center justify-between gap-6 flex-wrap">
-  <div class="flex flex-col gap-1.5">
-    <span class="text-eyebrow">// TRANSMISSION_OPEN</span>
-    <p class="font-label font-bold text-[0.95rem] tracking-[0.18em] uppercase text-fg m-0">
-      Join the list
-    </p>
-    <p class="font-label font-light text-[0.72rem] tracking-[0.04em] text-fg-muted leading-relaxed m-0 max-w-[26rem]">
-      New releases straight to your inbox. Free, no spam, unsubscribe any time.
-    </p>
-  </div>
-  <a href="/newsletter" class="btn btn--primary no-underline shrink-0">Subscribe</a>
-</section>
-)}
 
 <footer class="px-6 lg:px-10 py-8 border-t border-border flex items-center justify-between gap-8 flex-wrap">
   <a href="/" class="font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200">

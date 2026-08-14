@@ -15,7 +15,7 @@ const { error } = Astro.props as { error?: string };
   )}
 
   <form id="nl-form" novalidate>
-    <div class="flex flex-col gap-6 mb-8">
+    <div class="flex flex-col gap-5 mb-6">
       <div class="flex flex-col gap-1.5">
         <label for="nl-name" class="font-label font-light text-[0.75rem] tracking-[0.12em] text-fg-dim">
           Name <span class="text-fg-muted">(optional)</span>
@@ -46,29 +46,13 @@ const { error } = Astro.props as { error?: string };
       </div>
     </div>
 
-    <label for="nl-consent" class="flex items-start gap-3 mb-8 cursor-pointer group">
-      <input
-        type="checkbox"
-        id="nl-consent"
-        name="consent"
-        required
-        class="mt-0.5 w-4 h-4 shrink-0 accent-accent cursor-pointer"
-      />
-      <span class="font-label font-light text-[0.75rem] tracking-[0.04em] text-fg-muted leading-relaxed group-hover:text-fg-dim transition-colors">
-        I agree that my email address will be stored and used to send the newsletter.
-        I can withdraw this consent at any time via the unsubscribe link in every email.
-        See the <a href="/datenschutz" class="text-accent underline underline-offset-2 hover:text-fg">privacy policy</a>.
-        <span class="text-accent text-[0.65rem]">*</span>
-      </span>
-    </label>
-
     <div class="flex items-start gap-6 flex-wrap">
       <button type="submit" class="btn btn--primary shrink-0" id="nl-submit">
         <span id="nl-btn-label">Subscribe</span>
       </button>
       <p class="font-label font-light text-[0.75rem] tracking-[0.04em] text-fg-muted leading-relaxed m-0">
         Double opt-in — you'll receive a confirmation link via email.
-        Free. No spam. Unsubscribe any time.
+        No spam. Unsubscribe any time.
       </p>
     </div>
 
@@ -94,18 +78,11 @@ const { error } = Astro.props as { error?: string };
     e.preventDefault();
     errorEl.classList.add('hidden');
 
-    const email   = (form.querySelector('#nl-email')   as HTMLInputElement).value.trim();
-    const name    = (form.querySelector('#nl-name')    as HTMLInputElement).value.trim();
-    const consent = (form.querySelector('#nl-consent') as HTMLInputElement).checked;
+    const email = (form.querySelector('#nl-email') as HTMLInputElement).value.trim();
+    const name  = (form.querySelector('#nl-name')  as HTMLInputElement).value.trim();
 
     if (!email) {
       errorEl.textContent = 'Email address required.';
-      errorEl.classList.remove('hidden');
-      return;
-    }
-
-    if (!consent) {
-      errorEl.textContent = 'Please accept the privacy policy to continue.';
       errorEl.classList.remove('hidden');
       return;
     }
@@ -117,7 +94,7 @@ const { error } = Astro.props as { error?: string };
       const res = await fetch('/api/newsletter/subscribe', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email, name, consent }),
+        body: JSON.stringify({ email, name }),
       });
 
       if (!res.ok) throw new Error('Server error');

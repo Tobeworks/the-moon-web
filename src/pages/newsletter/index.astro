@@ -5,200 +5,98 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import NewsletterForm from '../../components/NewsletterForm.astro';
 
 const error = Astro.url.searchParams.get('error') ?? undefined;
-
-const perks = [
-  { label: 'Free',           detail: 'No cost, ever. A label list, not a product.' },
-  { label: 'New releases',   detail: 'A transmission when something drops. Nothing in between.' },
-  { label: 'No algorithm',   detail: 'Straight to your inbox. No feed deciding what you see.' },
-  { label: 'Leave any time', detail: 'One-click unsubscribe link in every email.' },
-];
 ---
 
 <BaseLayout
   title="Newsletter — THE MOON RECORDS"
-  description="Join The Moon Records list. New releases, no noise. Free, no spam, unsubscribe any time."
+  description="Subscribe to The Moon Records newsletter. New releases, no noise."
 >
-  <div class="nl-hero">
-    <div class="nl-hero__grid">
+  <div class="nl-page">
+    <div class="nl-page__inner">
 
-      <!-- ── Left: claim ───────────────────────────────────────────────────── -->
-      <div class="nl-hero__intro">
+      <header class="nl-page__header">
         <span class="text-eyebrow">// TRANSMISSION_OPEN</span>
-
-        <h1 class="nl-hero__title">Join<br />the List.</h1>
-
-        <p class="nl-hero__sub">
-          New releases. Label transmissions.<br />
-          No algorithm. No noise.
+        <h1 class="nl-page__title">Join the List.</h1>
+        <p class="nl-page__sub">
+          New releases. Label transmissions. No algorithm. No noise.
+          Straight to your inbox when something worth hearing drops.
         </p>
+      </header>
 
-        <ul class="nl-perks">
-          {perks.map((p) => (
-            <li class="nl-perks__item">
-              <span class="nl-perks__marker">—</span>
-              <span class="nl-perks__body">
-                <span class="nl-perks__label">{p.label}</span>
-                <span class="nl-perks__detail">{p.detail}</span>
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <a href="/" class="nl-hero__back">← Back to The Moon</a>
-      </div>
-
-      <!-- ── Right: form ───────────────────────────────────────────────────── -->
-      <div class="nl-hero__panel">
+      <div class="nl-page__form">
         <NewsletterForm error={error} />
       </div>
+
+      <a href="/" class="nl-page__back uppercase">← Back to The Moon</a>
 
     </div>
   </div>
 </BaseLayout>
 
 <style>
-  /* ── Shell ─────────────────────────────────────────────────────────────── */
-
-  .nl-hero {
+  .nl-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
-    padding: 8rem 1.5rem 5rem;
+    justify-content: center;
+    padding: 4rem 1.5rem;
   }
 
-  .nl-hero__grid {
+  .nl-page__inner {
     width: 100%;
-    max-width: 70rem;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 4rem;
-  }
-
-  @media (min-width: 62rem) {
-    .nl-hero {
-      padding: 9rem 3rem 6rem;
-    }
-
-    .nl-hero__grid {
-      grid-template-columns: 1fr 0.85fr;
-      gap: 7rem;
-      align-items: center;
-    }
-  }
-
-  /* ── Intro column ──────────────────────────────────────────────────────── */
-
-  .nl-hero__intro {
+    max-width: 38rem;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 2rem;
+    gap: 2.5rem;
   }
 
-  .nl-hero__title {
+  .nl-page__header {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .nl-page__title {
     font-family: var(--font-label);
-    font-size: clamp(2.8rem, 7.5vw, 5.2rem);
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
     color: var(--color-fg);
     margin: 0;
-    line-height: 1.04;
+    line-height: 1.1;
   }
 
-  .nl-hero__sub {
+  .nl-page__sub {
     font-family: var(--font-label);
-    font-weight: 300;
-    font-size: 0.95rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-fg-faint);
-    line-height: 1.9;
-    margin: 0;
-  }
-
-  /* ── Perks — quiet, not shouty ─────────────────────────────────────────── */
-
-  .nl-perks {
-    list-style: none;
-    margin: 0;
-    padding: 2.25rem 0 0;
-    width: 100%;
-    max-width: 26rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    border-top: 1px solid var(--color-accent-border);
-  }
-
-  .nl-perks__item {
-    display: flex;
-    align-items: baseline;
-    gap: 0.9rem;
-  }
-
-  .nl-perks__marker {
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    color: var(--color-accent);
-    flex-shrink: 0;
-    line-height: 1.6;
-  }
-
-  .nl-perks__body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-
-  .nl-perks__label {
-    font-family: var(--font-label);
-    font-weight: 400;
-    font-size: 0.68rem;
-    letter-spacing: 0.22em;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--color-fg-dim);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 32rem;
   }
 
-  .nl-perks__detail {
-    font-family: var(--font-label);
-    font-weight: 300;
-    font-size: 0.72rem;
-    letter-spacing: 0.03em;
-    color: var(--color-fg-muted);
-    line-height: 1.65;
+  .nl-page__form {
+    padding: 2rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface-low);
   }
 
-  /* ── Back link — lives in the left column, never beside the form ───────── */
-
-  .nl-hero__back {
+  .nl-page__back {
     font-family: var(--font-label);
-    font-size: 0.65rem;
-    font-weight: 400;
+    font-size: 0.75rem;
+    font-weight: 700;
     letter-spacing: 0.3em;
     text-transform: uppercase;
     color: var(--color-fg-muted);
     text-decoration: none;
     transition: color 0.15s;
-    margin-top: 0.5rem;
   }
 
-  .nl-hero__back:hover {
+  .nl-page__back:hover {
     color: var(--color-accent);
-  }
-
-  /* ── Form panel ────────────────────────────────────────────────────────── */
-
-  .nl-hero__panel {
-    padding: 2.25rem 1.75rem;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface-low);
-  }
-
-  @media (min-width: 62rem) {
-    .nl-hero__panel {
-      padding: 3rem 2.75rem;
-    }
   }
 </style>
