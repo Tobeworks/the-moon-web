@@ -156,7 +156,7 @@
             {{ records.length }} record{{ records.length !== 1 ? 's' : '' }}
           </p>
         </div>
-        <button @click="showAddRecord = !showAddRecord" class="btn btn--primary">Add Record</button>
+        <button @click="showAddRecord = !showAddRecord; justCreated = null" class="btn btn--primary">Add Record</button>
       </div>
 
       <!-- Release filter -->
@@ -205,6 +205,27 @@
           <button @click="cancelAddRecord" class="btn btn--muted">Cancel</button>
           <span v-if="addRecordError" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-red-400">{{ addRecordError }}</span>
         </div>
+      </div>
+
+      <!-- Just created — show the link -->
+      <div v-if="justCreated" class="border border-accent/40 p-5 flex flex-col gap-3">
+        <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// PROMO_LINK_CREATED</span>
+        <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+          {{ justCreated.release_slug }} · {{ justCreated.recipient_name }}
+        </p>
+        <div class="flex items-center gap-2 flex-wrap">
+          <a
+            :href="promoUrl(justCreated)"
+            target="_blank"
+            rel="noopener"
+            class="font-mono text-[0.65rem] tracking-[0.05em] text-fg hover:text-accent break-all"
+          >{{ promoUrl(justCreated) }}</a>
+          <button
+            @click="copyUrl(justCreated)"
+            class="font-mono text-[0.5rem] tracking-[0.15em] uppercase flex-shrink-0 px-2 py-0.5 border border-border text-fg-muted hover:text-fg transition-colors"
+          >{{ copiedIds.has(justCreated.id) ? '✓ Copied' : 'Copy' }}</button>
+        </div>
+        <button @click="justCreated = null" class="btn btn--muted self-start" style="font-size:0.6rem;padding:0.3rem 0.75rem;">Dismiss</button>
       </div>
 
       <!-- Error / Loading / Empty -->
@@ -312,6 +333,7 @@ const addingRecord         = ref(false);
 const addRecordError       = ref('');
 const deletingRecordId     = ref('');
 const copiedIds            = ref(new Set<string>());
+const justCreated          = ref<PromoRecord | null>(null);
 
 const newRecord = ref({
   release_slug: '',
@@ -431,6 +453,7 @@ async function addRecord() {
       ...(newRecord.value.expires_at ? { expires_at: newRecord.value.expires_at } : {}),
     });
     records.value.unshift(rec);
+    justCreated.value = rec;
     cancelAddRecord();
   } catch (e: any) {
     addRecordError.value = e.message ?? 'Error creating record.';
