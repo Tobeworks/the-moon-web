@@ -5,98 +5,73 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import NewsletterForm from '../../components/NewsletterForm.astro';
 
 const error = Astro.url.searchParams.get('error') ?? undefined;
+
+const perks = [
+  'Free — no cost, ever',
+  'New releases, nothing in between',
+  'No algorithm, no noise',
+  'Unsubscribe any time',
+];
 ---
 
 <BaseLayout
   title="Newsletter — THE MOON RECORDS"
-  description="Subscribe to The Moon Records newsletter. New releases, no noise."
+  description="Join The Moon Records list. New releases, no noise. Free, no spam, unsubscribe any time."
 >
-  <div class="nl-page">
-    <div class="nl-page__inner">
+  <section
+    class="relative grid grid-cols-1 md:grid-cols-2 min-h-dvh px-6 lg:px-10 pt-24 pb-16 md:pt-0 md:pb-0 overflow-hidden">
 
-      <header class="nl-page__header">
-        <span class="text-eyebrow">// TRANSMISSION_OPEN</span>
-        <h1 class="nl-page__title">Join the List.</h1>
-        <p class="nl-page__sub">
-          New releases. Label transmissions. No algorithm. No noise.
-          Straight to your inbox when something worth hearing drops.
-        </p>
-      </header>
-
-      <div class="nl-page__form">
-        <NewsletterForm error={error} />
-      </div>
-
-      <a href="/" class="nl-page__back uppercase">← Back to The Moon</a>
-
+    <!-- Atmospheric glow -->
+    <div
+      class="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_55%_50%_at_72%_48%,rgba(196,185,138,0.025)_0%,transparent_65%)]"
+      aria-hidden="true">
     </div>
-  </div>
+
+    <!-- ── Left: claim ─────────────────────────────────────────────────────── -->
+    <div class="relative flex flex-col justify-center order-1 md:pr-12 lg:pr-20 md:py-24">
+
+      <span class="flex items-center gap-3 font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
+        <span class="block w-8 h-px bg-accent opacity-50 shrink-0"></span>
+        Transmission — Open
+      </span>
+
+      <h1
+        class="font-label font-bold uppercase text-fg mb-6 md:mb-8 text-[clamp(2.6rem,7vw,5.5rem)] tracking-[0.03em] leading-[0.9]">
+        Join<br />the List
+      </h1>
+
+      <div class="w-full h-px bg-border mb-4 md:mb-6"></div>
+
+      <p class="font-label font-light text-[0.75rem] tracking-[0.3em] uppercase text-fg-dim mb-10 md:mb-12">
+        New releases straight to your inbox
+      </p>
+
+      <ul class="flex flex-col gap-3.5 mb-12">
+        {perks.map((perk) => (
+          <li class="flex items-baseline gap-3 font-mono text-[0.6rem] tracking-[0.22em] uppercase text-fg-muted">
+            <span class="text-accent shrink-0">+</span>
+            <span>{perk}</span>
+          </li>
+        ))}
+      </ul>
+
+      <a
+        href="/"
+        class="font-label font-light text-[0.65rem] tracking-[0.3em] uppercase text-fg-muted no-underline hover:text-accent transition-colors duration-200 self-start">
+        ← Back to The Moon
+      </a>
+    </div>
+
+    <!-- ── Right: form ─────────────────────────────────────────────────────── -->
+    <div
+      class="relative flex flex-col justify-center order-2 mt-16 pt-12 border-t border-border md:mt-0 md:pt-0 md:border-t-0 md:border-l md:border-border md:pl-12 lg:pl-20 md:py-24">
+
+      <span class="font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
+        // Sign_Up
+      </span>
+
+      <NewsletterForm error={error} />
+    </div>
+
+  </section>
 </BaseLayout>
-
-<style>
-  .nl-page {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4rem 1.5rem;
-  }
-
-  .nl-page__inner {
-    width: 100%;
-    max-width: 38rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2.5rem;
-  }
-
-  .nl-page__header {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .nl-page__title {
-    font-family: var(--font-label);
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--color-fg);
-    margin: 0;
-    line-height: 1.1;
-  }
-
-  .nl-page__sub {
-    font-family: var(--font-label);
-    font-size: 0.9rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--color-fg-dim);
-    line-height: 1.7;
-    margin: 0;
-    max-width: 32rem;
-  }
-
-  .nl-page__form {
-    padding: 2rem;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface-low);
-  }
-
-  .nl-page__back {
-    font-family: var(--font-label);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--color-fg-muted);
-    text-decoration: none;
-    transition: color 0.15s;
-  }
-
-  .nl-page__back:hover {
-    color: var(--color-accent);
-  }
-</style>
