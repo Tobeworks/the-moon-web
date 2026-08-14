@@ -30,9 +30,15 @@ export const POST = async ({ request, url }: APIContext) => {
 
   const email = (body.email ?? '').trim().toLowerCase();
   const name  = (body.name  ?? '').trim().slice(0, 100);
+  // Consent is a legal requirement — enforce server-side, not just in the DOM
+  const consent = body.consent === true || body.consent === 'true' || body.consent === 'on';
 
   if (!email || !EMAIL_RE.test(email)) {
     return json({ error: 'Invalid email address' }, 422);
+  }
+
+  if (!consent) {
+    return json({ error: 'Consent to the privacy policy is required' }, 422);
   }
 
   // Always return ok — no email enumeration possible from the outside
