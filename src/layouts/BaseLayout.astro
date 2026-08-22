@@ -74,6 +74,9 @@ const siteName = 'THE MOON RECORDS';
 <script>
   import Lenis from 'lenis';
   const lenis = new Lenis();
+  // Exposed so overlays (playlist, menus) can lock page scrolling:
+  // Lenis scrolls programmatically and ignores `body { overflow: hidden }`.
+  (window as any).lenis = lenis;
   function raf(time: number) {
     lenis.raf(time);
     requestAnimationFrame(raf);
