@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import releasesData from '../../the-moon-os/data/releases.json';
+import { Play } from 'lucide-astro';
 
 // Same cleanup as api/promo/download.ts — older catalog entries carry an
 // "Artist   Title" prefix separated by multiple spaces.
@@ -64,9 +65,12 @@ const tracks = releasesData.releases.flatMap((r: any) =>
           <!-- Info + controls -->
           <div class="min-w-0 flex flex-col">
 
-            <span class="flex items-center gap-3 font-mono text-[clamp(0.58rem,1.4vw,0.65rem)] tracking-[0.28em] sm:tracking-[0.35em] uppercase text-accent mb-4 sm:mb-5">
-              <span class="block w-8 h-px bg-accent opacity-50 shrink-0"></span>
-              Now Playing
+            <span class="flex items-center gap-2.5 font-mono text-[clamp(0.58rem,1.4vw,0.65rem)] tracking-[0.28em] sm:tracking-[0.35em] uppercase text-accent mb-4 sm:mb-5">
+              <span class="np-play flex items-center shrink-0" aria-hidden="true">
+                <Play size={11} fill="currentColor" stroke-width={0} />
+              </span>
+    
+              <span class="np-label">Now Playing</span>
             </span>
 
             <h1
@@ -352,6 +356,7 @@ const tracks = releasesData.releases.flatMap((r: any) =>
         iconPlay.classList.add('hidden');
         iconPause.classList.remove('hidden');
         btnPlay.setAttribute('aria-label', 'Pause');
+        root.classList.add('is-playing');
       }).catch(() => { /* autoplay blocked — user presses play */ });
     }
 
@@ -360,6 +365,7 @@ const tracks = releasesData.releases.flatMap((r: any) =>
       iconPlay.classList.remove('hidden');
       iconPause.classList.add('hidden');
       btnPlay.setAttribute('aria-label', 'Play');
+      root.classList.remove('is-playing');
     }
 
     const step = (delta: number) => {
@@ -452,3 +458,63 @@ const tracks = releasesData.releases.flatMap((r: any) =>
     if (tracks.length) { renderOrder(); load(false); }
   }
 </script>
+
+<style>
+  /* Now-playing meter — four bars that idle flat and breathe during playback.
+     Everything else on this page stays still: one moving element is enough. */
+  .np-bar {
+    transform-origin: bottom;
+    transform: scaleY(0.14);
+    opacity: 0.45;
+    transition: transform 500ms ease-out, opacity 500ms ease-out;
+  }
+
+  #listen.is-playing .np-bar {
+    animation: np-breathe 1.9s ease-in-out infinite;
+    opacity: 1;
+  }
+
+  #listen.is-playing .np-bar:nth-child(2) { animation-delay: 0.24s; animation-duration: 2.3s; }
+  #listen.is-playing .np-bar:nth-child(3) { animation-delay: 0.48s; animation-duration: 1.7s; }
+  #listen.is-playing .np-bar:nth-child(4) { animation-delay: 0.12s; animation-duration: 2.1s; }
+
+  /* Play glyph — dimmed while paused, softly pulsing during playback */
+  .np-play {
+    opacity: 0.3;
+    transition: opacity 500ms ease-out;
+  }
+
+  #listen.is-playing .np-play {
+    opacity: 1;
+    animation: np-pulse 1.9s ease-in-out infinite;
+  }
+
+  .np-label {
+    transition: opacity 600ms ease-out;
+    opacity: 0.75;
+  }
+
+  #listen.is-playing .np-label {
+    opacity: 1;
+  }
+
+  @keyframes np-pulse {
+    0%, 100% { opacity: 0.55; transform: scale(0.9); }
+    50%      { opacity: 1;    transform: scale(1.08); }
+  }
+
+  @keyframes np-breathe {
+    0%, 100% { transform: scaleY(0.18); }
+    50%      { transform: scaleY(1); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #listen.is-playing .np-bar {
+      animation: none;
+      transform: scaleY(0.55);
+    }
+    #listen.is-playing .np-play {
+      animation: none;
+    }
+  }
+</style>
