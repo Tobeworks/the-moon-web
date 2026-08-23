@@ -45,13 +45,14 @@ const tracks = releasesData.releases.flatMap((r: any) =>
     </div>
 
     <!-- ── Content ────────────────────────────────────────────────────────── -->
-    <div class="relative flex min-h-dvh flex-col justify-center px-6 lg:px-10 pt-24 pb-16">
+    <div class="relative flex min-h-dvh flex-col justify-center px-6 lg:px-10 pt-20 pb-44 md:pt-24 md:pb-16">
       <div class="mx-auto w-full max-w-4xl">
 
-        <div class="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-10 md:gap-14 items-center">
+        <div class="flex flex-col gap-7 md:grid md:grid-cols-[auto_1fr] md:gap-14 md:items-center">
 
           <!-- Cover -->
-          <div class="w-[min(58vw,14rem)] h-[min(58vw,14rem)] sm:w-56 sm:h-56 md:w-72 md:h-72 shrink-0 border border-border bg-surface-low overflow-hidden mx-auto md:mx-0">
+          <div class="mx-auto md:mx-0">
+            <div class="w-[min(62vw,15rem)] aspect-square border border-border bg-surface-low overflow-hidden md:w-72">
             <img
               data-cover
               src=""
@@ -60,12 +61,13 @@ const tracks = releasesData.releases.flatMap((r: any) =>
               height="288"
               class="w-full h-full object-cover opacity-0 transition-opacity duration-700 motion-reduce:transition-none"
             />
+            </div>
           </div>
 
           <!-- Info + controls -->
           <div class="min-w-0 flex flex-col">
 
-            <span class="flex items-center gap-2.5 font-mono text-[clamp(0.58rem,1.4vw,0.65rem)] tracking-[0.28em] sm:tracking-[0.35em] uppercase text-accent mb-4 sm:mb-5">
+            <span class="flex items-center gap-2.5 font-mono text-[clamp(0.58rem,1.4vw,0.65rem)] tracking-[0.28em] sm:tracking-[0.35em] uppercase text-accent mb-3 md:mb-5">
               <span class="np-play flex items-center shrink-0" aria-hidden="true">
                 <Play size={11} fill="currentColor" stroke-width={0} />
               </span>
@@ -75,50 +77,55 @@ const tracks = releasesData.releases.flatMap((r: any) =>
 
             <h1
               data-title
-              class="font-label font-bold uppercase text-fg text-[clamp(1.45rem,6vw,2.6rem)] tracking-[0.04em] sm:tracking-[0.06em] leading-[1.12] mb-2.5 sm:mb-3 break-words hyphens-auto">
+              class="font-label font-bold uppercase text-fg text-[clamp(1.45rem,6vw,2.6rem)] tracking-[0.04em] sm:tracking-[0.06em] leading-[1.12] mb-2 md:mb-3 break-words hyphens-auto">
               —
             </h1>
 
             <p class="font-label font-light text-[clamp(0.7rem,2vw,0.8rem)] tracking-[0.2em] sm:tracking-[0.28em] uppercase text-fg-dim mb-1">
               <span data-artist>—</span>
             </p>
-            <p class="font-mono text-[clamp(0.58rem,1.5vw,0.66rem)] tracking-[0.16em] sm:tracking-[0.22em] uppercase text-fg-muted mb-7 sm:mb-8">
+            <p class="font-mono text-[clamp(0.58rem,1.5vw,0.66rem)] tracking-[0.16em] sm:tracking-[0.22em] uppercase text-fg-muted mb-5 md:mb-8">
               <span data-release>—</span>
             </p>
 
-            <!-- Progress -->
+            <!-- Transport bar: pinned to the bottom on mobile so the controls
+                 are always reachable; back in the flow from md upwards. -->
             <div
-              data-progress
-              role="slider"
-              tabindex="0"
-              aria-label="Seek"
-              aria-valuemin="0"
-              aria-valuemax="100"
-              aria-valuenow="0"
-              class="group relative h-6 flex items-center cursor-pointer mb-2 focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-4">
-              <div class="relative w-full h-px bg-accent/25">
-                <div data-fill class="absolute inset-y-0 left-0 w-0 bg-accent"></div>
-                <div
-                  data-head
-                  class="absolute top-1/2 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-accent opacity-0 group-hover:opacity-100 transition-opacity">
+              class="fixed inset-x-0 bottom-0 z-100 border-t border-border bg-bg/95 backdrop-blur-md px-6 pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+0.5rem)] md:static md:z-auto md:border-0 md:bg-transparent md:backdrop-blur-none md:p-0">
+
+            <!-- Progress -->
+            <div class="flex items-center gap-3 mb-1.5 md:mb-3">
+              <span data-time-current class="font-mono text-[0.6rem] tracking-[0.12em] text-fg-muted tabular-nums shrink-0 w-9">0:00</span>
+              <div
+                data-progress
+                role="slider"
+                tabindex="0"
+                aria-label="Seek"
+                aria-valuemin="0"
+                aria-valuemax="100"
+                aria-valuenow="0"
+                class="group relative h-5 flex-1 flex items-center cursor-pointer focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-4">
+                <div class="relative w-full h-px bg-accent/25">
+                  <div data-fill class="absolute inset-y-0 left-0 w-0 bg-accent"></div>
+                  <div
+                    data-head
+                    class="absolute top-1/2 left-0 w-2 h-2 -translate-x-1/2 -translate-y-1/2 bg-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                  </div>
                 </div>
               </div>
+              <span data-time-total class="font-mono text-[0.6rem] tracking-[0.12em] text-fg-muted tabular-nums shrink-0 w-9 text-right">0:00</span>
             </div>
 
-            <div class="flex justify-between font-mono text-[clamp(0.58rem,1.4vw,0.62rem)] tracking-[0.15em] sm:tracking-[0.2em] text-fg-muted mb-7 sm:mb-8">
-              <span data-time-current>0:00</span>
-              <span data-time-total>0:00</span>
-            </div>
 
             <!-- Transport -->
-            <div class="flex items-center gap-2 sm:gap-3">
+            <div class="flex items-center gap-2 sm:gap-3 [&>button]:relative [&>button]:after:absolute [&>button]:after:inset-x-0 [&>button]:after:-inset-y-2 [&>button]:after:content-['']">
 
               <button
                 data-shuffle
                 type="button"
                 aria-pressed="true"
                 aria-label="Toggle shuffle"
-                class="w-11 h-11 flex items-center justify-center text-accent hover:text-fg transition-colors duration-200 cursor-pointer">
+                class="w-8 h-8 flex items-center justify-center text-accent hover:text-fg transition-colors duration-200 cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                   <path d="M1 3h3l3 5 3 5h4M1 13h3l2-3M11 11l3 2-3 2M11 1l3 2-3 2M12 3h-2l-1.5 2.5"/>
                 </svg>
@@ -128,7 +135,7 @@ const tracks = releasesData.releases.flatMap((r: any) =>
                 data-prev
                 type="button"
                 aria-label="Previous track"
-                class="w-11 h-11 flex items-center justify-center text-fg-dim hover:text-fg transition-colors duration-200 cursor-pointer">
+                class="w-8 h-8 flex items-center justify-center text-fg-dim hover:text-fg transition-colors duration-200 cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
                   <rect x="0" y="1" width="2" height="12"/>
                   <polygon points="12,1 2,7 12,13"/>
@@ -139,11 +146,11 @@ const tracks = releasesData.releases.flatMap((r: any) =>
                 data-play
                 type="button"
                 aria-label="Play"
-                class="w-14 h-14 flex items-center justify-center bg-accent text-bg hover:bg-[#D4C99A] transition-colors duration-200 cursor-pointer">
-                <svg data-icon-play width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                class="w-12 h-9 flex items-center justify-center bg-accent text-bg hover:bg-[#D4C99A] transition-colors duration-200 cursor-pointer">
+                <svg data-icon-play width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                   <polygon points="3,1 13,8 3,15"/>
                 </svg>
-                <svg data-icon-pause class="hidden" width="18" height="18" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                <svg data-icon-pause class="hidden" width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
                   <rect x="2" y="1" width="4" height="14"/>
                   <rect x="10" y="1" width="4" height="14"/>
                 </svg>
@@ -153,7 +160,7 @@ const tracks = releasesData.releases.flatMap((r: any) =>
                 data-next
                 type="button"
                 aria-label="Next track"
-                class="w-11 h-11 flex items-center justify-center text-fg-dim hover:text-fg transition-colors duration-200 cursor-pointer">
+                class="w-8 h-8 flex items-center justify-center text-fg-dim hover:text-fg transition-colors duration-200 cursor-pointer">
                 <svg width="16" height="16" viewBox="0 0 14 14" fill="currentColor" aria-hidden="true">
                   <rect x="12" y="1" width="2" height="12"/>
                   <polygon points="2,1 12,7 2,13"/>
@@ -164,7 +171,7 @@ const tracks = releasesData.releases.flatMap((r: any) =>
                 data-open-playlist
                 type="button"
                 aria-label="Open playlist"
-                class="ml-auto h-11 px-3 sm:px-4 flex items-center gap-2 sm:gap-2.5 border border-border text-fg-muted hover:text-fg hover:border-accent transition-colors duration-200 cursor-pointer font-mono text-[clamp(0.58rem,1.4vw,0.62rem)] tracking-[0.18em] sm:tracking-[0.22em] uppercase">
+                class="ml-auto h-9 px-3 sm:px-4 flex items-center gap-2 sm:gap-2.5 border border-border text-fg-muted hover:text-fg hover:border-accent transition-colors duration-200 cursor-pointer font-mono text-[clamp(0.58rem,1.4vw,0.62rem)] tracking-[0.18em] sm:tracking-[0.22em] uppercase">
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
                   <rect x="0" y="1" width="12" height="1.5"/>
                   <rect x="0" y="5.25" width="12" height="1.5"/>
@@ -173,6 +180,7 @@ const tracks = releasesData.releases.flatMap((r: any) =>
                 <span data-count>{tracks.length}</span>
               </button>
 
+            </div>
             </div>
           </div>
         </div>
