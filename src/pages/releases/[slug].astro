@@ -5,6 +5,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import AudioPlayer from '../../components/AudioPlayer.astro';
 import PhaseCircle from '../../components/PhaseCircle.astro';
 import DspLinks from '../../components/DspLinks.astro';
+import ReleaseCard from '../../components/ReleaseCard.astro';
 import releasesData from '../../../the-moon-os/data/releases.json';
 import { getFeedbackForRelease } from '../../lib/pocketbase';
 import { marked } from 'marked';
@@ -17,6 +18,14 @@ const release = releasesData.releases.find(
 if (!release) return Astro.redirect('/404');
 
 const feedback = await getFeedbackForRelease(slug!);
+
+// Four other releases, reshuffled per request (this page is SSR).
+const others = releasesData.releases.filter((r) => r.catalog.toLowerCase() !== slug);
+for (let i = others.length - 1; i > 0; i--) {
+  const j = Math.floor(Math.random() * (i + 1));
+  [others[i], others[j]] = [others[j], others[i]];
+}
+const alsoOn = others.slice(0, 4);
 
 const { catalog, artist, title, format, year, genre, artwork, cover, tracks, platforms, release_date, about } = release;
 
@@ -190,6 +199,20 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
       </div>
 
     </div>
+
+    {alsoOn.length > 0 && (
+      <section class="container mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+        <div class="tmr-section-header">
+          <span class="tmr-section-num">///</span>
+          <span class="tmr-section-title">More from the label</span>
+          <span class="tmr-section-sub">Catalogue</span>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          {alsoOn.map((r) => <ReleaseCard release={r} />)}
+        </div>
+      </section>
+    )}
   </div>
 <script>
   // On mobile, scroll the release title into view so it's clear the page changed
