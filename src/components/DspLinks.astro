@@ -1,0 +1,92 @@
+---
+/**
+ * Renders platform links for a release as logos.
+ * Falls back to a text label for any platform without an SVG in assets/dsp.
+ */
+interface Platform {
+  name: string;
+  url: string;
+}
+
+interface Props {
+  platforms?: Platform[];
+  /** Logo height in Tailwind units — default h-5 */
+  size?: string;
+  class?: string;
+}
+
+const { platforms = [], size = 'h-5', class: extraClass = '' } = Astro.props;
+
+// Eagerly inlined so the SVGs ship as markup and inherit currentColor.
+const logos = import.meta.glob<string>('../assets/dsp/*.svg', {
+  query: '?raw',
+  import: 'default',
+  eager: true,
+});
+
+const logoFor = (name: string): string | null =>
+  logos[`../assets/dsp/${name}.svg`] ?? null;
+
+const LABELS: Record<string, string> = {
+  bandcamp:     'Bandcamp',
+  spotify:      'Spotify',
+  apple_music:  'Apple Music',
+  amazon_music: 'Amazon Music',
+  soundcloud:   'SoundCloud',
+  deezer:       'Deezer',
+  beatport:     'Beatport',
+};
+
+const labelFor = (name: string) =>
+  LABELS[name] ?? name.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+
+// Bandcamp first (label's own store), then streaming services in a fixed order
+// so the row doesn't reshuffle between releases.
+const ORDER = ['bandcamp', 'spotify', 'apple_music', 'amazon_music', 'soundcloud', 'deezer', 'beatport'];
+const rank = (n: string) => {
+  const i = ORDER.indexOf(n);
+  return i === -1 ? ORDER.length : i;
+};
+
+const links = platforms
+  .filter((p) => p?.url)
+  .sort((a, b) => rank(a.name) - rank(b.name));
+---
+
+{links.length > 0 && (
+  <ul class:list={['flex items-center gap-5 flex-wrap list-none m-0 p-0', extraClass]}>
+    {links.map((p) => {
+      const svg = logoFor(p.name);
+      return (
+        <li>
+          <a
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={labelFor(p.name)}
+            aria-label={`${labelFor(p.name)} — opens in a new tab`}
+            class="group flex items-center justify-center text-fg-muted no-underline transition-colors duration-200 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-4"
+          >
+            {svg ? (
+              <span class:list={['dsp-logo block w-auto', size]} set:html={svg} />
+            ) : (
+              <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase">
+                {labelFor(p.name)} ↗
+              </span>
+            )}
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+)}
+
+<style>
+  /* The inlined <svg> has to fill the sized wrapper; width follows the
+     viewBox so wordmark-style logos (SoundCloud) stay proportional. */
+  .dsp-logo :global(svg) {
+    height: 100%;
+    width: auto;
+    display: block;
+  }
+</style>
