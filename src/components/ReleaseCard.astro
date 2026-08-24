@@ -1,4 +1,6 @@
 ---
+import DspLinks from './DspLinks.astro';
+
 interface Track {
   number: number;
   title: string;
@@ -19,6 +21,7 @@ interface Release {
   cover: string;
   artwork: Record<string, { jpg: string; webp: string }>;
   bandcamp: string;
+  platforms?: { name: string; url: string }[];
   tracks: Track[];
 }
 
@@ -27,7 +30,7 @@ interface Props {
 }
 
 const { release } = Astro.props;
-const { catalog, artist, title, cover, artwork, tracks } = release;
+const { catalog, artist, title, cover, artwork, tracks, platforms } = release;
 
 const coverWebp = artwork?.['600']?.webp || cover;
 const coverJpg  = artwork?.['600']?.jpg  || cover;
@@ -81,6 +84,9 @@ const runtime = totalRuntime > 0
       <span>{catalog}</span>
       <span>{tracks.length} track{tracks.length !== 1 ? 's' : ''}{runtime ? ` · ${runtime}` : ''}</span>
     </div>
+
+    <!-- Availability marks — display only, the card itself is the link -->
+    <DspLinks platforms={platforms} static size="h-3" gap="gap-2.5" class="mt-2 opacity-60" />
   </div>
 
 </a>

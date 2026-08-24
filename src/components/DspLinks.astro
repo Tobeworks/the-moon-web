@@ -12,10 +12,23 @@ interface Props {
   platforms?: Platform[];
   /** Logo height in Tailwind units — default h-5 */
   size?: string;
+  /** Gap between logos — default gap-5 */
+  gap?: string;
+  /**
+   * Render as plain marks instead of links. Needed inside ReleaseCard, which
+   * is itself an <a> — nested anchors are invalid HTML and break clicking.
+   */
+  static?: boolean;
   class?: string;
 }
 
-const { platforms = [], size = 'h-5', class: extraClass = '' } = Astro.props;
+const {
+  platforms = [],
+  size = 'h-5',
+  gap = 'gap-5',
+  static: isStatic = false,
+  class: extraClass = '',
+} = Astro.props;
 
 // Eagerly inlined so the SVGs ship as markup and inherit currentColor.
 const logos = import.meta.glob<string>('../assets/dsp/*.svg', {
@@ -54,27 +67,33 @@ const links = platforms
 ---
 
 {links.length > 0 && (
-  <ul class:list={['flex items-center gap-5 flex-wrap list-none m-0 p-0', extraClass]}>
+  <ul class:list={['flex items-center flex-wrap list-none m-0 p-0', gap, extraClass]}>
     {links.map((p) => {
       const svg = logoFor(p.name);
+      const label = labelFor(p.name);
+      const mark = svg ? (
+        <span class:list={['dsp-logo block w-auto', size]} set:html={svg} />
+      ) : (
+        <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase">{label}{isStatic ? '' : ' ↗'}</span>
+      );
       return (
-        <li>
-          <a
-            href={p.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            title={labelFor(p.name)}
-            aria-label={`${labelFor(p.name)} — opens in a new tab`}
-            class="group flex items-center justify-center text-fg-muted no-underline transition-colors duration-200 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-4"
-          >
-            {svg ? (
-              <span class:list={['dsp-logo block w-auto', size]} set:html={svg} />
-            ) : (
-              <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase">
-                {labelFor(p.name)} ↗
-              </span>
-            )}
-          </a>
+        <li class="flex">
+          {isStatic ? (
+            <span class="flex items-center justify-center text-fg-muted" title={label} aria-label={label} role="img">
+              {mark}
+            </span>
+          ) : (
+            <a
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={label}
+              aria-label={`${label} — opens in a new tab`}
+              class="flex items-center justify-center text-fg-muted no-underline transition-colors duration-200 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-4"
+            >
+              {mark}
+            </a>
+          )}
         </li>
       );
     })}
