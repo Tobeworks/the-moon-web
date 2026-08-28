@@ -123,7 +123,7 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
             <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
               {tracks.length} track{tracks.length !== 1 ? 's' : ''}
             </span>
-            <DspLinks platforms={visiblePlatforms} />
+            <DspLinks platforms={visiblePlatforms} class="hidden sm:flex" />
           </div>
 
           <!-- Release date + Newsletter CTA -->
@@ -169,6 +169,15 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
                 class="font-label text-[0.75rem] tracking-[0.04em] text-fg-dim leading-relaxed flex flex-col gap-3 [&_p]:m-0"
                 set:html={aboutHtml}
               />
+            </div>
+          )}
+
+          <!-- Platform links, repeated for mobile — the row above the player is hidden
+               on small screens because it sits over the artwork/player there, so show
+               a larger copy under the text instead. -->
+          {visiblePlatforms.length > 0 && (
+            <div class="flex sm:hidden pt-2">
+              <DspLinks platforms={visiblePlatforms} size="h-7" gap="gap-6" />
             </div>
           )}
 
