@@ -25,9 +25,9 @@ export const POST = async ({ request }: APIContext) => {
     return json({ error: 'Invalid body' }, 400);
   }
 
-  const { subject, body_html, body_text } = body;
+  const { subject, body_html, body_text, body_md } = body;
   if (!subject) return json({ error: 'subject required' }, 422);
 
-  const campaign = await createCampaign(subject, body_html, body_text ?? '');
+  const campaign = await createCampaign(subject, body_html, body_text ?? '', body_md);
   return json(campaign, 201);
 };

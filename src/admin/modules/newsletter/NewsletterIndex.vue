@@ -35,6 +35,17 @@
       <!-- New campaign form -->
       <div v-if="showNew" class="border border-border p-5 flex flex-col gap-4">
         <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// NEW_CAMPAIGN</span>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
+            From release <span class="text-fg-muted normal-case tracking-normal" style="font-size:0.6rem;">(fills subject & body from the release — still yours to edit)</span>
+          </label>
+          <select v-model="newReleaseCatalog" @change="applyReleaseTemplate" class="tmr-input w-full">
+            <option value="">— blank —</option>
+            <option v-for="r in releases" :key="r.catalog" :value="r.catalog">{{ r.catalog }} — {{ r.artist }} — {{ r.title }}</option>
+          </select>
+        </div>
+
         <div class="flex flex-col gap-1.5">
           <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Subject</label>
           <input v-model="newSubject" type="text" class="tmr-input w-full" placeholder="Subject line" @keyup.enter="create" />
@@ -43,7 +54,7 @@
           <button @click="create" :disabled="creating || !newSubject.trim()" class="btn btn--primary">
             {{ creating ? 'Creating…' : 'Create Draft' }}
           </button>
-          <button @click="showNew = false; newSubject = ''" class="btn btn--muted">Cancel</button>
+          <button @click="cancelNew" class="btn btn--muted">Cancel</button>
         </div>
         <p v-if="createError" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-red-400">{{ createError }}</p>
       </div>
@@ -152,19 +163,46 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { adminApi, newsletterSubscribersApi, type Campaign, type NewsletterSubscriber } from '../../../lib/admin-api';
+import { buildReleaseNewsletter } from '../../../lib/newsletterTemplate';
+import releasesData from '../../../../the-moon-os/data/releases.json';
 
 const tab = ref<'campaigns' | 'subscribers'>('campaigns');
 
 // ── Campaigns ────────────────────────────────────────────────────────────────
-const subscriberCount = ref(0);
-const campaigns   = ref<Campaign[]>([]);
-const loading     = ref(true);
-const loadError   = ref('');
-const showNew     = ref(false);
-const newSubject  = ref('');
-const creating    = ref(false);
-const createError = ref('');
-const sendingId   = ref('');
+const subscriberCount   = ref(0);
+const campaigns         = ref<Campaign[]>([]);
+const loading           = ref(true);
+const loadError         = ref('');
+const showNew           = ref(false);
+const newSubject        = ref('');
+const newBodyMd         = ref('');
+const newReleaseCatalog = ref('');
+const creating          = ref(false);
+const createError       = ref('');
+const sendingId         = ref('');
+
+const releases = [...releasesData.releases].sort((a, b) =>
+  b.catalog.localeCompare(a.catalog, undefined, { numeric: true }),
+);
+
+function applyReleaseTemplate() {
+  const release = releases.find((r) => r.catalog === newReleaseCatalog.value);
+  if (!release) {
+    newSubject.value = '';
+    newBodyMd.value = '';
+    return;
+  }
+  const { subject, bodyMd } = buildReleaseNewsletter(release);
+  newSubject.value = subject;
+  newBodyMd.value = bodyMd;
+}
+
+function cancelNew() {
+  showNew.value = false;
+  newSubject.value = '';
+  newBodyMd.value = '';
+  newReleaseCatalog.value = '';
+}
 
 // ── Subscribers ───────────────────────────────────────────────────────────────
 const subscribers   = ref<NewsletterSubscriber[]>([]);
@@ -224,7 +262,7 @@ async function create() {
   creating.value = true;
   createError.value = '';
   try {
-    const c = await adminApi.createCampaign(newSubject.value.trim(), '', '');
+    const c = await adminApi.createCampaign(newSubject.value.trim(), '', newBodyMd.value);
     window.location.href = `/admin/newsletter/${c.id}`;
   } catch {
     createError.value = 'Failed to create campaign.';

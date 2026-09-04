@@ -250,11 +250,11 @@ export async function getCampaign(id: string): Promise<Campaign | null> {
   } catch { return null; }
 }
 
-export async function createCampaign(subject: string, bodyHtml: string, bodyText: string): Promise<Campaign> {
+export async function createCampaign(subject: string, bodyHtml: string, bodyText: string, bodyMd?: string): Promise<Campaign> {
   const res = await fetch(`${PB_URL}/api/collections/campaigns/records`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ subject, body_html: bodyHtml || ' ', body_text: bodyText, status: 'draft', sent_count: 0, failed_count: 0 }),
+    body: JSON.stringify({ subject, body_html: bodyHtml || ' ', body_md: bodyMd ?? bodyText, body_text: bodyText, status: 'draft', sent_count: 0, failed_count: 0 }),
   });
   if (!res.ok) throw new Error(`Failed to create campaign: ${res.status}`);
   return res.json();
