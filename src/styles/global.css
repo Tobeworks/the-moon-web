@@ -215,7 +215,15 @@
     display: inline-flex;
     align-items: center;
     border-radius: 0;
-    transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out;
+    transition: background 200ms ease-out, border-color 200ms ease-out, color 200ms ease-out, opacity 200ms ease-out;
+  }
+
+  /* Disabled buttons previously looked identical to active ones — a click did
+     nothing with no visual cause. Every .btn variant now dims and drops hover. */
+  .btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
   }
 
   .btn--primary {

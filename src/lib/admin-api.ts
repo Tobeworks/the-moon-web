@@ -219,3 +219,78 @@ export const newsletterSubscribersApi = {
     if (!res.ok) throw new Error('Failed to delete subscriber')
   },
 }
+
+export interface SplitSheetRelease {
+  id: string;
+  catalog: string;
+  label_project: string;
+  distribution_platform?: string;
+  public_slug: string;
+  status?: string; // "draft" | "fully_signed"
+}
+
+export interface Split {
+  id: string;
+  release: string;
+  artist_name: string;
+  artist_email?: string;
+  percentage: number;
+  role?: string;
+  signing_token: string;
+  signed_name?: string;
+  signed_at?: string;
+}
+
+export interface SplitSheetWithSplits {
+  release: SplitSheetRelease;
+  splits: Split[];
+}
+
+export const splitSheetsApi = {
+  async getAll(): Promise<SplitSheetWithSplits[]> {
+    const res = await fetch('/api/admin/split-sheets')
+    if (!res.ok) throw new Error('Failed to load split sheets')
+    return res.json()
+  },
+
+  async create(payload: {
+    catalog: string
+    label_project: string
+    distribution_platform?: string
+    splits: { artist_name: string; artist_email?: string; percentage: number; role?: string }[]
+  }): Promise<{ release: SplitSheetRelease; mailed: string[]; skipped: string[] }> {
+    const res = await fetch('/api/admin/split-sheets', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to create split sheet')
+    }
+    return res.json()
+  },
+
+  async resend(splitId: string): Promise<{ ok: boolean; mailed: boolean; signing_url: string }> {
+    const res = await fetch(`/api/admin/split-sheets/${splitId}/resend`, { method: 'POST' })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error ?? 'Failed to resend')
+    return data
+  },
+
+  async deleteSplit(splitId: string): Promise<void> {
+    const res = await fetch(`/api/admin/split-sheets/splits/${splitId}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to delete split')
+    }
+  },
+
+  async deleteRelease(releaseId: string): Promise<void> {
+    const res = await fetch(`/api/admin/split-sheets/${releaseId}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to delete release')
+    }
+  },
+}

@@ -2,11 +2,11 @@
   <div class="flex flex-col gap-6">
 
     <!-- Back -->
-    <RouterLink to="/newsletter" class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-fg-muted hover:text-fg transition-colors">
+    <RouterLink to="/newsletter" class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-fg-dim hover:text-fg transition-colors">
       ← All Campaigns
     </RouterLink>
 
-    <div v-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Loading…</div>
+    <div v-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Loading…</div>
     <div v-else-if="loadError" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">{{ loadError }}</div>
 
     <template v-else>
@@ -20,7 +20,7 @@
       <div class="flex flex-col gap-1.5">
         <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
           Content
-          <span class="text-fg-muted normal-case tracking-normal" style="font-size:0.6rem;">
+          <span class="text-fg-dim normal-case tracking-normal" style="font-size:0.6rem;">
             (Markdown — header &amp; footer added automatically)
           </span>
         </label>
@@ -39,7 +39,7 @@
       <!-- Sent info -->
       <div v-if="status === 'sent'" class="border border-border p-4 flex flex-col gap-1">
         <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent">// SENT</span>
-        <p class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">
+        <p class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
           {{ sentCount }} sent · {{ failedCount }} failed
           <template v-if="sentAt"> · {{ new Date(sentAt).toLocaleString('de-DE') }}</template>
         </p>
@@ -85,7 +85,7 @@ const saving       = ref(false);
 const sending      = ref(false);
 const testing      = ref(false);
 const msg          = ref('');
-const msgColor     = ref('text-fg-muted');
+const msgColor     = ref('text-fg-dim');
 
 const renderedHtml = computed(() => marked.parse(bodyMd.value) as string);
 
@@ -125,7 +125,7 @@ async function save() {
       body_text: bodyMd.value,
     });
     msg.value = 'Saved.';
-    msgColor.value = 'text-fg-muted';
+    msgColor.value = 'text-fg-dim';
   } catch {
     msg.value = 'Error saving.';
     msgColor.value = 'text-red-400';
@@ -144,7 +144,7 @@ async function sendTest() {
     await save();
     const result = await adminApi.testCampaign(id, email);
     msg.value = result.ok ? `Test sent to ${email}` : 'Error: ' + (result.error ?? 'unknown');
-    msgColor.value = result.ok ? 'text-fg-muted' : 'text-red-400';
+    msgColor.value = result.ok ? 'text-fg-dim' : 'text-red-400';
   } finally {
     testing.value = false;
   }

@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
-import NewsletterIndex from './modules/newsletter/NewsletterIndex.vue';
-import CampaignEditor  from './modules/newsletter/CampaignEditor.vue';
-import PromoIndex      from './modules/promo/PromoIndex.vue';
-import Dashboard       from './modules/Dashboard.vue';
+import NewsletterIndex  from './modules/newsletter/NewsletterIndex.vue';
+import CampaignEditor   from './modules/newsletter/CampaignEditor.vue';
+import PromoIndex       from './modules/promo/PromoIndex.vue';
+import SplitSheetsIndex from './modules/splitsheets/SplitSheetsIndex.vue';
+import Dashboard        from './modules/Dashboard.vue';
 
 export const router = createRouter({
   history: createWebHistory('/admin'),
@@ -12,5 +13,6 @@ export const router = createRouter({
     { path: '/newsletter',          component: NewsletterIndex },
     { path: '/newsletter/:id',      component: CampaignEditor },
     { path: '/promo',               component: PromoIndex },
+    { path: '/split-sheets',        component: SplitSheetsIndex },
   ],
 });

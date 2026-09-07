@@ -5,16 +5,21 @@
       <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Dashboard</h1>
     </div>
 
-    <div class="grid grid-cols-2 gap-4">
+    <div class="grid grid-cols-3 gap-4">
       <RouterLink to="/newsletter" class="border border-border p-5 flex flex-col gap-1 hover:border-accent transition-colors">
         <span class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-accent">// MODULE</span>
         <span class="font-label font-bold uppercase tracking-[0.08em] text-fg">Newsletter</span>
-        <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">Campaigns &amp; Subscribers</span>
+        <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">Campaigns &amp; Subscribers</span>
       </RouterLink>
       <RouterLink to="/promo" class="border border-border p-5 flex flex-col gap-1 hover:border-accent transition-colors">
         <span class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-accent">// MODULE</span>
         <span class="font-label font-bold uppercase tracking-[0.08em] text-fg">Promo</span>
-        <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">Promo Links &amp; Feedback</span>
+        <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">Promo Links &amp; Feedback</span>
+      </RouterLink>
+      <RouterLink to="/split-sheets" class="border border-border p-5 flex flex-col gap-1 hover:border-accent transition-colors">
+        <span class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-accent">// MODULE</span>
+        <span class="font-label font-bold uppercase tracking-[0.08em] text-fg">Split Sheets</span>
+        <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">Splits &amp; Signatures</span>
       </RouterLink>
     </div>
   </div>

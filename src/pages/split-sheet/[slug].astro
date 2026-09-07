@@ -1,0 +1,92 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getSplitSheetBySlug } from '../../lib/pocketbase';
+import { promoErrorPage } from '../../lib/errorPages';
+import releasesData from '../../../the-moon-os/data/releases.json';
+
+const { slug } = Astro.params;
+
+const found = slug ? await getSplitSheetBySlug(slug) : null;
+if (!found) {
+  return new Response(
+    promoErrorPage(404, 'NOT FOUND', 'NO SPLIT SHEET EXISTS FOR THIS RELEASE.'),
+    { status: 404, headers: { 'content-type': 'text/html' } },
+  );
+}
+
+const { release, splits } = found;
+const releaseInfo = releasesData.releases.find((r) => r.catalog === release.catalog);
+const displayTitle = releaseInfo ? `${releaseInfo.artist} — ${releaseInfo.title}` : release.catalog;
+
+const coverWebp = releaseInfo?.artwork?.['600']?.webp || releaseInfo?.cover;
+const coverJpg  = releaseInfo?.artwork?.['600']?.jpg  || releaseInfo?.cover;
+
+const isFullySigned = release.status === 'fully_signed';
+
+const fmt = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null;
+---
+
+<BaseLayout title={`Split Sheet — ${displayTitle}`} description={`Split sheet for ${displayTitle}.`}>
+  <section class="py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
+
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">{release.catalog}</span>
+        <span class="tmr-section-title">Split Sheet</span>
+        <span class="tmr-section-sub">{isFullySigned ? 'Fully Signed' : 'Pending Signatures'}</span>
+      </div>
+
+      <div class="flex items-start gap-5 mb-10">
+        {coverJpg && (
+          <picture class="w-24 h-24 sm:w-32 sm:h-32 shrink-0 border border-border overflow-hidden">
+            <source srcset={coverWebp} type="image/webp" />
+            <img src={coverJpg} alt={displayTitle} width="128" height="128" class="w-full h-full object-cover block" />
+          </picture>
+        )}
+        <div class="min-w-0">
+          <h1 class="font-label font-semibold text-[1.4rem] uppercase tracking-[0.06em] text-fg mb-2">
+            {displayTitle}
+          </h1>
+          <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-fg-dim">
+            {release.label_project}
+            {release.distribution_platform ? ` · ${release.distribution_platform}` : ''}
+          </p>
+        </div>
+      </div>
+
+      <p class="font-label font-light text-[0.8rem] leading-relaxed text-fg-dim mb-8 max-w-lg">
+        A split sheet records how songwriting, production and ownership are divided
+        between everyone who contributed to this release. Each party confirms their
+        share with an electronic signature — <strong class="text-fg font-normal">Signed</strong> means
+        that contributor has reviewed and agreed to the percentage shown;
+        <strong class="text-accent font-normal">Pending</strong> means their confirmation is still outstanding.
+      </p>
+
+      <div class="flex flex-col border border-border">
+        {splits.map((s) => (
+          <div class="flex items-center justify-between gap-4 px-5 py-4 border-b border-border last:border-b-0 flex-wrap">
+            <div class="flex flex-col gap-1">
+              <span class="font-label font-semibold text-[0.85rem] tracking-[0.06em] text-fg">{s.artist_name}</span>
+              {s.role && (
+                <span class="font-mono text-[0.55rem] tracking-[0.15em] uppercase text-fg-dim">{s.role}</span>
+              )}
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="font-mono text-[0.9rem] text-accent">{s.percentage}%</span>
+              <span class:list={['font-mono text-[0.5rem] tracking-[0.15em] uppercase', s.signed_at ? 'text-fg-dim' : 'text-accent']}>
+                {s.signed_at ? `Signed ${fmt(s.signed_at)}` : 'Pending'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim mt-10">
+        This page updates automatically and can be shared as proof of split confirmation for distribution.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

@@ -374,6 +374,192 @@ export async function getPromoRecords(release_slug?: string): Promise<PromoRecor
   return data.items ?? []
 }
 
+// ── Split Sheets ─────────────────────────────────────────────────────────────
+
+export interface SplitSheetRelease {
+  id: string;
+  catalog: string;
+  label_project: string;
+  distribution_platform?: string;
+  public_slug: string;
+  status?: string; // "draft" | "fully_signed"
+}
+
+export interface Split {
+  id: string;
+  release: string; // relation id
+  artist_name: string;
+  artist_email?: string;
+  percentage: number;
+  role?: string;
+  signing_token: string;
+  signed_name?: string;
+  signed_at?: string;
+  ip_address?: string;
+  document_hash?: string;
+  token_expires_at?: string;
+}
+
+/** Split fields safe to expose on the public read-only page — never the token or id. */
+export interface PublicSplit {
+  artist_name: string;
+  percentage: number;
+  role?: string;
+  signed_at?: string;
+}
+
+export async function getSplitSheetReleases(): Promise<SplitSheetRelease[]> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/split_sheet_releases/records?perPage=500`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.items ?? [];
+  } catch { return []; }
+}
+
+export async function getSplit(id: string): Promise<Split | null> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/splits/records/${id}`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function getSplitSheetRelease(id: string): Promise<SplitSheetRelease | null> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/split_sheet_releases/records/${id}`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function getSplitsForRelease(releaseId: string): Promise<Split[]> {
+  try {
+    const filter = encodeURIComponent(`release='${releaseId}'`);
+    const res = await fetch(`${PB_URL}/api/collections/splits/records?filter=${filter}&perPage=500`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.items ?? [];
+  } catch { return []; }
+}
+
+export async function createSplitSheetRelease(payload: {
+  catalog: string;
+  label_project: string;
+  distribution_platform?: string;
+  public_slug: string;
+}): Promise<SplitSheetRelease> {
+  const res = await fetch(`${PB_URL}/api/collections/split_sheet_releases/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, status: 'draft' }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase split_sheet_releases create failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+export async function createSplit(payload: {
+  release: string;
+  artist_name: string;
+  artist_email?: string;
+  percentage: number;
+  role?: string;
+  signing_token: string;
+}): Promise<Split> {
+  const res = await fetch(`${PB_URL}/api/collections/splits/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase splits create failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+/** Public, read-only lookup by slug. Splits are stripped down to safe fields — never signing_token or id. */
+export async function getSplitSheetBySlug(slug: string): Promise<{ release: SplitSheetRelease; splits: PublicSplit[] } | null> {
+  try {
+    const filter = encodeURIComponent(`public_slug='${slug}'`);
+    const res = await fetch(`${PB_URL}/api/collections/split_sheet_releases/records?filter=${filter}&perPage=1`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const release = data.items?.[0] as SplitSheetRelease | undefined;
+    if (!release) return null;
+
+    const splits = await getSplitsForRelease(release.id);
+    return {
+      release,
+      splits: splits.map((s) => ({
+        artist_name: s.artist_name,
+        percentage: s.percentage,
+        role: s.role,
+        signed_at: s.signed_at,
+      })),
+    };
+  } catch { return null; }
+}
+
+/** Sign-page lookup. Possessing the exact token is the authorization for this one record. */
+export async function getSplitByToken(token: string): Promise<{ split: Split; release: SplitSheetRelease } | null> {
+  try {
+    const filter = encodeURIComponent(`signing_token='${token}'`);
+    const res = await fetch(`${PB_URL}/api/collections/splits/records?filter=${filter}&perPage=1`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const split = data.items?.[0] as Split | undefined;
+    if (!split) return null;
+
+    const relRes = await fetch(`${PB_URL}/api/collections/split_sheet_releases/records/${split.release}`);
+    if (!relRes.ok) return null;
+    const release = await relRes.json();
+    return { split, release };
+  } catch { return null; }
+}
+
+/** Writes the signature onto a split. Caller must already have verified it isn't signed yet. */
+export async function signSplit(splitId: string, payload: {
+  signed_name: string;
+  ip_address: string;
+  document_hash: string;
+}): Promise<Split> {
+  const res = await fetch(`${PB_URL}/api/collections/splits/records/${splitId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, signed_at: new Date().toISOString() }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase split sign failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+/** After a signature, checks whether every split of the release is now signed and flips its status. */
+export async function checkAndMarkFullySigned(releaseId: string): Promise<void> {
+  const splits = await getSplitsForRelease(releaseId);
+  if (splits.length === 0 || !splits.every((s) => s.signed_at)) return;
+  await fetch(`${PB_URL}/api/collections/split_sheet_releases/records/${releaseId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ status: 'fully_signed' }),
+  });
+}
+
+/** Deletes an unsigned split. Caller must check signed_at first — this never touches a signed record. */
+export async function deleteSplit(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/splits/records/${id}`, { method: 'DELETE' });
+}
+
+/** Deletes a release and cascades its splits (cascadeDelete: true on the relation). */
+export async function deleteSplitSheetRelease(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/split_sheet_releases/records/${id}`, { method: 'DELETE' });
+}
+
 /** Deletes a promo record by id */
 export async function deletePromoRecord(id: string): Promise<void> {
   await fetch(`${PB_URL}/api/collections/promos/records/${id}`, { method: 'DELETE' })

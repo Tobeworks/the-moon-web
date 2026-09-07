@@ -5,13 +5,13 @@
     <div class="flex gap-0 border border-border">
       <button
         @click="tab = 'list'"
-        :class="tab === 'list' ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg'"
-        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase transition-colors"
+        :class="tab === 'list' ? 'bg-surface text-fg' : 'text-fg-dim hover:text-fg'"
+        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase transition-colors cursor-pointer"
       >Promo List</button>
       <button
         @click="tab = 'records'"
-        :class="tab === 'records' ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg'"
-        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase border-l border-border transition-colors"
+        :class="tab === 'records' ? 'bg-surface text-fg' : 'text-fg-dim hover:text-fg'"
+        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase border-l border-border transition-colors cursor-pointer"
       >Promo Records</button>
     </div>
 
@@ -25,7 +25,7 @@
         <div class="flex flex-col gap-1">
           <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// PROMO_LIST</span>
           <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Promo List</h1>
-          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
             {{ subscribers.length }} subscriber{{ subscribers.length !== 1 ? 's' : '' }}
           </p>
         </div>
@@ -113,8 +113,8 @@
 
       <!-- Error / Loading / Empty -->
       <p v-if="loadError" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">{{ loadError }}</p>
-      <p v-else-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Loading…</p>
-      <p v-else-if="subscribers.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">No contacts yet.</p>
+      <p v-else-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Loading…</p>
+      <p v-else-if="subscribers.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">No contacts yet.</p>
 
       <!-- List -->
       <div v-else class="flex flex-col border border-border">
@@ -133,7 +133,7 @@
             @click="remove(s.id)"
             :disabled="deletingId === s.id"
             class="btn btn--muted flex-shrink-0"
-            style="font-size:0.6rem;padding:0.3rem 0.75rem;color:var(--color-fg-muted);"
+            style="font-size:0.6rem;padding:0.3rem 0.75rem;"
           >
             {{ deletingId === s.id ? '…' : 'Remove' }}
           </button>
@@ -152,7 +152,7 @@
         <div class="flex flex-col gap-1">
           <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// PROMO_RECORDS</span>
           <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Promo Records</h1>
-          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
             {{ records.length }} record{{ records.length !== 1 ? 's' : '' }}
           </p>
         </div>
@@ -210,7 +210,7 @@
       <!-- Just created — show the link -->
       <div v-if="justCreated" class="border border-accent/40 p-5 flex flex-col gap-3">
         <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// PROMO_LINK_CREATED</span>
-        <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+        <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
           {{ justCreated.release_slug }} · {{ justCreated.recipient_name }}
         </p>
         <div class="flex items-center gap-2 flex-wrap">
@@ -222,7 +222,7 @@
           >{{ promoUrl(justCreated) }}</a>
           <button
             @click="copyUrl(justCreated)"
-            class="font-mono text-[0.5rem] tracking-[0.15em] uppercase flex-shrink-0 px-2 py-0.5 border border-border text-fg-muted hover:text-fg transition-colors"
+            class="font-mono text-[0.5rem] tracking-[0.15em] uppercase flex-shrink-0 px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors"
           >{{ copiedIds.has(justCreated.id) ? '✓ Copied' : 'Copy' }}</button>
         </div>
         <button @click="justCreated = null" class="btn btn--muted self-start" style="font-size:0.6rem;padding:0.3rem 0.75rem;">Dismiss</button>
@@ -230,8 +230,8 @@
 
       <!-- Error / Loading / Empty -->
       <p v-if="recordsError" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">{{ recordsError }}</p>
-      <p v-else-if="recordsLoading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Loading…</p>
-      <p v-else-if="records.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">No records yet.</p>
+      <p v-else-if="recordsLoading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Loading…</p>
+      <p v-else-if="records.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">No records yet.</p>
 
       <!-- Records list -->
       <div v-else class="flex flex-col border border-border">
@@ -245,7 +245,7 @@
             <div class="flex items-center gap-3 flex-wrap">
               <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent">{{ rec.release_slug }}</span>
               <span class="font-label font-semibold text-[0.85rem] tracking-[0.08em] text-fg">{{ rec.recipient_name }}</span>
-              <span v-if="rec.recipient_email" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">{{ rec.recipient_email }}</span>
+              <span v-if="rec.recipient_email" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">{{ rec.recipient_email }}</span>
             </div>
             <!-- Promo URL -->
             <div class="flex items-center gap-2 min-w-0">
@@ -258,7 +258,7 @@
               >{{ promoUrl(rec) }}</a>
               <button
                 @click="copyUrl(rec)"
-                class="font-mono text-[0.5rem] tracking-[0.15em] uppercase flex-shrink-0 px-2 py-0.5 border border-border text-fg-muted hover:text-fg transition-colors"
+                class="font-mono text-[0.5rem] tracking-[0.15em] uppercase flex-shrink-0 px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors"
               >{{ copiedIds.has(rec.id) ? '✓' : 'Copy' }}</button>
             </div>
             <!-- Meta -->
@@ -271,7 +271,7 @@
             @click="removeRecord(rec.id)"
             :disabled="deletingRecordId === rec.id"
             class="btn btn--muted flex-shrink-0"
-            style="font-size:0.6rem;padding:0.3rem 0.75rem;color:var(--color-fg-muted);"
+            style="font-size:0.6rem;padding:0.3rem 0.75rem;"
           >{{ deletingRecordId === rec.id ? '…' : 'Delete' }}</button>
         </div>
       </div>

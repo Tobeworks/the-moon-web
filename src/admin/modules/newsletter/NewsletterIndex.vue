@@ -5,13 +5,13 @@
     <div class="flex gap-0 border border-border">
       <button
         @click="tab = 'campaigns'"
-        :class="tab === 'campaigns' ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg'"
-        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase transition-colors"
+        :class="tab === 'campaigns' ? 'bg-surface text-fg' : 'text-fg-dim hover:text-fg'"
+        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase transition-colors cursor-pointer"
       >Campaigns</button>
       <button
         @click="tab = 'subscribers'; loadSubscribers()"
-        :class="tab === 'subscribers' ? 'bg-surface text-fg' : 'text-fg-muted hover:text-fg'"
-        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase border-l border-border transition-colors"
+        :class="tab === 'subscribers' ? 'bg-surface text-fg' : 'text-fg-dim hover:text-fg'"
+        class="flex-1 px-5 py-3 font-mono text-[0.6rem] tracking-[0.3em] uppercase border-l border-border transition-colors cursor-pointer"
       >Subscribers</button>
     </div>
 
@@ -25,7 +25,7 @@
         <div class="flex flex-col gap-1">
           <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// NEWSLETTER</span>
           <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Campaigns</h1>
-          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
             {{ subscriberCount }} confirmed subscriber{{ subscriberCount !== 1 ? 's' : '' }}
           </p>
         </div>
@@ -38,7 +38,7 @@
 
         <div class="flex flex-col gap-1.5">
           <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
-            From release <span class="text-fg-muted normal-case tracking-normal" style="font-size:0.6rem;">(fills subject & body from the release — still yours to edit)</span>
+            From release <span class="text-fg-dim normal-case tracking-normal" style="font-size:0.6rem;">(fills subject & body from the release — still yours to edit)</span>
           </label>
           <select v-model="newReleaseCatalog" @change="applyReleaseTemplate" class="tmr-input w-full">
             <option value="">— blank —</option>
@@ -61,8 +61,8 @@
 
       <!-- Error / Loading / Empty -->
       <p v-if="loadError" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">{{ loadError }}</p>
-      <p v-else-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Loading…</p>
-      <p v-else-if="campaigns.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">No campaigns yet.</p>
+      <p v-else-if="loading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Loading…</p>
+      <p v-else-if="campaigns.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">No campaigns yet.</p>
 
       <!-- List -->
       <div v-else class="flex flex-col border border-border">
@@ -73,7 +73,7 @@
         >
           <div class="flex-1 min-w-0 flex flex-col gap-1">
             <span class="font-label font-semibold text-[0.85rem] tracking-[0.08em] text-fg truncate">{{ c.subject }}</span>
-            <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-muted">
+            <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
               <template v-if="c.status === 'sent'">
                 Sent {{ c.sent_count ?? 0 }} · Failed {{ c.failed_count ?? 0 }}
                 <template v-if="c.sent_at"> · {{ new Date(c.sent_at).toLocaleDateString('de-DE') }}</template>
@@ -102,7 +102,7 @@
               v-if="c.status !== 'sent'"
               @click="remove(c.id)"
               class="btn btn--muted"
-              style="font-size:0.6rem;padding:0.3rem 0.75rem;color:var(--color-fg-muted);"
+              style="font-size:0.6rem;padding:0.3rem 0.75rem;"
             >Delete</button>
           </div>
         </div>
@@ -120,16 +120,16 @@
         <div class="flex flex-col gap-1">
           <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// SUBSCRIBERS</span>
           <h1 class="font-label font-bold uppercase tracking-[0.08em] text-xl text-fg">Newsletter Subscribers</h1>
-          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+          <p class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
             {{ subscribers.length }} confirmed subscriber{{ subscribers.length !== 1 ? 's' : '' }}
           </p>
         </div>
       </div>
 
       <!-- Loading / Error / Empty -->
-      <p v-if="subsLoading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Loading…</p>
+      <p v-if="subsLoading" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Loading…</p>
       <p v-else-if="subsError" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400">{{ subsError }}</p>
-      <p v-else-if="subscribers.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">No subscribers yet.</p>
+      <p v-else-if="subscribers.length === 0" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">No subscribers yet.</p>
 
       <!-- List -->
       <div v-else class="flex flex-col border border-border">
@@ -148,7 +148,7 @@
             @click="deleteSub(s.id)"
             :disabled="deletingSubId === s.id"
             class="btn btn--muted flex-shrink-0"
-            style="font-size:0.6rem;padding:0.3rem 0.75rem;color:var(--color-fg-muted);"
+            style="font-size:0.6rem;padding:0.3rem 0.75rem;"
           >
             {{ deletingSubId === s.id ? '…' : 'Remove' }}
           </button>

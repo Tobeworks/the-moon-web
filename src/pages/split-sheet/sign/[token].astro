@@ -1,0 +1,161 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getSplitByToken, getSplitsForRelease } from '../../../lib/pocketbase';
+import { promoErrorPage } from '../../../lib/errorPages';
+import releasesData from '../../../../the-moon-os/data/releases.json';
+
+const { token } = Astro.params;
+
+const found = token ? await getSplitByToken(token) : null;
+if (!found) {
+  return new Response(
+    promoErrorPage(404, 'INVALID LINK', 'THIS SIGNING LINK DOES NOT EXIST OR HAS BEEN REVOKED.'),
+    { status: 404, headers: { 'content-type': 'text/html' } },
+  );
+}
+
+const { split, release } = found;
+
+const isExpired = split.token_expires_at ? new Date(split.token_expires_at) < new Date() : false;
+if (isExpired && !split.signed_at) {
+  return new Response(
+    promoErrorPage(410, 'LINK EXPIRED', 'THIS SIGNING LINK HAS EXPIRED. CONTACT THE MOON RECORDS FOR A NEW ONE.'),
+    { status: 410, headers: { 'content-type': 'text/html' } },
+  );
+}
+
+const releaseInfo = releasesData.releases.find((r) => r.catalog === release.catalog);
+const displayTitle = releaseInfo ? `${releaseInfo.artist} — ${releaseInfo.title}` : release.catalog;
+
+// All parties, for context — but never their email or signing_token, only this page's own signer knows their own.
+const allSplits = await getSplitsForRelease(release.id);
+const parties = allSplits.map((s) => ({
+  artist_name: s.artist_name,
+  percentage: s.percentage,
+  role: s.role,
+  signed_at: s.signed_at,
+}));
+
+const isSigned = Boolean(split.signed_at);
+
+const fmt = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null;
+---
+
+<BaseLayout title={`Sign — ${displayTitle}`} description={`Split sheet signing for ${displayTitle}.`}>
+  <section class="py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
+
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">{release.catalog}</span>
+        <span class="tmr-section-title">Split Sheet</span>
+        <span class="tmr-section-sub">{isSigned ? 'Signed' : 'For Signature'}</span>
+      </div>
+
+      <h1 class="font-label font-semibold text-[1.4rem] uppercase tracking-[0.06em] text-fg mb-2">
+        {displayTitle}
+      </h1>
+      <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-fg-dim mb-10">
+        {release.label_project}
+        {release.distribution_platform ? ` · ${release.distribution_platform}` : ''}
+      </p>
+
+      <div class="flex flex-col border border-border mb-10">
+        {parties.map((p) => (
+          <div
+            class:list={['flex items-center justify-between gap-4 px-5 py-4 border-b border-border last:border-b-0 flex-wrap', p.artist_name === split.artist_name ? 'bg-surface' : '']}
+          >
+            <div class="flex flex-col gap-1">
+              <span class="font-label font-semibold text-[0.85rem] tracking-[0.06em] text-fg">
+                {p.artist_name}{p.artist_name === split.artist_name ? ' (you)' : ''}
+              </span>
+              {p.role && <span class="font-mono text-[0.55rem] tracking-[0.15em] uppercase text-fg-dim">{p.role}</span>}
+            </div>
+            <div class="flex items-center gap-4">
+              <span class="font-mono text-[0.9rem] text-accent">{p.percentage}%</span>
+              <span class:list={['font-mono text-[0.5rem] tracking-[0.15em] uppercase', p.signed_at ? 'text-fg-dim' : 'text-accent']}>
+                {p.signed_at ? `Signed ${fmt(p.signed_at)}` : 'Pending'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {isSigned ? (
+        <div class="border border-border p-6">
+          <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-accent mb-2">// Signed</p>
+          <p class="font-label text-[0.9rem] text-fg">
+            {split.signed_name} signed this split sheet on {fmt(split.signed_at)}.
+          </p>
+        </div>
+      ) : (
+        <div id="sign-form-wrap" class="border border-border p-6 flex flex-col gap-4">
+          <p class="font-label font-light text-[0.8rem] leading-relaxed text-fg-dim">
+            By typing your name below, you confirm the split shown above for your contribution to
+            &ldquo;{displayTitle}&rdquo; ({split.percentage}%{split.role ? ` — ${split.role}` : ''}).
+            This is a simple electronic signature, not a qualified one, but is recorded with a timestamp
+            and IP address as a record of your confirmation.
+          </p>
+          <div class="flex flex-col gap-1.5">
+            <label for="signed-name" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
+              Type your name to sign
+            </label>
+            <input id="signed-name" type="text" class="tmr-input w-full" autocomplete="name" placeholder={split.artist_name} />
+          </div>
+          <button id="sign-btn" type="button" class="btn btn--primary self-start">Confirm & Sign</button>
+          <p id="sign-msg" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400" style="display:none;"></p>
+        </div>
+      )}
+
+    </div>
+  </section>
+</BaseLayout>
+
+<script define:vars={{ token }}>
+  const btn = document.getElementById('sign-btn');
+  const input = document.getElementById('signed-name');
+  const msg = document.getElementById('sign-msg');
+  const wrap = document.getElementById('sign-form-wrap');
+
+  btn?.addEventListener('click', async () => {
+    const signed_name = input.value.trim();
+    if (!signed_name) { input.focus(); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing…';
+    msg.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/split-sheet/sign', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token, signed_name }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        msg.textContent = data.error ?? 'Something went wrong — please try again.';
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Confirm & Sign';
+        return;
+      }
+
+      wrap.replaceChildren();
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'font-mono text-[0.6rem] tracking-[0.2em] uppercase text-accent mb-2';
+      eyebrow.textContent = '// Signed';
+      const confirmed = document.createElement('p');
+      confirmed.className = 'font-label text-[0.9rem] text-fg';
+      confirmed.textContent = `${data.signed_name} signed this split sheet just now.`;
+      wrap.append(eyebrow, confirmed);
+    } catch {
+      msg.textContent = 'Network error — please try again.';
+      msg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Confirm & Sign';
+    }
+  });
+</script>
