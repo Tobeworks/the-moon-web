@@ -48,10 +48,16 @@ const fmt = (iso?: string) =>
   <section class="py-24">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
 
-      <div class="tmr-section-header">
-        <span class="tmr-section-num">{release.catalog}</span>
-        <span class="tmr-section-title">Split Sheet</span>
-        <span class="tmr-section-sub">{isSigned ? 'Signed' : 'For Signature'}</span>
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div class="tmr-section-header flex-1">
+          <span class="tmr-section-num">{release.catalog}</span>
+          <span class="tmr-section-title">Split Sheet</span>
+          <span class="tmr-section-sub">{isSigned ? 'Signed' : 'For Signature'}</span>
+        </div>
+        <button
+          onclick="window.print()"
+          class="print:hidden font-mono text-[0.5rem] tracking-[0.15em] uppercase px-3 py-2 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors shrink-0"
+        >Download PDF</button>
       </div>
 
       <h1 class="font-label font-semibold text-[1.4rem] uppercase tracking-[0.06em] text-fg mb-2">
@@ -91,7 +97,7 @@ const fmt = (iso?: string) =>
           </p>
         </div>
       ) : (
-        <div id="sign-form-wrap" class="border border-border p-6 flex flex-col gap-4">
+        <div id="sign-form-wrap" class="print:hidden border border-border p-6 flex flex-col gap-4">
           <p class="font-label font-light text-[0.8rem] leading-relaxed text-fg-dim">
             By typing your name below, you confirm the split shown above for your contribution to
             &ldquo;{displayTitle}&rdquo; ({split.percentage}%{split.role ? ` — ${split.role}` : ''}).
@@ -143,6 +149,7 @@ const fmt = (iso?: string) =>
         return;
       }
 
+      wrap.classList.remove('print:hidden'); // now shows the signed confirmation, not the input form — keep it printable
       wrap.replaceChildren();
       const eyebrow = document.createElement('p');
       eyebrow.className = 'font-mono text-[0.6rem] tracking-[0.2em] uppercase text-accent mb-2';

@@ -64,6 +64,27 @@
   }
 }
 
+/* Print — the site is dark-themed; printing it as-is would waste ink and be
+   unreadable. Overriding the color tokens here is enough: every existing
+   text-fg/bg-bg/border-border utility class already references these
+   variables, so the whole page repaints for paper without per-element rules.
+   (Tailwind v4 emits @theme tokens as real CSS custom properties, so this
+   override cascades exactly like any other variable reassignment.) */
+@media print {
+  :root {
+    --color-bg:            #ffffff;
+    --color-surface-low:   #f7f6f2;
+    --color-surface:       #f0efe9;
+    --color-surface-high:  #e8e6de;
+    --color-border:        rgba(20,20,10,0.25);
+    --color-fg:            #111111;
+    --color-fg-dim:        rgba(17,17,17,0.85);
+    --color-fg-faint:      rgba(17,17,17,0.65);
+    --color-fg-muted:      rgba(17,17,17,0.5);
+    --color-accent:        #8a7a45; /* darker than screen gold — stays readable on white paper */
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    COMPONENT LAYER
 ───────────────────────────────────────────────────────────────────────────── */
