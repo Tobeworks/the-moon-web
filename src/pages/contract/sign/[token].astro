@@ -1,0 +1,147 @@
+---
+export const prerender = false;
+
+import { marked } from 'marked';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import { getContractByToken } from '../../../lib/pocketbase';
+import { promoErrorPage } from '../../../lib/errorPages';
+import releasesData from '../../../../the-moon-os/data/releases.json';
+
+const { token } = Astro.params;
+
+const contract = token ? await getContractByToken(token) : null;
+if (!contract) {
+  return new Response(
+    promoErrorPage(404, 'INVALID LINK', 'THIS SIGNING LINK DOES NOT EXIST OR HAS BEEN REVOKED.'),
+    { status: 404, headers: { 'content-type': 'text/html' } },
+  );
+}
+
+const isExpired = contract.token_expires_at ? new Date(contract.token_expires_at) < new Date() : false;
+if (isExpired && !contract.signed_at) {
+  return new Response(
+    promoErrorPage(410, 'LINK EXPIRED', 'THIS SIGNING LINK HAS EXPIRED. CONTACT THE MOON RECORDS FOR A NEW ONE.'),
+    { status: 410, headers: { 'content-type': 'text/html' } },
+  );
+}
+
+const releaseInfo = releasesData.releases.find((r) => r.catalog === contract.catalog);
+const displayTitle = releaseInfo ? `${releaseInfo.artist} — ${releaseInfo.title}` : contract.catalog;
+
+const isSigned = Boolean(contract.signed_at);
+const renderedHtml = marked.parse(contract.rendered_body) as string;
+
+const fmt = (iso?: string) =>
+  iso ? new Date(iso).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' }) : null;
+---
+
+<BaseLayout title={`Sign — ${displayTitle}`} description={`Contract signing for ${displayTitle}.`}>
+  <section class="py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-2xl">
+
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">{contract.catalog}</span>
+        <span class="tmr-section-title">Contract</span>
+        <span class="tmr-section-sub">{isSigned ? 'Signed' : 'For Signature'}</span>
+      </div>
+
+      <h1 class="font-label font-semibold text-[1.4rem] uppercase tracking-[0.06em] text-fg mb-2">
+        {displayTitle}
+      </h1>
+      <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-fg-dim mb-10">
+        {contract.artist_name}
+      </p>
+
+      <div
+        class="border border-border p-6 mb-10 text-fg-dim text-[0.85rem] leading-relaxed contract-body"
+        set:html={renderedHtml}
+      />
+
+      {isSigned ? (
+        <div class="border border-border p-6">
+          <p class="font-mono text-[0.6rem] tracking-[0.2em] uppercase text-accent mb-2">// Signed</p>
+          <p class="font-label text-[0.9rem] text-fg">
+            {contract.signed_name} signed this contract on {fmt(contract.signed_at)}.
+          </p>
+        </div>
+      ) : (
+        <div id="sign-form-wrap" class="border border-border p-6 flex flex-col gap-4">
+          <p class="font-label font-light text-[0.8rem] leading-relaxed text-fg-dim">
+            By typing your name below, you confirm you have read and agree to the terms above.
+            This is a simple electronic signature, not a qualified one, but is recorded with a
+            timestamp and IP address as a record of your confirmation.
+          </p>
+          <div class="flex flex-col gap-1.5">
+            <label for="signed-name" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
+              Type your name to sign
+            </label>
+            <input id="signed-name" type="text" class="tmr-input w-full" autocomplete="name" placeholder={contract.artist_name} />
+          </div>
+          <button id="sign-btn" type="button" class="btn btn--primary self-start">Confirm & Sign</button>
+          <p id="sign-msg" class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-red-400" style="display:none;"></p>
+        </div>
+      )}
+
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Prose rendering for the contract body — mirrors CampaignEditor.vue's .preview-content */
+  .contract-body :global(h1) { font-size: 1.2rem; font-weight: 700; margin: 0 0 1rem; color: var(--color-fg); letter-spacing: 0.04em; }
+  .contract-body :global(h2) { font-size: 1rem; font-weight: 700; margin: 1.5rem 0 0.75rem; color: var(--color-fg); }
+  .contract-body :global(h3) { font-size: 0.9rem; font-weight: 600; margin: 1.25rem 0 0.5rem; color: var(--color-fg-dim); }
+  .contract-body :global(p) { margin: 0 0 1rem; }
+  .contract-body :global(strong) { color: var(--color-fg); font-weight: 700; }
+  .contract-body :global(ul),
+  .contract-body :global(ol) { padding-left: 1.5rem; margin: 0 0 1rem; list-style: revert; }
+  .contract-body :global(li) { margin-bottom: 0.25rem; display: list-item; }
+  .contract-body :global(hr) { border: none; border-top: 1px solid var(--color-border); margin: 1.5rem 0; }
+</style>
+
+<script define:vars={{ token }}>
+  const btn = document.getElementById('sign-btn');
+  const input = document.getElementById('signed-name');
+  const msg = document.getElementById('sign-msg');
+  const wrap = document.getElementById('sign-form-wrap');
+
+  btn?.addEventListener('click', async () => {
+    const signed_name = input.value.trim();
+    if (!signed_name) { input.focus(); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Signing…';
+    msg.style.display = 'none';
+
+    try {
+      const res = await fetch('/api/contract/sign', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ token, signed_name }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        msg.textContent = data.error ?? 'Something went wrong — please try again.';
+        msg.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Confirm & Sign';
+        return;
+      }
+
+      wrap.replaceChildren();
+      const eyebrow = document.createElement('p');
+      eyebrow.className = 'font-mono text-[0.6rem] tracking-[0.2em] uppercase text-accent mb-2';
+      eyebrow.textContent = '// Signed';
+      const confirmed = document.createElement('p');
+      confirmed.className = 'font-label text-[0.9rem] text-fg';
+      confirmed.textContent = `${data.signed_name} signed this contract just now.`;
+      wrap.append(eyebrow, confirmed);
+    } catch {
+      msg.textContent = 'Network error — please try again.';
+      msg.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Confirm & Sign';
+    }
+  });
+</script>

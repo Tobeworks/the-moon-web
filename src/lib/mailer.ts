@@ -270,3 +270,33 @@ export async function sendSplitSigningEmail(
 
   await transporter.sendMail({ from: FROM, to, subject: `Split Sheet — ${releaseTitle} — THE MOON RECORDS`, html, text });
 }
+
+export async function sendContractSigningEmail(
+  to: string,
+  artistName: string,
+  releaseTitle: string,
+  signingUrl: string,
+) {
+  const name = escapeHtml(artistName);
+  const title = escapeHtml(releaseTitle);
+
+  const html = baseHtml(`
+    <h1 style="margin:0 0 16px;color:#E8E4D8;font-size:22px;letter-spacing:0.2em;text-transform:uppercase;font-weight:700;">
+      Contract — Please Sign
+    </h1>
+    <p style="margin:0 0 24px;color:rgba(232,228,216,0.6);font-size:13px;letter-spacing:0.08em;line-height:1.8;">
+      Hi ${name}, your release agreement for &ldquo;${title}&rdquo; is ready for your signature.
+      Please review and sign below.
+    </p>
+    <a href="${signingUrl}" style="display:inline-block;background:#C4B98A;color:#1A1710;font-size:12px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;padding:13px 28px;text-decoration:none;">
+      REVIEW &amp; SIGN
+    </a>
+    <p style="margin:28px 0 0;color:rgba(232,228,216,0.25);font-size:11px;letter-spacing:0.08em;line-height:1.7;">
+      This link is personal to you and can only be used once.
+    </p>
+  `);
+
+  const text = `Hi ${artistName},\n\nYour release agreement for "${releaseTitle}" is ready for your signature.\n\nReview and sign:\n${signingUrl}\n\nThis link is personal to you and can only be used once.`;
+
+  await transporter.sendMail({ from: FROM, to, subject: `Contract — ${releaseTitle} — THE MOON RECORDS`, html, text });
+}
