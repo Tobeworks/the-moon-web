@@ -294,3 +294,106 @@ export const splitSheetsApi = {
     }
   },
 }
+
+export interface ContractTemplate {
+  id: string;
+  name: string;
+  body_md: string;
+  is_active?: boolean;
+}
+
+export interface Contract {
+  id: string;
+  template: string;
+  catalog: string;
+  artist_name: string;
+  artist_email?: string;
+  rendered_body: string;
+  signing_token: string;
+  signed_name?: string;
+  signed_at?: string;
+}
+
+export const contractTemplatesApi = {
+  async getAll(): Promise<ContractTemplate[]> {
+    const res = await fetch('/api/admin/contract-templates')
+    if (!res.ok) throw new Error('Failed to load templates')
+    return res.json()
+  },
+
+  async create(payload: { name: string; body_md: string; is_active?: boolean }): Promise<ContractTemplate> {
+    const res = await fetch('/api/admin/contract-templates', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to create template')
+    }
+    return res.json()
+  },
+
+  async update(id: string, payload: { name: string; body_md: string; is_active?: boolean }): Promise<ContractTemplate> {
+    const res = await fetch(`/api/admin/contract-templates/${id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to update template')
+    }
+    return res.json()
+  },
+
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`/api/admin/contract-templates/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to delete template')
+    }
+  },
+}
+
+export const contractsApi = {
+  async getAll(): Promise<Contract[]> {
+    const res = await fetch('/api/admin/contracts')
+    if (!res.ok) throw new Error('Failed to load contracts')
+    return res.json()
+  },
+
+  async create(payload: {
+    template: string
+    catalog: string
+    artist_name: string
+    artist_email?: string
+    values: Record<string, string>
+  }): Promise<{ contract: Contract; mailed: boolean }> {
+    const res = await fetch('/api/admin/contracts', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to create contract')
+    }
+    return res.json()
+  },
+
+  async resend(id: string): Promise<{ ok: boolean; mailed: boolean; signing_url: string }> {
+    const res = await fetch(`/api/admin/contracts/${id}/resend`, { method: 'POST' })
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error ?? 'Failed to resend')
+    return data
+  },
+
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`/api/admin/contracts/${id}`, { method: 'DELETE' })
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}))
+      throw new Error(err.error ?? 'Failed to delete contract')
+    }
+  },
+}

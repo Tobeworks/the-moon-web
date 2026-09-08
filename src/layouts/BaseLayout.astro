@@ -103,4 +103,19 @@ const siteName = 'THE MOON RECORDS';
     pointer-events: none;
     z-index: 998;
   }
+
+  /* ── Print ──────────────────────────────────────────────────────
+     Decorative dark-theme chrome has no place on paper — hide it
+     globally so any page's "Download PDF" (window.print()) button
+     works without per-page cleanup. Color tokens are overridden in
+     global.css so every existing text-fg/bg-bg/border-border class
+     repaints for print automatically, no per-element overrides needed. */
+  @media print {
+    body::after,
+    .vignette,
+    header,
+    footer {
+      display: none !important;
+    }
+  }
 </style>

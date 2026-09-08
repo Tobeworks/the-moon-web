@@ -560,6 +560,157 @@ export async function deleteSplitSheetRelease(id: string): Promise<void> {
   await fetch(`${PB_URL}/api/collections/split_sheet_releases/records/${id}`, { method: 'DELETE' });
 }
 
+// ── Contracts ────────────────────────────────────────────────────────────────
+
+export interface ContractTemplate {
+  id: string;
+  name: string;
+  body_md: string;
+  is_active?: boolean;
+}
+
+export interface Contract {
+  id: string;
+  template: string; // relation id
+  catalog: string;
+  artist_name: string;
+  artist_email?: string;
+  rendered_body: string;
+  signing_token: string;
+  signed_name?: string;
+  signed_at?: string;
+  ip_address?: string;
+  document_hash?: string;
+  token_expires_at?: string;
+}
+
+export async function getContractTemplates(): Promise<ContractTemplate[]> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/contract_templates/records?perPage=500`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.items ?? [];
+  } catch { return []; }
+}
+
+export async function getContractTemplate(id: string): Promise<ContractTemplate | null> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/contract_templates/records/${id}`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function createContractTemplate(payload: { name: string; body_md: string; is_active?: boolean }): Promise<ContractTemplate> {
+  const res = await fetch(`${PB_URL}/api/collections/contract_templates/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase contract_templates create failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+export async function updateContractTemplate(id: string, payload: { name: string; body_md: string; is_active?: boolean }): Promise<ContractTemplate> {
+  const res = await fetch(`${PB_URL}/api/collections/contract_templates/records/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase contract_templates update failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+export async function deleteContractTemplate(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/contract_templates/records/${id}`, { method: 'DELETE' });
+}
+
+export async function getContractsByTemplate(templateId: string): Promise<Contract[]> {
+  try {
+    const filter = encodeURIComponent(`template='${templateId}'`);
+    const res = await fetch(`${PB_URL}/api/collections/contracts/records?filter=${filter}&perPage=1`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.items ?? [];
+  } catch { return []; }
+}
+
+export async function getContracts(): Promise<Contract[]> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/contracts/records?perPage=500`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.items ?? [];
+  } catch { return []; }
+}
+
+export async function getContract(id: string): Promise<Contract | null> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/contracts/records/${id}`);
+    if (!res.ok) return null;
+    return res.json();
+  } catch { return null; }
+}
+
+export async function createContract(payload: {
+  template: string;
+  catalog: string;
+  artist_name: string;
+  artist_email?: string;
+  rendered_body: string;
+  signing_token: string;
+}): Promise<Contract> {
+  const res = await fetch(`${PB_URL}/api/collections/contracts/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase contracts create failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+/** Sign-page lookup. Possessing the exact token is the authorization for this one record. */
+export async function getContractByToken(token: string): Promise<Contract | null> {
+  try {
+    const filter = encodeURIComponent(`signing_token='${token}'`);
+    const res = await fetch(`${PB_URL}/api/collections/contracts/records?filter=${filter}&perPage=1`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.items?.[0] ?? null;
+  } catch { return null; }
+}
+
+/** Writes the signature onto a contract. Caller must already have verified it isn't signed yet. */
+export async function signContract(id: string, payload: {
+  signed_name: string;
+  ip_address: string;
+  document_hash: string;
+}): Promise<Contract> {
+  const res = await fetch(`${PB_URL}/api/collections/contracts/records/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...payload, signed_at: new Date().toISOString() }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase contract sign failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+export async function deleteContract(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/contracts/records/${id}`, { method: 'DELETE' });
+}
+
 /** Deletes a promo record by id */
 export async function deletePromoRecord(id: string): Promise<void> {
   await fetch(`${PB_URL}/api/collections/promos/records/${id}`, { method: 'DELETE' })
