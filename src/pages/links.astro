@@ -1,0 +1,50 @@
+---
+export const prerender = false;
+
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ReleaseSpotlight from '../components/ReleaseSpotlight.astro';
+import { getLinktreeItems } from '../lib/pocketbase';
+import releasesData from '../../the-moon-os/data/releases.json';
+
+const items = await getLinktreeItems();
+
+const releaseByCatalog = (catalog?: string) =>
+  releasesData.releases.find((r) => r.catalog.toLowerCase() === catalog?.toLowerCase());
+---
+
+<BaseLayout
+  title="Links — THE MOON RECORDS"
+  description="Latest release, streaming links, and everything else — in one place."
+  canonicalUrl={new URL('links', Astro.site).href}>
+  <div class="min-h-screen pb-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-20 max-w-md flex flex-col gap-8">
+      <h1 class="font-label font-bold uppercase text-fg text-xl text-center" style="letter-spacing: 0.08em;">
+        THE MOON RECORDS
+      </h1>
+
+      {items.map((item) => {
+        if (item.type === 'link') {
+          return (
+            <a
+              href={item.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="border border-border py-4 px-5 text-center font-mono text-[0.65rem] tracking-[0.2em] uppercase text-fg no-underline transition-colors hover:border-accent hover:text-accent"
+            >
+              {item.label} ↗
+            </a>
+          );
+        }
+
+        const release = releaseByCatalog(item.release_catalog);
+        if (!release) return null; // stale reference (release removed from the catalog) — skip silently
+
+        return (
+          <div class="border border-border p-5">
+            <ReleaseSpotlight release={release} />
+          </div>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
