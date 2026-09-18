@@ -443,7 +443,10 @@ export const linktreeApi = {
 
   async delete(id: string): Promise<void> {
     const res = await fetch(`/api/admin/linktree/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error('Failed to delete linktree item');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? 'Failed to delete linktree item');
+    }
   },
 
   async move(id: string, direction: 'up' | 'down'): Promise<LinktreeItem[]> {
@@ -452,7 +455,10 @@ export const linktreeApi = {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ id, direction }),
     });
-    if (!res.ok) throw new Error('Failed to reorder linktree items');
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? 'Failed to reorder linktree items');
+    }
     const data = await res.json();
     return data.items;
   },
