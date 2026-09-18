@@ -1,0 +1,92 @@
+---
+import DspLinks from './DspLinks.astro';
+import AudioPlayer from './AudioPlayer.astro';
+
+interface Track { number: number; title: string; url: string; }
+interface Platform { name: string; url: string; }
+interface Release {
+  catalog: string;
+  artist: string;
+  title: string;
+  format?: string;
+  genre?: string;
+  cover?: string;
+  artwork?: Record<string, { jpg: string; webp: string }>;
+  tracks: Track[];
+  platforms?: Platform[];
+  release_date?: string;
+}
+
+interface Props {
+  release: Release;
+}
+
+const { release } = Astro.props;
+const { catalog, artist, title, format, genre, artwork, cover, tracks, platforms, release_date } = release;
+
+const art1500webp = artwork?.['1500']?.webp;
+const art1500jpg  = artwork?.['1500']?.jpg || cover;
+
+const playerTracks = tracks.map((t) => ({ number: t.number, title: t.title, url: t.url }));
+
+const now = new Date();
+const releaseDate = release_date ? new Date(release_date) : null;
+const isReleased = releaseDate ? releaseDate <= now : true;
+const visiblePlatforms = isReleased ? (platforms ?? []).filter((p) => p.url) : [];
+
+const formattedReleaseDate = releaseDate
+  ? releaseDate.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })
+  : null;
+
+const releaseHref = `/releases/${catalog.toLowerCase()}`;
+---
+
+<div class="flex flex-col gap-4">
+  <!-- Cover: capped so title + DSP + player fit the viewport -->
+  <a href={releaseHref} target="_blank" rel="noopener noreferrer" class="max-w-[min(100%,38vh)] mx-auto block">
+    {art1500jpg ? (
+      <picture>
+        {art1500webp && <source srcset={art1500webp} type="image/webp" />}
+        <img
+          class="w-full aspect-square object-cover block [filter:grayscale(0.2)_brightness(0.9)] hover:[filter:grayscale(0)_brightness(1)] transition-[filter] duration-300"
+          src={art1500jpg}
+          alt={`${artist} — ${title}`}
+          width="600"
+          height="600"
+        />
+      </picture>
+    ) : (
+      <div class="w-full aspect-square bg-surface border border-border" />
+    )}
+  </a>
+
+  <div class="flex flex-col gap-1.5">
+    <div class="flex gap-1.5 flex-wrap">
+      <span class="badge">{catalog}</span>
+      {format && <span class="badge badge--muted">{format}</span>}
+      {genre  && <span class="badge badge--muted">{genre}</span>}
+    </div>
+    <h2 class="font-label font-bold uppercase text-fg text-2xl leading-tight" style="letter-spacing: 0.05em;">
+      <a href={releaseHref} target="_blank" rel="noopener noreferrer" class="no-underline text-inherit hover:opacity-80">{title}</a>
+    </h2>
+    <p class="font-mono text-[0.65rem] tracking-[0.22em] uppercase text-accent">{artist}</p>
+  </div>
+
+  {visiblePlatforms.length > 0 && (
+    <div class="border-t border-b border-border py-3">
+      <p class="font-mono text-[0.45rem] tracking-[0.25em] uppercase text-fg-muted mb-2.5">Listen on</p>
+      <DspLinks platforms={visiblePlatforms} size="h-7" gap="gap-5" />
+    </div>
+  )}
+
+  {isReleased ? (
+    <AudioPlayer tracks={playerTracks} />
+  ) : (
+    <div class="border border-border p-4 flex flex-col gap-2">
+      <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// TRANSMISSION_PENDING</span>
+      <p class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted">
+        {formattedReleaseDate ? `Available ${formattedReleaseDate}` : 'Release date TBA'}
+      </p>
+    </div>
+  )}
+</div>
