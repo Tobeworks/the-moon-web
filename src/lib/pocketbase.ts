@@ -729,3 +729,67 @@ export async function logDownload(payload: {
     body: JSON.stringify(payload),
   }).catch(() => {});
 }
+
+// ── Linktree ─────────────────────────────────────────────────────────────────
+
+export interface LinktreeItem {
+  id: string;
+  type: 'release' | 'link';
+  position: number;
+  release_catalog?: string;
+  label?: string;
+  url?: string;
+  created?: string;
+}
+
+/** All linktree items, sorted by position ascending — the display order. */
+export async function getLinktreeItems(): Promise<LinktreeItem[]> {
+  try {
+    const res = await fetch(`${PB_URL}/api/collections/linktree_items/records?sort=position&perPage=200`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.items ?? []) as LinktreeItem[];
+  } catch { return []; }
+}
+
+export async function createLinktreeItem(payload: {
+  type: 'release' | 'link';
+  position: number;
+  release_catalog?: string;
+  label?: string;
+  url?: string;
+}): Promise<LinktreeItem> {
+  const res = await fetch(`${PB_URL}/api/collections/linktree_items/records`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase linktree_items create failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+export async function updateLinktreeItem(id: string, fields: Partial<{
+  type: 'release' | 'link';
+  position: number;
+  release_catalog: string;
+  label: string;
+  url: string;
+}>): Promise<LinktreeItem> {
+  const res = await fetch(`${PB_URL}/api/collections/linktree_items/records/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(fields),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`PocketBase linktree_items update failed: ${res.status} ${err}`);
+  }
+  return res.json();
+}
+
+export async function deleteLinktreeItem(id: string): Promise<void> {
+  await fetch(`${PB_URL}/api/collections/linktree_items/records/${id}`, { method: 'DELETE' });
+}
