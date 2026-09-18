@@ -5,6 +5,7 @@ import CampaignEditor   from './modules/newsletter/CampaignEditor.vue';
 import PromoIndex       from './modules/promo/PromoIndex.vue';
 import SplitSheetsIndex from './modules/splitsheets/SplitSheetsIndex.vue';
 import ContractsIndex   from './modules/contracts/ContractsIndex.vue';
+import LinktreeIndex    from './modules/linktree/LinktreeIndex.vue';
 import Dashboard        from './modules/Dashboard.vue';
 
 export const router = createRouter({
@@ -16,5 +17,6 @@ export const router = createRouter({
     { path: '/promo',               component: PromoIndex },
     { path: '/split-sheets',        component: SplitSheetsIndex },
     { path: '/contracts',           component: ContractsIndex },
+    { path: '/linktree',            component: LinktreeIndex },
   ],
 });

@@ -26,6 +26,11 @@
         <span class="font-label font-bold uppercase tracking-[0.08em] text-fg">Contracts</span>
         <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">Solo Release Agreements</span>
       </RouterLink>
+      <RouterLink to="/linktree" class="border border-border p-5 flex flex-col gap-1 hover:border-accent transition-colors">
+        <span class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-accent">// MODULE</span>
+        <span class="font-label font-bold uppercase tracking-[0.08em] text-fg">Linktree</span>
+        <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">Bio-Link Page</span>
+      </RouterLink>
     </div>
   </div>
 </template>
