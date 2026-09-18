@@ -108,7 +108,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
         <span class="tmr-section-title">Current Phase</span>
         <span class="tmr-section-sub">TMR / Latest</span>
       </div>
-      <ReleaseList limit={12} />
+      <ReleaseList limit={12} excludeCatalog={latestCatalog} />
       {
         releasesData.releases.length > 12 && (
           <div class="mt-10 flex justify-center">

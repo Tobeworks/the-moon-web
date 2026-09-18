@@ -4,13 +4,16 @@ import releasesData from '../../the-moon-os/data/releases.json';
 
 interface Props {
   limit?: number;
+  excludeCatalog?: string;
 }
 
-const { limit } = Astro.props;
+const { limit, excludeCatalog } = Astro.props;
 
-const allReleases = [...releasesData.releases].sort((a, b) =>
-  b.catalog.localeCompare(a.catalog, undefined, { numeric: true })
-);
+const allReleases = [...releasesData.releases]
+  .filter((r) => r.catalog !== excludeCatalog)
+  .sort((a, b) =>
+    b.catalog.localeCompare(a.catalog, undefined, { numeric: true })
+  );
 
 const releases = limit ? allReleases.slice(0, limit) : allReleases;
 ---
