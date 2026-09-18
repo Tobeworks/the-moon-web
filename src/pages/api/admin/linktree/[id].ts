@@ -17,8 +17,11 @@ export const PATCH = async ({ params, request }: APIContext) => {
     return json({ error: 'Invalid body' }, 400);
   }
 
+  // Allowlist: only the server writes `position` (see reorder.ts).
+  const { type, release_catalog, label, url } = body;
+
   try {
-    const item = await updateLinktreeItem(id, body);
+    const item = await updateLinktreeItem(id, { type, release_catalog, label, url });
     return json(item);
   } catch (e) {
     console.error('[linktree] update:', e);

@@ -21,22 +21,28 @@ export const POST = async ({ request }: APIContext) => {
     return json({ error: 'id and direction ("up"|"down") required' }, 422);
   }
 
-  const items = await getLinktreeItems(); // sorted by position ascending
-  const idx = items.findIndex((i) => i.id === id);
-  if (idx === -1) return json({ error: 'Item not found' }, 404);
+  // Any PocketBase hiccup here (restart, transient error) must come back as the
+  // JSON error shape linktreeApi.move() reads, not an Astro HTML 500.
+  try {
+    const items = await getLinktreeItems(); // sorted by position ascending
+    const idx = items.findIndex((i) => i.id === id);
+    if (idx === -1) return json({ error: 'Item not found' }, 404);
 
-  const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
-  if (neighborIdx < 0 || neighborIdx >= items.length) {
-    return json({ items }); // already at the edge — no-op, not an error
+    const neighborIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (neighborIdx < 0 || neighborIdx >= items.length) {
+      return json({ items }); // already at the edge — no-op, not an error
+    }
+
+    const a = items[idx];
+    const b = items[neighborIdx];
+    await Promise.all([
+      updateLinktreeItem(a.id, { position: b.position }),
+      updateLinktreeItem(b.id, { position: a.position }),
+    ]);
+
+    return json({ items: await getLinktreeItems() });
+  } catch (e) {
+    console.error('[linktree] reorder:', e);
+    return json({ error: 'Failed to reorder linktree items.' }, 500);
   }
-
-  const a = items[idx];
-  const b = items[neighborIdx];
-  await Promise.all([
-    updateLinktreeItem(a.id, { position: b.position }),
-    updateLinktreeItem(b.id, { position: a.position }),
-  ]);
-
-  const updated = await getLinktreeItems();
-  return json({ items: updated });
 };

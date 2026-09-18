@@ -53,6 +53,7 @@ const nav = [
   { to: '/promo',        label: 'Promo' },
   { to: '/split-sheets', label: 'Split Sheets' },
   { to: '/contracts',    label: 'Contracts' },
+  { to: '/linktree',     label: 'Linktree' },
 ];
 
 function isActive(to: string) {

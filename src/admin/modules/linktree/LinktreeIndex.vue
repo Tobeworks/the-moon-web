@@ -8,12 +8,12 @@
           {{ items.length }} entr{{ items.length !== 1 ? 'ies' : 'y' }} — <a href="/links" target="_blank" class="text-accent hover:underline">/links ↗</a>
         </p>
       </div>
-      <button @click="showNew = !showNew" class="btn btn--primary">New Entry</button>
+      <button @click="startNew" class="btn btn--primary">New Entry</button>
     </div>
 
-    <!-- New entry form -->
+    <!-- New / edit entry form -->
     <div v-if="showNew" class="border border-border p-5 flex flex-col gap-4">
-      <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// NEW_ENTRY</span>
+      <span class="font-mono text-[0.6rem] tracking-[0.3em] uppercase text-accent">// {{ editingId ? 'EDIT_ENTRY' : 'NEW_ENTRY' }}</span>
 
       <div class="flex gap-0 border border-border w-fit">
         <button
@@ -51,7 +51,7 @@
 
       <div class="flex items-center gap-4 flex-wrap">
         <button @click="create" :disabled="creating || !canCreate" class="btn btn--primary">
-          {{ creating ? 'Creating…' : 'Create' }}
+          {{ creating ? 'Saving…' : (editingId ? 'Save' : 'Create') }}
         </button>
         <button @click="cancelNew" class="btn btn--muted">Cancel</button>
         <span v-if="createError" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-red-400">{{ createError }}</span>
@@ -68,7 +68,9 @@
       <div
         v-for="(item, idx) in items"
         :key="item.id"
-        class="flex items-center justify-between gap-4 px-5 py-4 border-b border-border last:border-b-0 flex-wrap"
+        @click="startEdit(item)"
+        class="flex items-center justify-between gap-4 px-5 py-4 border-b border-border last:border-b-0 flex-wrap cursor-pointer transition-colors"
+        :class="editingId === item.id ? 'bg-surface' : 'hover:bg-surface'"
       >
         <div class="flex flex-col gap-1 min-w-0">
           <span class="font-label font-semibold text-[0.85rem] tracking-[0.06em] text-fg">
@@ -80,17 +82,17 @@
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
           <button
-            @click="move(item, 'up')"
+            @click.stop="move(item, 'up')"
             :disabled="idx === 0 || movingId === item.id"
             class="font-mono text-[0.6rem] px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >▲</button>
           <button
-            @click="move(item, 'down')"
+            @click.stop="move(item, 'down')"
             :disabled="idx === items.length - 1 || movingId === item.id"
             class="font-mono text-[0.6rem] px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >▼</button>
           <button
-            @click="removeItem(item)"
+            @click.stop="removeItem(item)"
             :disabled="deletingId === item.id"
             class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-red-400 hover:border-red-400/40 transition-colors disabled:cursor-not-allowed"
           >{{ deletingId === item.id ? '…' : 'Delete' }}</button>
@@ -125,6 +127,7 @@ const creating   = ref(false);
 const createError = ref('');
 const movingId   = ref('');
 const deletingId = ref('');
+const editingId  = ref('');
 
 const emptyForm = () => ({ type: 'release' as 'release' | 'link', release_catalog: '', label: '', url: '' });
 const form = ref(emptyForm());
@@ -149,25 +152,46 @@ async function load() {
 
 function cancelNew() {
   showNew.value = false;
+  editingId.value = '';
   createError.value = '';
   form.value = emptyForm();
+}
+
+function startNew() {
+  if (showNew.value && !editingId.value) return cancelNew();
+  cancelNew();
+  showNew.value = true;
+}
+
+function startEdit(item: LinktreeItem) {
+  editingId.value = item.id;
+  createError.value = '';
+  form.value = {
+    type: item.type,
+    release_catalog: item.release_catalog ?? '',
+    label: item.label ?? '',
+    url: item.url ?? '',
+  };
+  showNew.value = true;
 }
 
 async function create() {
   if (!canCreate.value) return;
   creating.value = true;
   createError.value = '';
+  const payload = {
+    type: form.value.type,
+    release_catalog: form.value.type === 'release' ? form.value.release_catalog : undefined,
+    label: form.value.type === 'link' ? form.value.label.trim() : undefined,
+    url: form.value.type === 'link' ? form.value.url.trim() : undefined,
+  };
   try {
-    await linktreeApi.create({
-      type: form.value.type,
-      release_catalog: form.value.type === 'release' ? form.value.release_catalog : undefined,
-      label: form.value.type === 'link' ? form.value.label.trim() : undefined,
-      url: form.value.type === 'link' ? form.value.url.trim() : undefined,
-    });
+    if (editingId.value) await linktreeApi.update(editingId.value, payload);
+    else await linktreeApi.create(payload);
     cancelNew();
     await load();
   } catch (e: any) {
-    createError.value = e.message ?? 'Failed to create entry.';
+    createError.value = e.message ?? 'Failed to save entry.';
   } finally {
     creating.value = false;
   }

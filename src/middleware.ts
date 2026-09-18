@@ -3,13 +3,19 @@ import { defineMiddleware } from 'astro:middleware';
 const PB_URL = process.env.POCKETBASE_URL ?? import.meta.env.POCKETBASE_URL ?? 'http://pocketbase:8090';
 
 export const onRequest = defineMiddleware(async ({ url, cookies, redirect }, next) => {
-  const isAdminRoute = url.pathname.startsWith('/admin');
-  const isLoginPage  = url.pathname === '/admin/login';
-  const isLoginApi   = url.pathname === '/api/admin/login';
+  const isAdminPage = url.pathname.startsWith('/admin');
+  const isAdminApi  = url.pathname.startsWith('/api/admin');
+  const isLoginPage = url.pathname === '/admin/login';
+  const isLoginApi  = url.pathname === '/api/admin/login';
 
-  if (isAdminRoute && !isLoginPage && !isLoginApi) {
+  if ((isAdminPage || isAdminApi) && !isLoginPage && !isLoginApi) {
     const token = cookies.get('admin_token')?.value;
-    if (!token) return redirect('/admin/login');
+    // A page visit belongs at the login screen; a fetch() caller needs JSON it can read.
+    const unauthorized = () => isAdminApi
+      ? new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { 'content-type': 'application/json' } })
+      : redirect('/admin/login');
+
+    if (!token) return unauthorized();
 
     // Verify token against PocketBase
     const res = await fetch(`${PB_URL}/api/collections/users/auth-refresh`, {
@@ -19,7 +25,7 @@ export const onRequest = defineMiddleware(async ({ url, cookies, redirect }, nex
 
     if (!res || !res.ok) {
       cookies.delete('admin_token', { path: '/' });
-      return redirect('/admin/login');
+      return unauthorized();
     }
   }
 
