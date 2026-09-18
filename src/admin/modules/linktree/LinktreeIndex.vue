@@ -177,6 +177,8 @@ async function move(item: LinktreeItem, direction: 'up' | 'down') {
   movingId.value = item.id;
   try {
     items.value = await linktreeApi.move(item.id, direction);
+  } catch (e: any) {
+    alert(e.message ?? 'Failed to reorder.');
   } finally {
     movingId.value = '';
   }
