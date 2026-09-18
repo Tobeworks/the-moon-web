@@ -397,3 +397,63 @@ export const contractsApi = {
     }
   },
 }
+
+export interface LinktreeItem {
+  id: string;
+  type: 'release' | 'link';
+  position: number;
+  release_catalog?: string;
+  label?: string;
+  url?: string;
+  created?: string;
+}
+
+export const linktreeApi = {
+  async getAll(): Promise<LinktreeItem[]> {
+    const res = await fetch('/api/admin/linktree');
+    if (!res.ok) throw new Error('Failed to load linktree items');
+    return res.json();
+  },
+
+  async create(payload: { type: 'release' | 'link'; release_catalog?: string; label?: string; url?: string }): Promise<LinktreeItem> {
+    const res = await fetch('/api/admin/linktree', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? 'Failed to create linktree item');
+    }
+    return res.json();
+  },
+
+  async update(id: string, payload: Partial<{ type: 'release' | 'link'; release_catalog: string; label: string; url: string }>): Promise<LinktreeItem> {
+    const res = await fetch(`/api/admin/linktree/${id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error ?? 'Failed to update linktree item');
+    }
+    return res.json();
+  },
+
+  async delete(id: string): Promise<void> {
+    const res = await fetch(`/api/admin/linktree/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('Failed to delete linktree item');
+  },
+
+  async move(id: string, direction: 'up' | 'down'): Promise<LinktreeItem[]> {
+    const res = await fetch('/api/admin/linktree/reorder', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id, direction }),
+    });
+    if (!res.ok) throw new Error('Failed to reorder linktree items');
+    const data = await res.json();
+    return data.items;
+  },
+};
