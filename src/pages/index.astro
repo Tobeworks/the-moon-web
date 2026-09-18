@@ -3,6 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import PhaseCircle from "../components/PhaseCircle.astro";
 import ReleaseList from "../components/ReleaseList.astro";
 import NewsletterForm from "../components/NewsletterForm.astro";
+import ReleaseSpotlight from "../components/ReleaseSpotlight.astro";
 import releasesData from "../../the-moon-os/data/releases.json";
 
 const latestCatalog =
@@ -10,6 +11,7 @@ const latestCatalog =
     .map((r) => r.catalog)
     .sort()
     .at(-1) ?? "TMR-001";
+const latestRelease = releasesData.releases.find((r) => r.catalog === latestCatalog);
 ---
 
 <BaseLayout
@@ -83,6 +85,20 @@ const latestCatalog =
       }
     </div>
   </section>
+
+  <!-- ── Latest Transmission — Spotlight ── -->
+  {latestRelease && (
+    <section class="py-16">
+      <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
+        <div class="tmr-section-header mb-8">
+          <span class="tmr-section-num">//</span>
+          <span class="tmr-section-title">Latest Transmission</span>
+          <span class="tmr-section-sub">Newest Release</span>
+        </div>
+        <ReleaseSpotlight release={latestRelease} />
+      </div>
+    </section>
+  )}
 
   <!-- ── 01 Current Phase — Releases ── -->
   <section class="py-24" id="releases">
