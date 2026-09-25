@@ -24,6 +24,7 @@ export const POST = async ({ request, url }: APIContext) => {
     catalog?: string;
     artist_name?: string;
     artist_email?: string;
+    artist_address?: string;
     values?: Record<string, string>;
   } = {};
   try {
@@ -32,7 +33,7 @@ export const POST = async ({ request, url }: APIContext) => {
     return json({ error: 'Invalid body' }, 400);
   }
 
-  const { template: templateId, catalog, artist_name, artist_email, values = {} } = body;
+  const { template: templateId, catalog, artist_name, artist_email, artist_address, values = {} } = body;
   if (!templateId || !catalog || !artist_name) {
     return json({ error: 'template, catalog and artist_name required' }, 422);
   }
@@ -46,12 +47,20 @@ export const POST = async ({ request, url }: APIContext) => {
     release_title: releaseInfo?.title ?? '',
     catalog,
     release_date: releaseInfo?.release_date ?? '',
+    // Optional. Rendered with its own leading ", " so a template can write
+    // `**{{artist_name}}**{{artist_address}}` and get no dangling comma when it's empty.
+    artist_address: artist_address?.trim()
+      ? `, ${artist_address.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).join(', ')}`
+      : '',
     ...values,
   };
 
   // A contract with an unresolved {{placeholder}} in the signed text would be a real
   // bug, not a cosmetic one — refuse before it's ever rendered.
-  const missing = findPlaceholders(template.body_md).filter((key) => !allValues[key]?.trim());
+  const OPTIONAL = ['artist_address'];
+  const missing = findPlaceholders(template.body_md).filter(
+    (key) => !OPTIONAL.includes(key) && !allValues[key]?.trim(),
+  );
   if (missing.length > 0) {
     return json({ error: `Missing values for: ${missing.join(', ')}` }, 422);
   }

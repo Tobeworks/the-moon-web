@@ -68,6 +68,10 @@
               <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Artist Email (optional)</label>
               <input v-model="form.artist_email" type="email" class="tmr-input w-full" placeholder="artist@example.com" />
             </div>
+            <div class="flex flex-col gap-1.5 sm:col-span-2">
+              <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Artist Address (optional)</label>
+              <textarea v-model="form.artist_address" rows="2" class="tmr-input w-full resize-y" placeholder="Musterstraße 1&#10;12345 Berlin, Germany"></textarea>
+            </div>
           </div>
 
           <!-- Extra placeholders from the chosen template — artist_name/release_title/
@@ -228,7 +232,7 @@ const releases: Release[] = (releasesJson as any).releases.map((r: any) => ({
   title: r.title,
 }));
 
-const FIXED_PLACEHOLDERS = ['artist_name', 'release_title', 'catalog', 'release_date'];
+const FIXED_PLACEHOLDERS = ['artist_name', 'artist_address', 'release_title', 'catalog', 'release_date'];
 
 // Vue's template tokenizer reads the first `}}` it finds as the interpolation's own
 // closer — a literal '{{name}}' string inline in the template breaks on itself.
@@ -252,7 +256,7 @@ const deletingId  = ref('');
 const linkFor      = ref<Record<string, string>>({});
 const copiedIds    = ref(new Set<string>());
 
-const emptyForm = () => ({ catalog: '', template: '', artist_name: '', artist_email: '', values: {} as Record<string, string> });
+const emptyForm = () => ({ catalog: '', template: '', artist_name: '', artist_email: '', artist_address: '', values: {} as Record<string, string> });
 const form = ref(emptyForm());
 
 const customPlaceholders = computed(() => {
@@ -308,6 +312,7 @@ async function create() {
       catalog: form.value.catalog,
       artist_name: form.value.artist_name.trim(),
       artist_email: form.value.artist_email.trim() || undefined,
+      artist_address: form.value.artist_address.trim() || undefined,
       values: form.value.values,
     });
     lastResult.value = { mailed: result.mailed };

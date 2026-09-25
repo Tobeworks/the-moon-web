@@ -368,6 +368,7 @@ export const contractsApi = {
     catalog: string
     artist_name: string
     artist_email?: string
+    artist_address?: string
     values: Record<string, string>
   }): Promise<{ contract: Contract; mailed: boolean }> {
     const res = await fetch('/api/admin/contracts', {
