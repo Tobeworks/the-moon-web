@@ -108,35 +108,54 @@
         <div
           v-for="c in contracts"
           :key="c.id"
-          class="flex items-center justify-between gap-4 px-5 py-4 border-b border-border last:border-b-0 flex-wrap"
+          class="flex flex-col border-b border-border last:border-b-0"
         >
-          <div class="flex flex-col gap-1 min-w-0">
-            <span class="font-label font-semibold text-[0.85rem] tracking-[0.06em] text-fg">{{ c.artist_name }}</span>
-            <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
-              {{ c.catalog }}{{ c.artist_email ? ` · ${c.artist_email}` : '' }}
-            </span>
-          </div>
-          <div class="flex items-center gap-2 flex-shrink-0">
-            <span v-if="c.signed_at" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
-              Signed {{ new Date(c.signed_at).toLocaleDateString('en-GB') }}
-            </span>
-            <template v-else>
+          <div class="flex items-center justify-between gap-4 px-5 py-4 flex-wrap">
+            <div class="flex flex-col gap-1 min-w-0">
+              <span class="font-label font-semibold text-[0.85rem] tracking-[0.06em] text-fg">{{ c.artist_name }}</span>
+              <span class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
+                {{ c.catalog }}{{ c.artist_email ? ` · ${c.artist_email}` : '' }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <span v-if="c.signed_at" class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
+                Signed {{ new Date(c.signed_at).toLocaleDateString('en-GB') }}
+              </span>
+              <template v-else>
+                <button
+                  @click="resend(c)"
+                  :disabled="resendingId === c.id"
+                  class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors disabled:cursor-not-allowed"
+                >{{ resendingId === c.id ? '…' : (c.artist_email ? 'Resend' : 'Get Link') }}</button>
+                <button
+                  v-if="linkFor[c.id]"
+                  @click="copyLink(c.id)"
+                  class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors"
+                >{{ copiedIds.has(c.id) ? '✓' : 'Copy' }}</button>
+              </template>
               <button
-                @click="resend(c)"
-                :disabled="resendingId === c.id"
-                class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors disabled:cursor-not-allowed"
-              >{{ resendingId === c.id ? '…' : (c.artist_email ? 'Resend' : 'Get Link') }}</button>
-              <button
-                v-if="linkFor[c.id]"
-                @click="copyLink(c.id)"
-                class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-fg transition-colors"
-              >{{ copiedIds.has(c.id) ? '✓' : 'Copy' }}</button>
+                @click="viewingId = viewingId === c.id ? '' : c.id"
+                class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border cursor-pointer hover:text-fg transition-colors"
+                :class="viewingId === c.id ? 'text-accent border-accent' : 'text-fg-dim'"
+              >{{ viewingId === c.id ? 'Hide' : 'View' }}</button>
               <button
                 @click="deleteContractEntry(c)"
                 :disabled="deletingId === c.id"
                 class="font-mono text-[0.5rem] tracking-[0.15em] uppercase px-2 py-0.5 border border-border text-fg-dim cursor-pointer hover:text-red-400 hover:border-red-400/40 transition-colors disabled:cursor-not-allowed"
               >{{ deletingId === c.id ? '…' : 'Delete' }}</button>
-            </template>
+            </div>
+          </div>
+
+          <!-- Detail: signature record + the exact text that was shown at signing -->
+          <div v-if="viewingId === c.id" class="border-t border-border px-5 py-4 flex flex-col gap-4 bg-surface">
+            <div v-if="c.signed_at" class="grid grid-cols-1 gap-2 sm:grid-cols-2 font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">
+              <span>Signed by: <span class="text-fg normal-case tracking-normal">{{ c.signed_name }}</span></span>
+              <span>Signed at: <span class="text-fg normal-case tracking-normal">{{ new Date(c.signed_at).toLocaleString('en-GB') }}</span></span>
+              <span>IP: <span class="text-fg normal-case tracking-normal">{{ c.ip_address || '—' }}</span></span>
+              <span class="break-all">Hash (SHA-256): <span class="text-fg normal-case tracking-normal">{{ c.document_hash || '—' }}</span></span>
+            </div>
+            <p v-else class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-fg-dim">Not signed yet.</p>
+            <div class="border border-border p-4 text-fg-dim text-[0.8rem] leading-relaxed overflow-auto max-h-[28rem] preview-content" v-html="renderBody(c.rendered_body)"></div>
           </div>
         </div>
       </div>
@@ -251,6 +270,8 @@ const creating    = ref(false);
 const createError = ref('');
 const lastResult  = ref<{ mailed: boolean } | null>(null);
 
+const viewingId   = ref('');
+const renderBody  = (md: string) => marked.parse(md ?? '') as string;
 const resendingId = ref('');
 const deletingId  = ref('');
 const linkFor      = ref<Record<string, string>>({});
@@ -337,7 +358,10 @@ async function resend(contract: Contract) {
 }
 
 async function deleteContractEntry(contract: Contract) {
-  if (!confirm(`Delete the contract for "${contract.artist_name}"?`)) return;
+  const warning = contract.signed_at
+    ? `This contract was SIGNED by ${contract.signed_name}. Deleting it permanently removes the signed record and its evidence (signature, time, IP, hash). Delete anyway?`
+    : `Delete the contract for "${contract.artist_name}"?`;
+  if (!confirm(warning)) return;
   deletingId.value = contract.id;
   try {
     await contractsApi.delete(contract.id);

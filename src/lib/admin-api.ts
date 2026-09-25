@@ -312,6 +312,8 @@ export interface Contract {
   signing_token: string;
   signed_name?: string;
   signed_at?: string;
+  ip_address?: string;
+  document_hash?: string;
 }
 
 export const contractTemplatesApi = {
