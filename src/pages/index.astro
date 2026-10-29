@@ -20,7 +20,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   canonicalUrl={new URL("", Astro.site).href}>
   <!-- ── Hero ── -->
   <section
-    class="grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-6 lg:px-10 pt-20 pb-12 md:pt-0 md:pb-12 relative overflow-hidden"
+    class="grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-4 sm:px-6 lg:px-10 pt-20 pb-12 md:pt-0 md:pb-12 relative overflow-hidden"
     style="min-height: 100dvh;"
     >
     <!-- Atmospheric glow — barely visible radial hint -->
@@ -88,7 +88,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
 
   <!-- ── Latest Transmission — Spotlight ── -->
   {latestRelease && (
-    <section class="py-16">
+    <section class="py-10 md:py-16">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
         <div class="tmr-section-header mb-8">
           <span class="tmr-section-num">//</span>
@@ -101,7 +101,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   )}
 
   <!-- ── 01 Current Phase — Releases ── -->
-  <section class="py-24" id="releases">
+  <section class="py-12 md:py-24" id="releases">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="tmr-section-header">
         <span class="tmr-section-num">01</span>
@@ -124,7 +124,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   </section>
 
   <!-- ── 02 Field — Label Statement ── -->
-  <section class="py-24 bg-surface-low" id="field">
+  <section class="py-12 md:py-24 bg-surface-low" id="field">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="tmr-section-header">
         <span class="tmr-section-num">02</span>
@@ -134,24 +134,32 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
 
       <div
         class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-20 items-start">
-        <!-- Text -->
+        <!-- Text — mobile shows the first paragraph, "Read more" opens the rest -->
         <div
-          class="flex flex-col gap-5 font-label font-light text-[0.975rem] leading-loose text-fg-dim">
+          class="group flex flex-col gap-5 font-label font-light text-[0.975rem] leading-loose text-fg-dim"
+          data-readmore-group>
           <p>
             The Moon Records is a mostly beatless label. Ambient and Drone
             across the full spectrum. Lo-fi warmth, field recording and
             synthesis, sustained tones, deep drone, Space Soundscape udn more.
           </p>
-          <p>
+          <p class="hidden md:block group-data-[open]:block">
             The music here does not push. It accumulates. It holds still long
             enough to be heard.
           </p>
-          <p>
+          <p class="hidden md:block group-data-[open]:block">
             The label name originates with Logic Moon, the founding artist whose
             sound defined the initial position. The scope has since opened: any
             artist operating within the spectrum belongs here, provided the work
             has internal logic and was made with intention.
           </p>
+          <button
+            type="button"
+            data-readmore
+            aria-expanded="false"
+            class="md:hidden self-start min-h-[44px] font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent hover:opacity-70">
+            Read more
+          </button>
         </div>
 
         <!-- Data table -->
@@ -177,7 +185,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   </section>
 
   <!-- ── 03 Subscribe ── -->
-  <section class="py-24" id="subscribe">
+  <section class="py-12 md:py-24" id="subscribe">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="tmr-section-header">
         <span class="tmr-section-num">03</span>

@@ -1,7 +1,7 @@
 {
   "name": "the-moon-web",
   "type": "module",
-  "version": "0.3.5",
+  "version": "0.3.6",
   "packageManager": "pnpm@11.1.1",
   "scripts": {
     "dev": "astro dev",
@@ -9,7 +9,11 @@
     "setup:pb": "sh scripts/setup-pocketbase.sh",
     "start": "concurrently --names \"PB,MAIL,WEB\" --prefix-colors \"red,yellow,cyan\" \"pnpm dev:pb\" \"mailpit\" \"pnpm dev\" --on-start \"echo '' && echo '  📬  Mailpit    → http://localhost:8025' && echo '  🗄️   PocketBase → http://localhost:8090/_/' && echo '  🌐  Web        → http://localhost:4321' && echo ''\"",
     "build": "astro build",
-    "preview": "astro preview"
+    "preview": "astro preview",
+    "prepare": "husky",
+    "version:patch": "pnpm version patch --no-git-tag-version",
+    "version:minor": "pnpm version minor --no-git-tag-version",
+    "version:major": "pnpm version major --no-git-tag-version"
   },
   "dependencies": {
     "@astrojs/node": "^10.0.4",
@@ -24,6 +28,9 @@
     "marked": "^18.0.2",
     "nodemailer": "^8.0.5",
     "pinia": "^3.0.4",
+    "satori": "0.63.2",
+    "sharp": "0.35.5",
+    "simple-icons": "16.36.0",
     "tailwindcss": "^4.2.2",
     "vue": "^3.5.32",
     "vue-router": "^5.0.4"
@@ -31,6 +38,7 @@
   "devDependencies": {
     "@types/node": "^25.6.0",
     "@types/nodemailer": "^8.0.0",
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "husky": "9.1.7"
   }
 }

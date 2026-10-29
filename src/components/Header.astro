@@ -13,7 +13,7 @@ const navLinks = [
 
 <header
   id="tmr-header"
-  class="fixed top-0 left-0 right-0 z-100 flex items-center justify-between px-6 lg:px-10 h-16 border-b border-transparent transition-[background,border-color] duration-300">
+  class="fixed top-0 left-0 right-0 z-100 flex items-center justify-between px-4 sm:px-6 lg:px-10 h-[var(--header-height)] border-b border-transparent transition-[background,border-color] duration-300">
   <a
     href="/"
     id="tmr-header-logo"
@@ -38,7 +38,7 @@ const navLinks = [
   <!-- Mobile hamburger -->
   <button
     type="button"
-    class="sm:hidden text-fg p-2 transition-colors duration-200 hover:text-accent"
+    class="sm:hidden flex items-center justify-center size-[44px] -mr-[12px] text-fg transition-colors duration-200 hover:text-accent"
     aria-label="Open menu"
     data-tmr-menu-toggle>
     <Menu size={20} />
@@ -53,20 +53,20 @@ const navLinks = [
     class="absolute inset-0 bg-bg/95 backdrop-blur-lg"
     data-tmr-menu-backdrop>
   </div>
-  <div class="relative h-full flex flex-col items-center justify-center px-8">
+  <div class="relative h-full flex flex-col items-center justify-center px-4">
     <button
       type="button"
-      class="absolute top-5 right-6 text-fg p-2 transition-colors duration-200 hover:text-accent"
+      class="absolute top-[calc((var(--header-height)-44px)/2)] right-4 flex items-center justify-center size-[44px] -mr-[12px] text-fg transition-colors duration-200 hover:text-accent"
       aria-label="Close menu"
       data-tmr-menu-toggle>
-      <X size={24} />
+      <X size={20} />
     </button>
     <nav class="text-center space-y-1">
       {
         navLinks.map(({ label, href }, i) => (
           <a
             href={href}
-            class="mobile-nav-item block py-3 font-label font-bold uppercase text-2xl tracking-widest text-fg-dim no-underline transition-colors duration-200 hover:text-accent"
+            class="mobile-nav-item block py-2 font-label font-bold uppercase text-xl tracking-[0.15em] text-fg-dim no-underline transition-colors duration-200 hover:text-accent"
             style={`animation-delay: ${100 + i * 50}ms`}
             data-tmr-menu-close>
             {label}
@@ -74,8 +74,8 @@ const navLinks = [
         ))
       }
     </nav>
-    <div class="flex items-center gap-4 mt-12">
-      <PhaseCircle phase={0.74} size={48} label="Current lunar phase" />
+    <div class="flex items-center gap-4 mt-8">
+      <PhaseCircle phase={0.74} size={40} label="Current lunar phase" />
     </div>
   </div>
 </div>

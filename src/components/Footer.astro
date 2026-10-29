@@ -1,58 +1,59 @@
 ---
-import { ExternalLink } from "lucide-astro";
 import pkg from "../../package.json";
+import { dspLogo } from "../lib/release";
+
+// Only profiles that already exist on the site. Add new ones here and they appear in the icon column.
+const socials = [
+  { label: "Bandcamp", href: "https://logicmoon.bandcamp.com/", icon: dspLogo("bandcamp") },
+];
+
+const links = [
+  { label: "Releases", href: "/releases" },
+  { label: "Field", href: "/#field" },
+  { label: "Listen", href: "/listen" },
+  { label: "Impressum", href: "/impressum" },
+  { label: "Datenschutz", href: "/datenschutz" },
+];
 ---
 
-<footer
-  class="px-6 lg:px-10 py-8 border-t border-border flex items-center justify-between gap-8 flex-wrap">
-  <a
-    href="/"
-    class="font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200">
-    The Moon Records
-  </a>
-
-  <nav class="flex items-center gap-8 flex-wrap">
+<footer class="px-4 sm:px-6 lg:px-10 pt-6 pb-4 md:py-8 border-t border-border">
+  <!-- DOM order: brand, links, icons. Mobile reorders to brand, icons, links. -->
+  <div class="flex flex-col md:grid md:grid-cols-[1fr_auto_auto] md:items-center md:gap-10">
     <a
-      href="/releases"
-      class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-      Releases
+      href="/"
+      class="order-1 flex items-center min-h-[44px] self-start md:self-auto font-label font-bold text-[0.7rem] tracking-[0.22em] uppercase text-fg no-underline hover:text-accent transition-colors duration-200">
+      The Moon Records
     </a>
 
-    <a
-      href="/#field"
-      class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-      Field
-    </a>
-    <div class="w-px h-4 bg-border"></div>
-    <a
-      href="https://logicmoon.bandcamp.com/"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="text-fg-muted transition-colors duration-200 hover:text-fg-dim"
-      aria-label="Bandcamp">
-      <ExternalLink size={16} />
-    </a>
-    <a
-      href="/listen"
-      class="font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-      Listen
-    </a>
-  </nav>
+    <nav aria-label="Footer" class="order-3 md:order-2 flex flex-wrap items-center gap-x-5 md:gap-x-8">
+      {links.map(({ label, href }) => (
+        <a
+          href={href}
+          class="inline-flex items-center min-h-[44px] font-label text-[0.68rem] tracking-[0.22em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
+          {label}
+        </a>
+      ))}
+    </nav>
 
-  <div class="flex items-center gap-6 flex-wrap">
-    <a
-      href="/impressum"
-      class="font-label text-[0.6rem] tracking-[0.2em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-      Impressum
-    </a>
-    <a
-      href="/datenschutz"
-      class="font-label text-[0.6rem] tracking-[0.2em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim">
-      Datenschutz
-    </a>
-    <span
-      class="font-mono text-[0.53rem] tracking-[0.2em] uppercase text-fg-muted">
-      EST. 2024 — v{pkg.version}
-    </span>
+    <ul class="order-2 md:order-3 flex items-center gap-1 list-none m-0 p-0 -ml-[13px] md:ml-0">
+      {socials.map(({ label, href, icon }) => (
+        <li>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`${label} — opens in a new tab`}
+            title={label}
+            class="flex items-center justify-center size-[44px] text-fg-muted transition-colors duration-200 hover:text-fg-dim">
+            <span class="block size-[18px] [&_svg]:size-full" set:html={icon} />
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <div class="mt-2 md:mt-6 pt-3 md:pt-5 border-t border-border flex flex-col gap-1 md:flex-row md:justify-between font-mono text-[0.53rem] tracking-[0.2em] uppercase text-fg-muted">
+    <span>© {new Date().getFullYear()} The Moon Records</span>
+    <span>EST. 2024 — v{pkg.version}</span>
   </div>
 </footer>

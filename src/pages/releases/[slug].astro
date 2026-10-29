@@ -6,8 +6,10 @@ import AudioPlayer from '../../components/AudioPlayer.astro';
 import PhaseCircle from '../../components/PhaseCircle.astro';
 import DspLinks from '../../components/DspLinks.astro';
 import ReleaseCard from '../../components/ReleaseCard.astro';
+import ShareButtons from '../../components/ShareButtons.astro';
 import releasesData from '../../../the-moon-os/data/releases.json';
 import { getFeedbackForRelease } from '../../lib/pocketbase';
+import { adjacent, isReleased as releaseIsOut, splitArtists, visiblePlatforms as platformsOf, yearOf } from '../../lib/release';
 import { marked } from 'marked';
 
 const { slug } = Astro.params;
@@ -41,11 +43,11 @@ const playerTracks = tracks.map((t) => ({
   url:    t.url,
 }));
 
-// Only show platform links if release_date is in the past
-const now = new Date();
+// Platform links stay hidden until release_date has passed
 const releaseDate = release_date ? new Date(release_date) : null;
-const isReleased = releaseDate ? releaseDate <= now : true;
-const visiblePlatforms = isReleased ? platforms?.filter((p) => p.url) : [];
+const isReleased = releaseIsOut(release);
+const visiblePlatforms = platformsOf(release);
+const displayYear = yearOf(release);
 
 // Format release date for display
 const formattedReleaseDate = releaseDate
@@ -54,78 +56,114 @@ const formattedReleaseDate = releaseDate
 
 const seoTitle       = `${artist} — ${title} | THE MOON RECORDS`;
 const seoDescription = `${catalog}${genre ? ` · ${genre}` : ''}${year ? ` · ${year}` : ''} · ${tracks.length} track${tracks.length !== 1 ? 's' : ''}. Beatless music on The Moon Records.`;
-const seoImage       = artwork?.['1500']?.jpg || cover;
+// Purpose-built 1200x630 preview (see pages/og): square covers get cropped by Facebook.
+const seoImage       = new URL(`og/${slug}.jpg`, Astro.site).href;
 const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
+
+// "Previous" = older, "next" = newer: real links so crawlers and visitors can walk the catalogue.
+const { prev, next } = adjacent(release);
+
+const group = (name: string) => ({ '@type': 'MusicGroup', name });
+const artists = splitArtists(artist).map(group);
+const hasMoreAbout = (String(aboutHtml).match(/<p>/g) ?? []).length > 1;
+const entities: Record<string, string> = { '&quot;': '"', '&#39;': "'", '&lt;': '<', '&gt;': '>', '&amp;': '&' };
+const aboutText = String(aboutHtml)
+  .replace(/<[^>]+>/g, ' ')
+  .replace(/&(quot|#39|lt|gt|amp);/g, (m) => entities[m])
+  .replace(/\s+/g, ' ')
+  .trim();
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicAlbum',
+  name: title,
+  url: seoUrl,
+  byArtist: artists.length === 1 ? artists[0] : artists,
+  recordLabel: { '@type': 'Organization', name: 'The Moon Records' },
+  image: art1500jpg || cover,
+  ...(release_date && { datePublished: release_date }),
+  ...(aboutText && { description: aboutText }),
+  ...(visiblePlatforms.length && { sameAs: visiblePlatforms.map((p) => p.url) }),
+  numTracks: tracks.length,
+  track: tracks.map((t) => ({
+    '@type': 'MusicRecording',
+    name: t.title.replace(/^.*?\s{2,}/, '').trim() || t.title,
+    position: t.number,
+  })),
+};
 ---
 
 <BaseLayout
   title={seoTitle}
   description={seoDescription}
   image={seoImage}
+  imageWidth={1200}
+  imageHeight={630}
   canonicalUrl={seoUrl}
   type="music.album"
 >
-  <div class="min-h-screen pb-24">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-8">
-
-      <!-- Back nav -->
-      <!-- <nav class="mb-3 sm:mb-12 sm:pt-6">
-        <a
-          href="/"
-          class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
-        >← The Moon Records</a>
-      </nav> -->
+  <div class="min-h-screen pb-12 sm:pb-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-[var(--header-height)] sm:pt-8">
 
       <!-- ══ MOBILE (hidden on sm+) ══════════════════════════════════ -->
-      <div class="sm:hidden flex flex-col gap-4 pb-6">
+      <div class="sm:hidden flex flex-col gap-3 pb-6">
 
-        <!-- Cover: capped so title + DSP + player fit the viewport -->
-        <div class="max-w-[min(100%,38vh)] mx-auto">
-          {art1500jpg ? (
-            <picture>
-              {art1500webp && <source srcset={art1500webp} type="image/webp" />}
-              <img
-                class="release-artwork w-full aspect-square object-cover block [filter:grayscale(0.2)_brightness(0.9)] hover:[filter:grayscale(0)_brightness(1)] transition-[filter] duration-300"
-                src={art1500jpg}
-                alt={`${artist} — ${title}`}
-                width="600"
-                height="600"
-              />
-            </picture>
-          ) : (
-            <div class="w-full aspect-square bg-surface border border-border flex items-center justify-center">
-              <PhaseCircle phase={0.74} size={80} label="No cover art" />
+        <a
+          href="/releases"
+          class="flex items-center min-h-[44px] self-start font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
+        >← Releases</a>
+
+        <!-- Card: cover left, artist / title / year right -->
+        <div class="flex items-center gap-4">
+          <div class="size-30 shrink-0">
+            {art1500jpg ? (
+              <picture>
+                {art1500webp && <source srcset={art1500webp} type="image/webp" />}
+                <img
+                  class="release-artwork size-full object-cover block"
+                  src={art1500jpg}
+                  alt={`${artist} — ${title}`}
+                  width="240"
+                  height="240"
+                />
+              </picture>
+            ) : (
+              <div class="size-full bg-surface border border-border flex items-center justify-center">
+                <PhaseCircle phase={0.74} size={48} label="No cover art" />
+              </div>
+            )}
+          </div>
+
+          <div class="min-w-0 flex flex-col gap-1">
+            <span class="font-mono text-[0.6rem] tracking-[0.22em] uppercase text-accent">{artist}</span>
+            <h1 class="font-label font-bold uppercase text-fg text-xl leading-tight break-words" style="letter-spacing: 0.05em;">{title}</h1>
+            <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+              {[catalog, format, displayYear].filter(Boolean).join(' · ')}
+            </span>
+          </div>
+        </div>
+
+        <!-- Two labelled rows: platforms (outlined tiles) vs. share (filled tiles) -->
+        <div class="flex flex-col gap-3 border-t border-border pt-3">
+          {visiblePlatforms.length > 0 && (
+            <div class="flex flex-col gap-2">
+              <span class="font-mono text-[0.55rem] tracking-[0.25em] uppercase text-fg-muted">Listen on</span>
+              <DspLinks platforms={visiblePlatforms} size="h-5" gap="gap-2" tile />
             </div>
           )}
-        </div>
-
-        <!-- Title + Artist + Badges -->
-        <div class="flex flex-col gap-1.5">
-          <div class="flex gap-1.5 flex-wrap">
-            <span class="badge">{catalog}</span>
-            {format && <span class="badge badge--muted">{format}</span>}
-            {genre  && <span class="badge badge--muted">{genre}</span>}
+          <div class:list={['flex flex-col gap-2', visiblePlatforms.length > 0 && 'border-t border-border pt-3']}>
+            <span class="font-mono text-[0.55rem] tracking-[0.25em] uppercase text-fg-muted">Share</span>
+            <ShareButtons release={release} />
           </div>
-          <h1 class="font-label font-bold uppercase text-fg text-2xl leading-tight" style="letter-spacing: 0.05em;">{title}</h1>
-          <p class="font-mono text-[0.65rem] tracking-[0.22em] uppercase text-accent">{artist}</p>
         </div>
-
-        <!-- DSP Links — dedicated row, large icons, accessible touch targets -->
-        {visiblePlatforms.length > 0 && (
-          <div class="mobile-dsp border-t border-b border-border py-3">
-            <p class="font-mono text-[0.45rem] tracking-[0.25em] uppercase text-fg-muted mb-2.5">Listen on</p>
-            <DspLinks platforms={visiblePlatforms} size="h-7" gap="gap-5" />
-          </div>
-        )}
 
         <!-- Release date -->
         {formattedReleaseDate && (
           <div class="flex items-center gap-4 flex-wrap">
-            <span class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-fg-muted">
+            <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
               {isReleased ? 'Released' : 'Releasing'} {formattedReleaseDate}
             </span>
             {!isReleased && (
-              <a href="/newsletter" class="font-mono text-[0.5rem] tracking-[0.2em] uppercase text-accent no-underline hover:opacity-70">
+              <a href="/newsletter" class="inline-flex items-center min-h-[44px] font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent no-underline hover:opacity-70">
                 Get notified ↗
               </a>
             )}
@@ -144,17 +182,29 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
           </div>
         )}
 
-        <!-- About (below fold on mobile is fine) -->
+        <!-- About: first paragraph, rest behind "Read more" -->
         {aboutHtml && (
-          <div class="flex flex-col gap-3 pt-4 border-t border-border">
+          <div class="group flex flex-col gap-2 pt-3 border-t border-border" data-readmore-group>
             <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// About</span>
-            <div class="font-label text-[0.75rem] tracking-[0.04em] text-fg-dim leading-relaxed flex flex-col gap-3 [&_p]:m-0" set:html={aboutHtml} />
+            <div
+              class="font-label text-[0.75rem] tracking-[0.04em] text-fg-dim leading-relaxed flex flex-col gap-3 [&_p]:m-0 [&>p:nth-child(n+2)]:hidden group-data-[open]:[&>p:nth-child(n+2)]:block"
+              set:html={aboutHtml}
+            />
+            {hasMoreAbout && (
+              <button
+                type="button"
+                data-readmore
+                aria-expanded="false"
+                class="self-start min-h-[44px] font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent hover:opacity-70">
+                Read more
+              </button>
+            )}
           </div>
         )}
 
         <!-- Feedback -->
         {feedback.length > 0 && (
-          <div class="flex flex-col gap-4 pt-2">
+          <div class="flex flex-col gap-3 pt-2">
             <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// Transmissions</span>
             {feedback.map((f) => (
               <div class="border border-border p-4 flex flex-col gap-2">
@@ -235,6 +285,11 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
           )}
 
           <div class="flex items-center gap-4">
+            <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">Share</span>
+            <ShareButtons release={release} />
+          </div>
+
+          <div class="flex items-center gap-4">
             <PhaseCircle phase={0.74} size={48} label="Phase indicator" />
             <span class="font-mono text-[0.55rem] tracking-[0.22em] uppercase text-fg-muted">{catalog}</span>
           </div>
@@ -280,19 +335,63 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
     </div>
 
     {alsoOn.length > 0 && (
-      <section class="container mx-auto px-4 sm:px-6 lg:px-8 mt-24">
+      <section class="container mx-auto px-4 sm:px-6 lg:px-8 mt-12 sm:mt-24">
         <div class="tmr-section-header">
           <span class="tmr-section-num">///</span>
           <span class="tmr-section-title">More from the label</span>
           <span class="tmr-section-sub">Catalogue</span>
         </div>
 
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <ul class="sm:hidden flex flex-col list-none m-0 p-0">
+          {alsoOn.map((r) => (
+            <li class="relative flex items-center gap-3 py-2 border-b border-border">
+              <img
+                src={r.artwork?.['300']?.jpg || r.cover}
+                alt=""
+                width="56"
+                height="56"
+                loading="lazy"
+                class="size-[56px] shrink-0 object-cover"
+              />
+              <div class="min-w-0 flex flex-col gap-0.5">
+                <a
+                  href={`/releases/${r.catalog.toLowerCase()}`}
+                  class="font-label font-semibold text-[0.8rem] uppercase tracking-[0.06em] text-fg no-underline after:absolute after:inset-0">
+                  {r.title}
+                </a>
+                <span class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted">
+                  {[r.artist, yearOf(r)].filter(Boolean).join(' · ')}
+                </span>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div class="hidden sm:grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           {alsoOn.map((r) => <ReleaseCard release={r} />)}
         </div>
       </section>
     )}
+
+    <!-- Previous / next: fixed links in the HTML, independent of the shuffled list above -->
+    <nav aria-label="Release navigation" class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-16 pt-4 border-t border-border flex justify-between gap-6">
+      {prev ? (
+        <a href={`/releases/${prev.catalog.toLowerCase()}`} class="group block max-w-[45%] min-h-[44px] no-underline">
+          <span class="block font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent mb-1">← Previous release</span>
+          <span class="block font-label text-[0.8rem] uppercase tracking-[0.06em] text-fg line-clamp-2 transition-colors duration-200 group-hover:text-accent">{prev.title}</span>
+        </a>
+      ) : <span></span>}
+      {next ? (
+        <a href={`/releases/${next.catalog.toLowerCase()}`} class="group block max-w-[45%] min-h-[44px] text-right no-underline">
+          <span class="block font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent mb-1">Next release →</span>
+          <span class="block font-label text-[0.8rem] uppercase tracking-[0.06em] text-fg line-clamp-2 transition-colors duration-200 group-hover:text-accent">{next.title}</span>
+        </a>
+      ) : <span></span>}
+    </nav>
   </div>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\\u003c')} />
+
 <style>
   /* Mobile: compact audio player — hide now-playing eyebrow, tighten padding */
   .mobile-player :global(.audio-player) {
@@ -307,15 +406,6 @@ const seoUrl         = new URL(`releases/${slug}`, Astro.site).href;
   }
   .mobile-player :global(.audio-player__track) {
     padding: 0.375rem 0.25rem;
-  }
-
-  /* Mobile DSP: ensure 44px min touch target per WCAG 2.5.5 */
-  .mobile-dsp :global(a) {
-    min-height: 44px;
-    min-width: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 </style>
 </BaseLayout>

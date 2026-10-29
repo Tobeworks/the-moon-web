@@ -1,0 +1,213 @@
+---
+/**
+ * Share row for a release page: Instagram story (image built in the browser)
+ * and Facebook (plain sharer link, which reads title + image from the OG tags).
+ * Instagram offers no API for creating a story or setting a link sticker,
+ * so the address is printed on the image instead.
+ */
+import { siFacebook, siInstagram } from 'simple-icons';
+import { SITE_DOMAIN, platformIconSvgs, slugOf, yearOf, type Release } from '../lib/release';
+
+interface Props {
+  release: Release;
+  class?: string;
+}
+
+const { release, class: extraClass = '' } = Astro.props;
+
+const slug = slugOf(release);
+const pageUrl = new URL(`releases/${slug}`, Astro.site).href;
+const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(pageUrl)}`;
+
+const tile =
+  'inline-flex items-center justify-center size-[44px] bg-surface text-fg-dim cursor-pointer transition-colors duration-200 hover:text-accent focus-visible:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 disabled:opacity-40 disabled:cursor-wait';
+---
+
+<ul class:list={['flex items-center gap-2 list-none m-0 p-0', extraClass]}>
+  <li>
+    <button
+      type="button"
+      class={tile}
+      data-share-story
+      data-slug={slug}
+      data-artist={release.artist}
+      data-title={release.title}
+      data-year={yearOf(release)}
+      data-domain={SITE_DOMAIN}
+      data-cover={`/cover/${slug}.jpg`}
+      data-icons={JSON.stringify(platformIconSvgs(release))}
+      title="Share as Instagram story"
+      aria-label="Share as Instagram story">
+      <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={siInstagram.path}></path></svg>
+    </button>
+  </li>
+  <li>
+    <a
+      href={facebookUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      class={tile}
+      title="Share on Facebook"
+      aria-label="Share on Facebook — opens in a new tab">
+      <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={siFacebook.path}></path></svg>
+    </a>
+  </li>
+</ul>
+
+<script>
+  // Story image: 1080x1920 canvas built from the cover. On phones the native share sheet
+  // takes the JPEG straight into Instagram, elsewhere it is downloaded.
+  const W = 1080;
+  const H = 1920;
+
+  const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+  const loadImage = (src: string) =>
+    new Promise<HTMLImageElement>((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => resolve(img);
+      img.onerror = reject;
+      img.src = src;
+    });
+
+  const wrap = (ctx: CanvasRenderingContext2D, text: string, maxWidth: number) => {
+    const lines: string[] = [];
+    let line = '';
+    for (const word of text.split(' ')) {
+      const next = line ? `${line} ${word}` : word;
+      if (line && ctx.measureText(next).width > maxWidth) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = next;
+      }
+    }
+    if (line) lines.push(line);
+    return lines;
+  };
+
+  const LABEL = '"Josefin Sans", sans-serif';
+  const MONO = '"Space Mono", monospace';
+
+  const render = async (d: DOMStringMap) => {
+    const { cover = '', artist = '', title = '', year = '', domain = '' } = d;
+    const icons: string[] = JSON.parse(d.icons ?? '[]');
+
+    await Promise.all([
+      document.fonts.load(`700 72px ${LABEL}`),
+      document.fonts.load(`400 32px ${LABEL}`),
+      document.fonts.load(`400 32px ${MONO}`),
+    ]);
+    const img = await loadImage(cover);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('no canvas');
+
+    const accent = token('--color-accent');
+
+    ctx.fillStyle = token('--color-bg');
+    ctx.fillRect(0, 0, W, H);
+
+    const size = 880;
+    ctx.drawImage(img, (W - size) / 2, 250, size, size);
+
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = accent;
+    ctx.font = `400 32px ${LABEL}`;
+    ctx.letterSpacing = '8px';
+    ctx.fillText(artist.toUpperCase(), W / 2, 1230);
+
+    ctx.fillStyle = token('--color-fg');
+    ctx.font = `700 72px ${LABEL}`;
+    ctx.letterSpacing = '2px';
+    const lines = wrap(ctx, title.toUpperCase(), size).slice(0, 3);
+    lines.forEach((l, i) => ctx.fillText(l, W / 2, 1330 + i * 84));
+    let bottom = 1330 + (lines.length - 1) * 84;
+
+    // Platform logos, tinted like the labels. Same order as on the page.
+    if (icons.length) {
+      const iconSize = 64;
+      const gap = 48;
+      const y = bottom + 90;
+      const rowWidth = icons.length * iconSize + (icons.length - 1) * gap;
+      const images = await Promise.all(
+        icons.map((svg) =>
+          loadImage(
+            `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+              svg.replaceAll('currentColor', accent).replace('<svg', `<svg width="${iconSize}" height="${iconSize}"`),
+            )}`,
+          ),
+        ),
+      );
+      images.forEach((icon, i) => ctx.drawImage(icon, (W - rowWidth) / 2 + i * (iconSize + gap), y, iconSize, iconSize));
+      bottom = y + iconSize;
+    }
+
+    // No "out now": wrong for older releases. Year and address instead.
+    ctx.fillStyle = accent;
+    ctx.font = `400 32px ${MONO}`;
+    ctx.letterSpacing = '6px';
+    ctx.fillText([year, domain.toUpperCase()].filter(Boolean).join('  ·  '), W / 2, bottom + 90);
+
+    return new Promise<Blob>((resolve, reject) =>
+      canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('no blob'))), 'image/jpeg', 0.92),
+    );
+  };
+
+  const download = (file: File) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(file);
+    a.download = file.name;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+
+  // Render once up front: Safari only allows navigator.share() right inside the tap, so the
+  // file must already exist when the button is pressed. Web Share needs https; over plain
+  // http (dev server via LAN IP) canShare() is missing and the file is downloaded instead.
+  // The page has a mobile and a desktop copy of the button; they share one render per release.
+  const files = new Map<string, Promise<File>>();
+  const prepare = (button: HTMLButtonElement) => {
+    const slug = button.dataset.slug ?? '';
+    let file = files.get(slug);
+    if (!file) {
+      file = render(button.dataset).then((blob) => new File([blob], `${slug}-story.jpg`, { type: 'image/jpeg' }));
+      file.catch(() => files.delete(slug));
+      files.set(slug, file);
+    }
+    return file;
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-share-story]').forEach((button) => {
+    button.disabled = true;
+    prepare(button)
+      .catch(() => prepare(button))
+      .catch(() => {})
+      .finally(() => (button.disabled = false));
+
+    button.addEventListener('click', async () => {
+      button.disabled = true;
+      try {
+        const f = await prepare(button);
+        if (navigator.canShare?.({ files: [f] })) {
+          try {
+            await navigator.share({ files: [f] });
+          } catch (e) {
+            // closing the share sheet is not an error, anything else falls back to download
+            if (!(e instanceof DOMException && e.name === 'AbortError')) download(f);
+          }
+        } else {
+          download(f);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        button.disabled = false;
+      }
+    });
+  });
+</script>

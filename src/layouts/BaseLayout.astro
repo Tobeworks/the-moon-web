@@ -12,6 +12,9 @@ interface Props {
   title?:        string;
   description?:  string;
   image?:        string;
+  /** Pixel size of `image` for og:image:width/height — defaults to the square 1500 cover. */
+  imageWidth?:   number;
+  imageHeight?:  number;
   canonicalUrl?: string;
   type?:         string;
 }
@@ -20,6 +23,8 @@ const {
   title        = 'THE MOON RECORDS',
   description  = 'Beatless music label. Ambient, drone, soundscape.',
   image,
+  imageWidth   = 1500,
+  imageHeight  = 1500,
   canonicalUrl = Astro.url.href,
   type         = 'website',
 } = Astro.props;
@@ -45,8 +50,8 @@ const siteName = 'THE MOON RECORDS';
     <meta property="og:title"       content={title} />
     <meta property="og:description" content={description} />
     {image && <meta property="og:image"        content={image} />}
-    {image && <meta property="og:image:width"  content="1500" />}
-    {image && <meta property="og:image:height" content="1500" />}
+    {image && <meta property="og:image:width"  content={imageWidth} />}
+    {image && <meta property="og:image:height" content={imageHeight} />}
     {image && <meta property="og:image:alt"    content={title} />}
 
     <!-- Twitter Card -->
@@ -99,6 +104,16 @@ const siteName = 'THE MOON RECORDS';
     requestAnimationFrame(raf);
   }
   requestAnimationFrame(raf);
+
+  // Mobile "Read more": a [data-readmore] button toggles data-open on its [data-readmore-group].
+  document.addEventListener('click', (e) => {
+    const btn = (e.target as Element).closest<HTMLElement>('[data-readmore]');
+    const group = btn?.closest<HTMLElement>('[data-readmore-group]');
+    if (!btn || !group) return;
+    const open = group.toggleAttribute('data-open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.textContent = open ? 'Show less' : 'Read more';
+  });
 </script>
 
 <style is:global>
