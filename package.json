@@ -1,7 +1,7 @@
 {
   "name": "the-moon-web",
   "type": "module",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "packageManager": "pnpm@11.1.1",
   "scripts": {
     "dev": "astro dev",

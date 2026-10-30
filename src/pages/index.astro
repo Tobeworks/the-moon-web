@@ -32,11 +32,11 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
 
     <!-- Left: text content -->
     <div class="flex flex-col justify-center order-1">
-      <span
+      <!-- <span
         class="hidden md:flex items-center gap-3 font-mono text-[0.6rem] tracking-[0.35em] uppercase text-accent mb-8">
         <span class="block w-8 h-px bg-accent opacity-50 shrink-0"></span>
         01 — Lunar Program
-      </span>
+      </span> -->
 
       <h1
         class="hero-title font-label font-bold uppercase text-fg mb-6 md:mb-8"
@@ -90,7 +90,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   {latestRelease && (
     <section class="py-10 md:py-16">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
-        <div class="tmr-section-header mb-8">
+        <div class="tmr-section-header mb-4 md:mb-8">
           <span class="tmr-section-num">//</span>
           <span class="tmr-section-title">Latest Transmission</span>
           <span class="tmr-section-sub">Newest Release</span>
