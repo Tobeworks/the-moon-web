@@ -4,10 +4,12 @@ import releasesData from '../../the-moon-os/data/releases.json';
 
 interface Props {
   limit?: number;
+  /** Below md only the first n cards are shown. */
+  mobileLimit?: number;
   excludeCatalog?: string;
 }
 
-const { limit, excludeCatalog } = Astro.props;
+const { limit, mobileLimit, excludeCatalog } = Astro.props;
 
 const allReleases = [...releasesData.releases]
   .filter((r) => r.catalog !== excludeCatalog)
@@ -19,9 +21,12 @@ const releases = limit ? allReleases.slice(0, limit) : allReleases;
 ---
 
 {releases.length > 0 ? (
-  <div class="grid grid-cols-2 md:grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-3 md:gap-6">
-    {releases.map(release => (
-      <ReleaseCard release={release} />
+  <div class="grid grid-cols-2 md:grid-cols-[repeat(auto-fill,minmax(14rem,1fr))] gap-x-3 gap-y-6 md:gap-6">
+    {/* display: contents keeps each card a direct grid item */}
+    {releases.map((release, i) => (
+      <div class={mobileLimit !== undefined && i >= mobileLimit ? 'hidden md:contents' : 'contents'}>
+        <ReleaseCard release={release} />
+      </div>
     ))}
   </div>
 ) : (

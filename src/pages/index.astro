@@ -20,9 +20,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   canonicalUrl={new URL("", Astro.site).href}>
   <!-- ── Hero ── -->
   <section
-    class="grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-4 sm:px-6 lg:px-10 pt-20 pb-12 md:pt-0 md:pb-12 relative overflow-hidden"
-    style="min-height: 100dvh;"
-    >
+    class="grid grid-cols-1 md:grid-cols-2 grid-rows-[1fr_auto] px-4 sm:px-6 lg:px-10 pt-20 pb-12 md:pt-0 md:pb-12 relative overflow-hidden min-h-[80svh] md:min-h-dvh">
     <!-- Atmospheric glow — barely visible radial hint -->
     <div
       class="absolute inset-0 pointer-events-none"
@@ -40,19 +38,20 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
 
       <h1
         class="hero-title font-label font-bold uppercase text-fg mb-6 md:mb-8"
-        style="font-size: clamp(3rem, 8.5vw, 7.5rem); letter-spacing: 0.03em; line-height: 0.9;">
+        style="font-size: clamp(2.5rem, 8.5vw, 7.5rem); letter-spacing: 0.03em; line-height: 0.9;">
         The Moon<br />Records
       </h1>
 
       <div class="w-full h-px bg-border mb-4 md:mb-6"></div>
 
       <p
-        class="font-label font-light text-[0.75rem] tracking-[0.3em] uppercase text-fg-dim mb-8 md:mb-12">
+        class="font-label font-light text-[0.95rem] md:text-[0.75rem] tracking-[0.02em] md:tracking-[0.3em] normal-case md:uppercase text-fg-dim mb-8 md:mb-12">
         AN ARCHITECTURAL EXPLORATION OF SOUNDSCAPES
       </p>
 
       <div class="flex gap-3">
-        <a href="#releases" class="btn btn--primary">Current Phase</a>
+        <a href="#latest" class="btn btn--primary md:hidden">Latest Release</a>
+        <a href="#releases" class="btn btn--primary hidden md:inline-flex">Current Phase</a>
         <a href="#field" class="btn btn--muted hidden md:inline-flex">Field Notes</a>
       </div>
     </div>
@@ -88,11 +87,11 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
 
   <!-- ── Latest Transmission — Spotlight ── -->
   {latestRelease && (
-    <section class="py-10 md:py-16">
+    <section class="py-10 md:py-16 scroll-mt-[calc(var(--header-height)-2rem)] md:scroll-mt-0" id="latest">
       <div class="container mx-auto px-4 sm:px-6 lg:px-8 max-w-md">
         <div class="tmr-section-header mb-4 md:mb-8">
           <span class="tmr-section-num">//</span>
-          <span class="tmr-section-title">Latest Transmission</span>
+          <h2 class="tmr-section-title">Latest Transmission</h2>
           <span class="tmr-section-sub">Newest Release</span>
         </div>
         <ReleaseSpotlight release={latestRelease} />
@@ -101,17 +100,17 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   )}
 
   <!-- ── 01 Current Phase — Releases ── -->
-  <section class="py-12 md:py-24" id="releases">
+  <section class="py-10 md:py-24 scroll-mt-[calc(var(--header-height)-2rem)] md:scroll-mt-0" id="releases">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="tmr-section-header">
         <span class="tmr-section-num">01</span>
-        <span class="tmr-section-title">Current Phase</span>
+        <h2 class="tmr-section-title">Current Phase</h2>
         <span class="tmr-section-sub">TMR / Latest</span>
       </div>
-      <ReleaseList limit={12} excludeCatalog={latestCatalog} />
+      <ReleaseList limit={12} mobileLimit={6} excludeCatalog={latestCatalog} />
       {
-        releasesData.releases.length > 12 && (
-          <div class="mt-10 flex justify-center">
+        releasesData.releases.length > 6 && (
+          <div class:list={["mt-6 md:mt-10 flex justify-center", releasesData.releases.length <= 12 && "md:hidden"]}>
             <a
               href="/releases"
               class="btn btn--muted font-mono text-[0.6rem] tracking-[0.25em] uppercase">
@@ -124,20 +123,20 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   </section>
 
   <!-- ── 02 Field — Label Statement ── -->
-  <section class="py-12 md:py-24 bg-surface-low" id="field">
+  <section class="py-10 md:py-24 bg-surface-low scroll-mt-[calc(var(--header-height)-2rem)] md:scroll-mt-0" id="field">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="tmr-section-header">
         <span class="tmr-section-num">02</span>
-        <span class="tmr-section-title">Field</span>
+        <h2 class="tmr-section-title">Field</h2>
         <span class="tmr-section-sub">About</span>
       </div>
 
+      <!-- Mobile shows the first paragraph, "Read more" opens the rest and the data table -->
       <div
-        class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-12 lg:gap-20 items-start">
-        <!-- Text — mobile shows the first paragraph, "Read more" opens the rest -->
+        class="group grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 md:gap-12 lg:gap-20 items-start"
+        data-readmore-group>
         <div
-          class="group flex flex-col gap-5 font-label font-light text-[0.975rem] leading-loose text-fg-dim"
-          data-readmore-group>
+          class="flex flex-col gap-3 md:gap-5 font-label font-light text-[0.975rem] leading-relaxed md:leading-loose text-fg-dim">
           <p>
             The Moon Records is a mostly beatless label. Ambient and Drone
             across the full spectrum. Lo-fi warmth, field recording and
@@ -157,13 +156,13 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
             type="button"
             data-readmore
             aria-expanded="false"
-            class="md:hidden self-start min-h-[44px] font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent hover:opacity-70">
+            class="md:hidden self-start min-h-[44px] font-label text-[0.9rem] text-accent underline underline-offset-4 hover:opacity-70">
             Read more
           </button>
         </div>
 
         <!-- Data table -->
-        <div class="border-t border-border">
+        <div class="hidden md:block group-data-[open]:block border-t border-border">
           {
             [
               ["Founded", "2024"],
@@ -173,7 +172,7 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
               ["Beatless", "Always"],
               ["Platform", "Bandcamp / DSP"],
             ].map(([label, value]) => (
-              <div class="flex gap-4 py-3 border-b border-border font-mono text-[0.6rem] tracking-[0.14em] uppercase">
+              <div class="flex gap-4 py-3 border-b border-border font-label md:font-mono text-[0.85rem] md:text-[0.6rem] tracking-normal md:tracking-[0.14em] normal-case md:uppercase">
                 <span class="text-fg-muted min-w-22">{label}</span>
                 <span class="text-fg-dim">{value}</span>
               </div>
@@ -185,21 +184,21 @@ const latestRelease = releasesData.releases.find((r) => r.catalog === latestCata
   </section>
 
   <!-- ── 03 Subscribe ── -->
-  <section class="py-12 md:py-24" id="subscribe">
+  <section class="py-10 md:py-24 scroll-mt-[calc(var(--header-height)-2rem)] md:scroll-mt-0" id="subscribe">
     <div class="container mx-auto px-4 sm:px-6 lg:px-8">
       <div class="tmr-section-header">
         <span class="tmr-section-num">03</span>
-        <span class="tmr-section-title">Subscribe</span>
+        <h2 class="tmr-section-title">Subscribe</h2>
         <span class="tmr-section-sub">New Phase / Notify</span>
       </div>
 
-      <div class="max-w-128 mx-auto text-center pt-4">
-        <h2
-          class="font-label font-light text-[1.5rem] tracking-[0.12em] uppercase text-fg mb-2">
+      <div class="max-w-128 mx-auto text-center md:pt-4">
+        <h3
+          class="font-label font-light text-[1.4rem] tracking-[0.02em] md:tracking-[0.12em] normal-case md:uppercase text-fg mb-2">
           Stay in the field.
-        </h2>
+        </h3>
         <p
-          class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted mb-10">
+          class="font-label md:font-mono text-[0.9rem] md:text-[0.6rem] tracking-normal md:tracking-[0.25em] normal-case md:uppercase text-fg-muted mb-6 md:mb-10">
           Releases and transmissions — nothing else.
         </p>
         <div class="text-left">

@@ -47,7 +47,7 @@ const runtime = totalRuntime > 0
   : '';
 ---
 
-<a href={`/releases/${slug}`} class="release-card flex flex-col bg-surface-low no-underline text-inherit transition-opacity duration-200 hover:opacity-80">
+<a href={`/releases/${slug}`} class="release-card flex flex-col md:bg-surface-low no-underline text-inherit transition-opacity duration-200 hover:opacity-80">
 
   <!-- Cover art -->
   <div class="aspect-square overflow-hidden bg-surface-high">
@@ -77,10 +77,10 @@ const runtime = totalRuntime > 0
   </div>
 
   <!-- Info -->
-  <div class="p-3 md:p-4 border-t border-border flex flex-col gap-[0.35rem]">
-    <div class="font-label font-normal text-[0.55rem] md:text-[0.65rem] tracking-[0.2em] uppercase text-accent">{artist}</div>
-    <h3 class="font-label font-semibold text-[0.8rem] md:text-[0.95rem] uppercase tracking-[0.06em] text-fg leading-[1.2] mt-0.5">{title}</h3>
-    <div class="flex justify-between font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted mt-2.5">
+  <div class="pt-2 md:p-4 md:border-t border-border flex flex-col gap-[0.15rem] md:gap-[0.35rem]">
+    <div class="order-2 md:order-1 font-label font-normal text-[0.75rem] md:text-[0.65rem] tracking-normal md:tracking-[0.2em] normal-case md:uppercase text-fg-muted md:text-accent">{artist}</div>
+    <h3 class="font-label order-1 md:order-2 font-medium md:font-semibold text-[0.9rem] md:text-[0.95rem] normal-case md:uppercase tracking-normal md:tracking-[0.06em] text-fg leading-[1.2] md:mt-0.5">{title}</h3>
+    <div class="hidden md:flex order-3 justify-between font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted mt-2.5">
       <span>{catalog}</span>
       <span>{tracks.length} track{tracks.length !== 1 ? 's' : ''}{runtime ? ` · ${runtime}` : ''}</span>
     </div>

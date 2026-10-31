@@ -361,4 +361,31 @@
     border: 0.0625rem solid var(--color-border);
   }
 
+  /* ── Phones: calmer — less chrome, sentence case, no letter-spaced caps ── */
+  @media (max-width: 47.99rem) {
+    .tmr-section-num,
+    .tmr-section-sub {
+      display: none;
+    }
+
+    .tmr-section-header {
+      grid-template-columns: 1fr;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .tmr-section-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      text-transform: none;
+    }
+
+    .btn {
+      font-size: 0.85rem;
+      letter-spacing: 0.03em;
+      text-transform: none;
+    }
+  }
+
 }

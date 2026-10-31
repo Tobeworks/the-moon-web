@@ -109,7 +109,7 @@ const jsonLd = {
 
         <a
           href="/releases"
-          class="flex items-center min-h-[44px] self-start font-mono text-[0.6rem] tracking-[0.25em] uppercase text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
+          class="flex items-center min-h-[44px] self-start font-label text-[0.85rem] text-fg-muted no-underline transition-colors duration-200 hover:text-fg-dim"
         >← Releases</a>
 
         <!-- Card: cover left, artist / title / year right -->
@@ -134,9 +134,9 @@ const jsonLd = {
           </div>
 
           <div class="min-w-0 flex flex-col gap-1">
-            <span class="font-mono text-[0.6rem] tracking-[0.22em] uppercase text-accent">{artist}</span>
-            <h1 class="font-label font-bold uppercase text-fg text-xl leading-tight break-words" style="letter-spacing: 0.05em;">{title}</h1>
-            <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+            <span class="font-label text-[0.85rem] text-accent">{artist}</span>
+            <h1 class="font-label font-semibold text-fg text-xl leading-tight break-words">{title}</h1>
+            <span class="font-label text-[0.75rem] text-fg-muted">
               {[catalog, format, displayYear].filter(Boolean).join(' · ')}
             </span>
           </div>
@@ -146,12 +146,12 @@ const jsonLd = {
         <div class="flex flex-col gap-3 border-t border-border pt-3">
           {visiblePlatforms.length > 0 && (
             <div class="flex flex-col gap-2">
-              <span class="font-mono text-[0.55rem] tracking-[0.25em] uppercase text-fg-muted">Listen on</span>
+              <span class="font-label text-[0.75rem] text-fg-muted">Listen on</span>
               <DspLinks platforms={visiblePlatforms} size="h-5" gap="gap-2" tile />
             </div>
           )}
           <div class:list={['flex flex-col gap-2', visiblePlatforms.length > 0 && 'border-t border-border pt-3']}>
-            <span class="font-mono text-[0.55rem] tracking-[0.25em] uppercase text-fg-muted">Share</span>
+            <span class="font-label text-[0.75rem] text-fg-muted">Share</span>
             <ShareButtons release={release} />
           </div>
         </div>
@@ -159,11 +159,11 @@ const jsonLd = {
         <!-- Release date -->
         {formattedReleaseDate && (
           <div class="flex items-center gap-4 flex-wrap">
-            <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">
+            <span class="font-label text-[0.8rem] text-fg-muted">
               {isReleased ? 'Released' : 'Releasing'} {formattedReleaseDate}
             </span>
             {!isReleased && (
-              <a href="/newsletter" class="inline-flex items-center min-h-[44px] font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent no-underline hover:opacity-70">
+              <a href="/newsletter" class="inline-flex items-center min-h-[44px] font-label text-[0.8rem] text-accent no-underline hover:opacity-70">
                 Get notified ↗
               </a>
             )}
@@ -175,17 +175,17 @@ const jsonLd = {
           <AudioPlayer tracks={playerTracks} compact />
         ) : (
           <div class="border border-border p-4 flex flex-col gap-2">
-            <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// TRANSMISSION_PENDING</span>
-            <p class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted">Available {formattedReleaseDate}</p>
+            <span class="font-label text-[0.85rem] text-accent">// Transmission pending</span>
+            <p class="font-label text-[0.8rem] text-fg-muted">Available {formattedReleaseDate}</p>
           </div>
         )}
 
         <!-- About: first paragraph, rest behind "Read more" -->
         {aboutHtml && (
           <div class="group flex flex-col gap-2 pt-3 border-t border-border" data-readmore-group>
-            <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// About</span>
+            <span class="font-label text-[0.85rem] text-accent">About</span>
             <div
-              class="font-label text-[0.75rem] tracking-[0.04em] text-fg-dim leading-relaxed flex flex-col gap-3 [&_p]:m-0 [&>p:nth-child(n+2)]:hidden group-data-[open]:[&>p:nth-child(n+2)]:block"
+              class="font-label text-[0.9rem] text-fg-dim leading-relaxed flex flex-col gap-3 [&_p]:m-0 [&>p:nth-child(n+2)]:hidden group-data-[open]:[&>p:nth-child(n+2)]:block"
               set:html={aboutHtml}
             />
             {hasMoreAbout && (
@@ -193,7 +193,7 @@ const jsonLd = {
                 type="button"
                 data-readmore
                 aria-expanded="false"
-                class="self-start min-h-[44px] font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent hover:opacity-70">
+                class="self-start min-h-[44px] font-label text-[0.9rem] text-accent underline underline-offset-4 hover:opacity-70">
                 Read more
               </button>
             )}
@@ -203,15 +203,15 @@ const jsonLd = {
         <!-- Feedback -->
         {feedback.length > 0 && (
           <div class="flex flex-col gap-3 pt-2">
-            <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// Transmissions</span>
+            <span class="font-label text-[0.85rem] text-accent">Transmissions</span>
             {feedback.map((f) => (
               <div class="border border-border p-4 flex flex-col gap-2">
-                <p class="font-label text-[0.75rem] tracking-[0.08em] text-fg-dim leading-relaxed">"{f.comment}"</p>
+                <p class="font-label text-[0.9rem] text-fg-dim leading-relaxed">"{f.comment}"</p>
                 <div class="flex items-baseline gap-3 flex-wrap">
-                  <span class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-muted">{f.name}</span>
+                  <span class="font-label text-[0.8rem] text-fg-muted">{f.name}</span>
                   {f.url && (
                     <a href={f.url} target="_blank" rel="noopener noreferrer"
-                      class="font-mono text-[0.5rem] tracking-[0.15em] uppercase text-accent no-underline opacity-70 hover:opacity-100 transition-opacity"
+                      class="font-label text-[0.75rem] text-accent no-underline opacity-70 hover:opacity-100 transition-opacity"
                     >{new URL(f.url).hostname} ↗</a>
                   )}
                 </div>
@@ -354,10 +354,10 @@ const jsonLd = {
               <div class="min-w-0 flex flex-col gap-0.5">
                 <a
                   href={`/releases/${r.catalog.toLowerCase()}`}
-                  class="font-label font-semibold text-[0.8rem] uppercase tracking-[0.06em] text-fg no-underline after:absolute after:inset-0">
+                  class="font-label font-medium text-[0.9rem] text-fg no-underline after:absolute after:inset-0">
                   {r.title}
                 </a>
-                <span class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted">
+                <span class="font-label text-[0.75rem] text-fg-muted">
                   {[r.artist, yearOf(r)].filter(Boolean).join(' · ')}
                 </span>
               </div>
@@ -375,14 +375,14 @@ const jsonLd = {
     <nav aria-label="Release navigation" class="container mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-16 pt-4 border-t border-border flex justify-between gap-6">
       {prev ? (
         <a href={`/releases/${prev.catalog.toLowerCase()}`} class="group block max-w-[45%] min-h-[44px] no-underline">
-          <span class="block font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent mb-1">← Previous release</span>
-          <span class="block font-label text-[0.8rem] uppercase tracking-[0.06em] text-fg line-clamp-2 transition-colors duration-200 group-hover:text-accent">{prev.title}</span>
+          <span class="block font-label sm:font-mono text-[0.75rem] sm:text-[0.55rem] tracking-normal sm:tracking-[0.2em] normal-case sm:uppercase text-accent mb-1">← Previous release</span>
+          <span class="block font-label text-[0.9rem] sm:text-[0.8rem] normal-case sm:uppercase tracking-normal sm:tracking-[0.06em] text-fg line-clamp-2 transition-colors duration-200 group-hover:text-accent">{prev.title}</span>
         </a>
       ) : <span></span>}
       {next ? (
         <a href={`/releases/${next.catalog.toLowerCase()}`} class="group block max-w-[45%] min-h-[44px] text-right no-underline">
-          <span class="block font-mono text-[0.55rem] tracking-[0.2em] uppercase text-accent mb-1">Next release →</span>
-          <span class="block font-label text-[0.8rem] uppercase tracking-[0.06em] text-fg line-clamp-2 transition-colors duration-200 group-hover:text-accent">{next.title}</span>
+          <span class="block font-label sm:font-mono text-[0.75rem] sm:text-[0.55rem] tracking-normal sm:tracking-[0.2em] normal-case sm:uppercase text-accent mb-1">Next release →</span>
+          <span class="block font-label text-[0.9rem] sm:text-[0.8rem] normal-case sm:uppercase tracking-normal sm:tracking-[0.06em] text-fg line-clamp-2 transition-colors duration-200 group-hover:text-accent">{next.title}</span>
         </a>
       ) : <span></span>}
     </nav>
