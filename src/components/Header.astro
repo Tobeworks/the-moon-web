@@ -4,7 +4,7 @@ import PhaseCircle from "./PhaseCircle.astro";
 
 const navLinks = [
   { label: "Releases", href: "/releases" },
-
+  { label: "Artists", href: "/artists" },
   { label: "Field", href: "/#field" },
   { label: "Subscribe", href: "/#subscribe" },
   { label: "Listen", href: "/listen" },
@@ -22,7 +22,7 @@ const navLinks = [
   </a>
 
   <!-- Desktop nav -->
-  <nav class="hidden sm:flex items-center gap-8 lg:gap-10">
+  <nav class="hidden sm:flex items-center gap-6 lg:gap-10">
     {
       navLinks.map(({ label, href }) => (
         <a

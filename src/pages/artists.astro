@@ -1,0 +1,105 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import releasesData from '../../the-moon-os/data/releases.json';
+import { coverSource, splitArtists, yearOf } from '../lib/release';
+
+// Real photos, served from /public. Artists without one fall back to their latest cover.
+// pos = object-position, so the face stays in frame in the wide crop.
+const photos: Record<string, { src: string; pos: string }> = {
+  'logic-moon': { src: '/img/artists/logic-moon.jpg', pos: '50% 40%' },
+  'aethery-fields': { src: '/img/artists/aethery-fields.jpg', pos: '50% 30%' },
+  'henrik-meierkord': { src: '/img/artists/henrik-meierkord.jpg', pos: '50% 25%' },
+  'diogene': { src: '/img/artists/diogene.jpg', pos: '45% 30%' },
+};
+
+// Artists come straight from the release credits, ordered by their first release.
+const byCatalog = [...releasesData.releases].sort((a, b) =>
+  a.catalog.localeCompare(b.catalog, undefined, { numeric: true }),
+);
+const names = [...new Set(byCatalog.flatMap((r) => splitArtists(r.artist)))];
+
+const artists = names.map((name) => {
+  const releases = byCatalog.filter((r) => splitArtists(r.artist).includes(name));
+  const years = releases.map(yearOf).filter(Boolean).sort();
+  const span = years[0] === years.at(-1) ? years[0] : `${years[0]}–${years.at(-1)}`;
+  const count = `${releases.length} release${releases.length !== 1 ? 's' : ''}`;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  const photo = photos[id];
+  return { name, id, count, span, releases: [...releases].reverse(), image: photo?.src ?? coverSource(releases.at(-1)!), pos: photo?.pos ?? '50% 50%', isPhoto: !!photo };
+});
+---
+
+<BaseLayout
+  title="Artists — THE MOON RECORDS"
+  description={`The artists on The Moon Records: ${names.join(', ')}.`}>
+  <section class="pt-[calc(var(--header-height)+1rem)] pb-12 md:py-24">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="tmr-section-header">
+        <span class="tmr-section-num">TMR</span>
+        <h1 class="tmr-section-title">Artists</h1>
+        <span class="tmr-section-sub">{artists.length} artists</span>
+      </div>
+
+      <nav aria-label="Artists" class="flex flex-wrap gap-x-6 mb-4 md:mb-12">
+        {artists.map(({ name, id }) => (
+          <a
+            href={`#${id}`}
+            class="inline-flex items-center min-h-[44px] font-label text-[0.9rem] md:text-[0.7rem] tracking-normal md:tracking-[0.22em] md:uppercase text-fg-dim no-underline transition-colors duration-200 hover:text-accent">
+            {name}
+          </a>
+        ))}
+      </nav>
+
+      {artists.map(({ name, id, count, span, releases, image, pos, isPhoto }, i) => (
+        <section id={id} class="pt-8 md:pt-16 scroll-mt-[calc(var(--header-height)-1rem)] md:scroll-mt-0">
+          <div class="tmr-section-header">
+            <span class="tmr-section-num">{String(i + 1).padStart(2, '0')}</span>
+            <h2 class="tmr-section-title">{name}</h2>
+            <span class="tmr-section-sub">{count} · {span}</span>
+          </div>
+          <p class="md:hidden -mt-3 mb-5 font-label text-[0.85rem] text-fg-muted">{count} · {span}</p>
+          {image && (
+            <div class="mb-6 md:mb-10 aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-surface">
+              <img
+                src={image}
+                alt={isPhoto ? name : ''}
+                loading="lazy"
+                class="size-full object-cover grayscale contrast-110 brightness-90"
+                style={`object-position: ${pos}`}
+              />
+            </div>
+          )}
+          <ul class="grid md:grid-cols-2 xl:grid-cols-3 md:gap-x-10 list-none m-0 p-0">
+            {releases.map((r) => {
+              const others = splitArtists(r.artist).filter((a) => a !== name);
+              return (
+                <li class="relative flex items-center gap-4 py-2.5">
+                  <img
+                    src={r.artwork?.['300']?.jpg || r.cover}
+                    alt=""
+                    width="64"
+                    height="64"
+                    loading="lazy"
+                    class="size-[56px] md:size-[64px] shrink-0 object-cover"
+                  />
+                  <div class="min-w-0 flex flex-col gap-0.5">
+                    <a
+                      href={`/releases/${r.catalog.toLowerCase()}`}
+                      class="font-label font-medium text-[0.9rem] md:text-[0.95rem] text-fg no-underline transition-colors duration-200 hover:text-accent after:absolute after:inset-0">
+                      {r.title}
+                    </a>
+                    <span class="font-label text-[0.75rem] text-fg-muted">
+                      {[r.catalog, yearOf(r), others.length ? `with ${others.join(' & ')}` : ''].filter(Boolean).join(' · ')}
+                    </span>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
+
+    </div>
+  </section>
+</BaseLayout>
