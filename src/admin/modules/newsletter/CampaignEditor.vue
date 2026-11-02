@@ -91,9 +91,9 @@ const renderedHtml = computed(() => marked.parse(bodyMd.value) as string);
 
 onMounted(async () => {
   try {
-    const [campaign, campaigns] = await Promise.all([
+    const [campaign, countRes] = await Promise.all([
       adminApi.getCampaign(id),
-      fetch('/api/admin/newsletter/campaigns').then(r => r.json()),
+      fetch('/api/admin/newsletter/subscribers/count'),
     ]);
     subject.value      = campaign.subject;
     bodyMd.value       = campaign.body_md ?? campaign.body_text ?? '';
@@ -102,10 +102,7 @@ onMounted(async () => {
     failedCount.value  = campaign.failed_count ?? 0;
     sentAt.value       = campaign.sent_at ?? '';
 
-    // Get subscriber count from index page data
-    const res = await fetch('/api/admin/newsletter/campaigns');
-    const data = await res.json();
-    subscriberCount.value = data.subscriberCount ?? 0;
+    if (countRes.ok) subscriberCount.value = (await countRes.json()).count ?? 0;
   } catch (e) {
     loadError.value = 'Failed to load campaign.';
   } finally {

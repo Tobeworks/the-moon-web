@@ -1,15 +1,17 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import releasesData from '../../the-moon-os/data/releases.json';
-import { coverSource, splitArtists, yearOf } from '../lib/release';
+import { Image } from 'astro:assets';
+import { splitArtists, yearOf } from '../lib/release';
 
-// Real photos, served from /public. Artists without one fall back to their latest cover.
+// Photos live in src/assets/artists/<id>.jpg so astro:assets resizes them to webp.
 // pos = object-position, so the face stays in frame in the wide crop.
-const photos: Record<string, { src: string; pos: string }> = {
-  'logic-moon': { src: '/img/artists/logic-moon.jpg', pos: '50% 40%' },
-  'aethery-fields': { src: '/img/artists/aethery-fields.jpg', pos: '50% 30%' },
-  'henrik-meierkord': { src: '/img/artists/henrik-meierkord.jpg', pos: '50% 25%' },
-  'diogene': { src: '/img/artists/diogene.jpg', pos: '45% 30%' },
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/artists/*.jpg', { eager: true });
+const pos: Record<string, string> = {
+  'logic-moon': '50% 40%',
+  'aethery-fields': '50% 30%',
+  'henrik-meierkord': '50% 25%',
+  'diogene': '45% 30%',
 };
 
 // Artists come straight from the release credits, ordered by their first release.
@@ -24,8 +26,7 @@ const artists = names.map((name) => {
   const span = years[0] === years.at(-1) ? years[0] : `${years[0]}–${years.at(-1)}`;
   const count = `${releases.length} release${releases.length !== 1 ? 's' : ''}`;
   const id = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-  const photo = photos[id];
-  return { name, id, count, span, releases: [...releases].reverse(), image: photo?.src ?? coverSource(releases.at(-1)!), pos: photo?.pos ?? '50% 50%', isPhoto: !!photo };
+  return { name, id, count, span, releases: [...releases].reverse(), image: files[`../assets/artists/${id}.jpg`]?.default };
 });
 ---
 
@@ -51,7 +52,7 @@ const artists = names.map((name) => {
         ))}
       </nav>
 
-      {artists.map(({ name, id, count, span, releases, image, pos, isPhoto }, i) => (
+      {artists.map(({ name, id, count, span, releases, image }, i) => (
         <section id={id} class="pt-8 md:pt-16 scroll-mt-[calc(var(--header-height)-1rem)] md:scroll-mt-0">
           <div class="tmr-section-header">
             <span class="tmr-section-num">{String(i + 1).padStart(2, '0')}</span>
@@ -61,12 +62,16 @@ const artists = names.map((name) => {
           <p class="md:hidden -mt-3 mb-5 font-label text-[0.85rem] text-fg-muted">{count} · {span}</p>
           {image && (
             <div class="mb-6 md:mb-10 aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-surface">
-              <img
+              <Image
                 src={image}
-                alt={isPhoto ? name : ''}
+                alt={name}
+                widths={[640, 960, 1280, 1800]}
+                sizes="(min-width: 1280px) 1232px, 100vw"
+                format="webp"
+                quality={75}
                 loading="lazy"
                 class="size-full object-cover grayscale contrast-110 brightness-90"
-                style={`object-position: ${pos}`}
+                style={`object-position: ${pos[id]}`}
               />
             </div>
           )}

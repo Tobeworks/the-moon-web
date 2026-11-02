@@ -32,6 +32,7 @@ function stripLeadingHeading(about: string): string {
 export function buildReleaseNewsletter(release: ReleaseForNewsletter): { subject: string; bodyMd: string } {
   const { catalog, artist, title, genre, year, about, tracks = [] } = release;
 
+  const releaseUrl = `${SITE_URL}/releases/${catalog.toLowerCase()}`;
   const cover = release.artwork?.['600']?.jpg || release.cover || '';
   const bandcamp = release.platforms?.find((p) => p.name === 'bandcamp')?.url;
 
@@ -46,13 +47,13 @@ export function buildReleaseNewsletter(release: ReleaseForNewsletter): { subject
 
   const links = [
     bandcamp ? `[→ Listen & buy on Bandcamp](${bandcamp})` : null,
-    `[→ ${SITE_URL.replace('https://', '')}](${SITE_URL})`,
+    `[→ ${releaseUrl.replace('https://', '')}](${releaseUrl})`,
   ]
     .filter(Boolean)
     .join('\n');
 
   const bodyMd = [
-    cover ? `[![${artist} — ${title}](${cover})](${SITE_URL})\n\n` : '',
+    cover ? `[![${artist} — ${title}](${cover})](${releaseUrl})\n\n` : '',
     `# New Release: ${title} - ${artist}\n\n`,
     metaLine,
     aboutText ? `${aboutText}\n\n` : '',
