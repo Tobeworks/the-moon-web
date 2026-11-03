@@ -300,3 +300,43 @@ export async function sendContractSigningEmail(
 
   await transporter.sendMail({ from: FROM, to, subject: `Contract — ${releaseTitle} — THE MOON RECORDS`, html, text });
 }
+
+/** Tells the admin that promo feedback came in. Goes to FEEDBACK_NOTIFY_TO, else the admin address PB_ADMIN_EMAIL. */
+export async function sendFeedbackNotification(fb: {
+  releaseSlug: string;
+  promoRecipient: string;
+  name: string;
+  email: string;
+  comment: string;
+  url?: string;
+}) {
+  const to = process.env.FEEDBACK_NOTIFY_TO || process.env.PB_ADMIN_EMAIL;
+  if (!to) {
+    console.warn('[feedback] neither FEEDBACK_NOTIFY_TO nor PB_ADMIN_EMAIL set, no notification sent');
+    return;
+  }
+
+  const row = (label: string, value: string) =>
+    `<p style="margin:0 0 6px;color:rgba(232,228,216,0.4);font-size:11px;letter-spacing:0.2em;text-transform:uppercase;">${label}</p>
+     <p style="margin:0 0 20px;color:rgba(232,228,216,0.75);font-size:13px;letter-spacing:0.05em;line-height:1.8;white-space:pre-wrap;">${escapeHtml(value)}</p>`;
+
+  const html = baseHtml(`
+    <h1 style="margin:0 0 24px;color:#E8E4D8;font-size:20px;letter-spacing:0.1em;font-weight:700;">New feedback</h1>
+    ${row('Release', fb.releaseSlug.toUpperCase())}
+    ${row('From', `${fb.name} <${fb.email}>`)}
+    ${row('Comment', fb.comment)}
+    ${fb.url ? row('Link', fb.url) : ''}
+    ${fb.promoRecipient ? row('Promo sent to', fb.promoRecipient) : ''}
+  `);
+
+  const text = `New feedback for ${fb.releaseSlug.toUpperCase()}\n\nFrom: ${fb.name} <${fb.email}>\n\n${fb.comment}${fb.url ? `\n\nLink: ${fb.url}` : ''}${fb.promoRecipient ? `\n\nPromo sent to: ${fb.promoRecipient}` : ''}`;
+
+  await transporter.sendMail({
+    from: FROM,
+    to,
+    ...(/^[^\s@<>,;]+@[^\s@<>,;]+$/.test(fb.email) ? { replyTo: fb.email } : {}),
+    subject: `New feedback — ${fb.releaseSlug.toUpperCase()} — ${fb.name.replace(/[\r\n]+/g, ' ')}`,
+    html,
+    text,
+  });
+}

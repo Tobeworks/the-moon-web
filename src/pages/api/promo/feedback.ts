@@ -2,6 +2,7 @@ export const prerender = false;
 
 import type { APIContext } from 'astro';
 import { getPromoByToken, createFeedback } from '../../../lib/pocketbase';
+import { sendFeedbackNotification } from '../../../lib/mailer';
 
 export const POST = async ({ request }: APIContext) => {
   // Parse body (JSON or form)
@@ -57,6 +58,20 @@ export const POST = async ({ request }: APIContext) => {
       status: 500,
       headers: { 'content-type': 'application/json' },
     });
+  }
+
+  // The feedback is saved; a failing mail must not turn that into an error for the visitor.
+  try {
+    await sendFeedbackNotification({
+      releaseSlug: promo.release_slug,
+      promoRecipient: promo.recipient_name,
+      name,
+      email,
+      comment,
+      url: url || undefined,
+    });
+  } catch (e) {
+    console.error('[feedback] notification failed:', e);
   }
 
   return new Response(JSON.stringify({ ok: true }), {
