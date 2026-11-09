@@ -47,6 +47,8 @@ const playerTracks = tracks.map((t) => ({
 const releaseDate = release_date ? new Date(release_date) : null;
 const isReleased = releaseIsOut(release);
 const visiblePlatforms = platformsOf(release);
+// Before the release date the player offers the first track as a preview.
+const audioTracks = isReleased ? playerTracks : playerTracks.slice(0, 1);
 const displayYear = yearOf(release);
 
 // Format release date for display
@@ -102,7 +104,7 @@ const jsonLd = {
   type="music.album"
 >
   <div class="min-h-screen pb-12 sm:pb-24">
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-[var(--header-height)] sm:pt-8">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-[var(--header-height)] sm:pt-[calc(var(--header-height)+2rem)]">
 
       <!-- ══ MOBILE (hidden on sm+) ══════════════════════════════════ -->
       <div class="sm:hidden flex flex-col gap-3 pb-6">
@@ -171,8 +173,11 @@ const jsonLd = {
         )}
 
         <!-- Compact audio player -->
-        {isReleased ? (
-          <AudioPlayer tracks={playerTracks} compact />
+        {audioTracks.length ? (
+          <>
+            <AudioPlayer tracks={audioTracks} compact />
+            {!isReleased && <p class="font-label text-[0.8rem] text-fg-muted -mt-2">Preview · full release {formattedReleaseDate}</p>}
+          </>
         ) : (
           <div class="border border-border p-4 flex flex-col gap-2">
             <span class="font-label text-[0.85rem] text-accent">// Transmission pending</span>
@@ -225,7 +230,7 @@ const jsonLd = {
       <div class="hidden sm:grid sm:grid-cols-2 sm:gap-12 lg:gap-16 items-start">
 
         <!-- Artwork -->
-        <div class="sm:sticky sm:top-8">
+        <div class="sm:sticky sm:top-[calc(var(--header-height)+2rem)]">
           {art1500jpg ? (
             <picture>
               {art1500webp && <source srcset={art1500webp} type="image/webp" />}
@@ -292,8 +297,11 @@ const jsonLd = {
             <span class="font-mono text-[0.55rem] tracking-[0.22em] uppercase text-fg-muted">{catalog}</span>
           </div>
 
-          {isReleased ? (
-            <AudioPlayer tracks={playerTracks} />
+          {audioTracks.length ? (
+            <>
+              <AudioPlayer tracks={audioTracks} />
+              {!isReleased && <p class="font-mono text-[0.55rem] tracking-[0.18em] uppercase text-fg-muted -mt-2">Preview · full release {formattedReleaseDate}</p>}
+            </>
           ) : (
             <div class="border border-border p-5 flex flex-col gap-2">
               <span class="font-mono text-[0.6rem] tracking-[0.25em] uppercase text-accent">// TRANSMISSION_PENDING</span>
