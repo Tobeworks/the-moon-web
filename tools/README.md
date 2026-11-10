@@ -104,19 +104,22 @@ Es läuft immer nur ein Job gleichzeitig.
 
 ### Nach dem Push: Git
 
-Das Studio committet und pusht **nie**. Nach einem Push zeigt es `!` bei **G** und einen
-Vorschlag für die Commit-Message. Dann machst du selbst:
+Nach einem Push (oder nach übernommenen DSP-Links) zeigt das Studio `!` bei **G** und oben ein
+Feld **releases.json committen** mit vorbelegter Nachricht (änderbar). **Committen** committet
+**nur `data/releases.json`**, lokal. Andere Dateien bleiben unberührt.
+
+Das Studio **pusht nie** zu GitHub. Das machst du selbst im Terminal:
 
 ```bash
-git add data/releases.json && git commit -m "feat: tmr-018 release" && git push
+git push
 ```
 
-Erst der Push des Web-Repos löst den Website-Build aus.
+Erst dieser Push des Web-Repos löst den Website-Build aus.
 
 ### Typischer Ablauf
 
 Neu anlegen → Dateien → Metadaten speichern → Tracks einlesen → Validieren → Konvertieren →
-Push → committen und pushen → Wochen später DSP-Links.
+Push → committen (Studio) → `git push` (Terminal) → Wochen später DSP-Links.
 
 ---
 

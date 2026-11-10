@@ -157,6 +157,21 @@ async function refresh() {
   $('#chip-cdn').textContent = state.cdn_configured ? '✓ CDN konfiguriert' : '! CDN: .env unvollständig';
 }
 
+// ── commit bar (commits only data/releases.json, never pushes) ─────────────
+function commitBar() {
+  if (!state.releases_dirty) return null;
+  const warn = state.releases.filter(r => r.status.G === 'warn').map(r => r.catalog.toLowerCase());
+  const msg = h('input', {class: 'mono', value: `feat: ${warn.join(', ') || 'releases'} release`});
+  return h('div', {class: 'panel'}, h('h2', {}, 'releases.json committen'),
+    h('p', {class: 'note'}, 'Committet nur data/releases.json, lokal. Pushen machst du selbst im Terminal (git push).'),
+    h('div', {class: 'row gap'}, h('div', {style: 'flex:1;min-width:280px'}, msg),
+      h('button', {class: 'btn fill', onclick: guard(async () => {
+        const r = await api('/api/git/commit', {method: 'POST', json: {message: msg.value}});
+        banner(`Committet (${r.commit}). Jetzt im Terminal: git push`, false);
+        route();
+      })}, 'Committen')));
+}
+
 // ── router ─────────────────────────────────────────────────────────────────
 async function route() {
   const hash = location.hash || '#/';
@@ -178,6 +193,7 @@ function viewOverview(app) {
   const open = rs.filter(r => r.next && r.next !== 'D').length;
   const noDsp = rs.filter(r => r.status.D === 'open' && r.status.P === 'ok').length;
   app.append(
+    commitBar(),
     h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, 'Katalog'), h('h1', {}, 'Releases')),
       h('div', {class: 'spacer'}), h('a', {class: 'btn fill', href: '#/new', style: 'text-decoration:none;display:flex;align-items:center'}, '+ Neues Release')),
     !state.cdn_configured && h('div', {class: 'banner gap'}, `Push gesperrt: in .env fehlt ${state.cdn_missing.join(', ')}.`),
@@ -285,7 +301,7 @@ async function viewDetail(app, catalog, focus) {
     h('div', {class: 'row gap'}, h('button', {class: 'btn danger', disabled: !d.summary || st.K !== 'ok' || st.V !== 'ok' || !state.cdn_configured,
       onclick: guard(() => pushDialog(catalog))}, 'Freigeben und hochladen …')),
     !state.cdn_configured && h('p', {class: 'note'}, `In .env fehlt: ${state.cdn_missing.join(', ')}`),
-    st.G === 'warn' && h('p', {class: 'note', style: 'color:var(--warn)'}, `! releases.json nicht committet. Vorschlag: feat: ${catalog.toLowerCase()} release`));
+    st.G === 'warn' && h('p', {class: 'note', style: 'color:var(--warn)'}, '! releases.json nicht committet — Commit-Feld oben auf der Seite.'));
 
   // dsp
   const dspBox = h('div', {});
@@ -316,7 +332,7 @@ async function viewDetail(app, catalog, focus) {
     h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, s.artist), h('h1', {}, s.title || catalog)),
       h('div', {class: 'spacer'}), when(s), h('span', {class: 'mono'}, fmtDate(s.release_date))),
     h('div', {class: 'gap'}, pipe(s)),
-    h('div', {class: 'gap'},
+    h('div', {class: 'gap'}, commitBar(),
       h('div', {class: 'panel', id: 'panel-A'}, h('h2', {}, '1 · Assets'), drop,
         h('div', {class: 'files mono'}, [...d.files.audio, ...d.files.artwork].map(n => h('div', {}, n)))),
       metaPanel, convPanel, pushPanel, dspPanel,

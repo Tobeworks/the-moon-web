@@ -204,3 +204,26 @@ def test_index_served_with_key(studio_env):
     assert r.status_code == 303 and "studio=" in r.headers["set-cookie"]
     page = c.get("/")
     assert page.status_code == 200 and "tmr studio" in page.text
+
+
+def test_git_commit_endpoint(client, studio_env):
+    import subprocess
+
+    def git(*a):
+        return subprocess.run(["git", "-C", str(studio_env.web_root), *a], capture_output=True,
+                              text=True, check=True).stdout
+
+    git("init", "-q", "-b", "main")
+    git("config", "user.name", "t")
+    git("config", "user.email", "t@example.com")
+    git("add", "data/releases.json")
+    git("commit", "-q", "-m", "init")
+    assert client.get("/api/state").json()["releases_dirty"] is False
+    assert client.post("/api/git/commit", json={"message": "feat: x"}).status_code == 400
+
+    studio_env.releases_path.write_text(studio_env.releases_path.read_text() + "\n")
+    assert client.get("/api/state").json()["releases_dirty"] is True
+    assert client.post("/api/git/commit", json={"message": ""}).status_code == 400
+    r = client.post("/api/git/commit", json={"message": "feat: tmr-017 assets"})
+    assert r.status_code == 200 and r.json()["commit"]
+    assert client.get("/api/state").json()["releases_dirty"] is False

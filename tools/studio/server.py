@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
 from commands.checks import publish_problems
-from studio import dsp, folders
+from studio import dsp, folders, gitops
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
 from studio.status import find_folder, list_releases, release_status
@@ -53,6 +53,10 @@ class Run(BaseModel):
 
 class Push(BaseModel):
     confirm: str = ""
+
+
+class Commit(BaseModel):
+    message: str = ""
 
 
 class Links(BaseModel):
@@ -156,6 +160,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         return {"releases": list_releases(cfg, date.today()),
                 "next_catalog": folders.next_catalog(entries(), cfg.assets_dir),
                 "cdn_configured": all(k in _env_keys(cfg) for k in CDN_KEYS),
+                "releases_dirty": gitops.releases_dirty(cfg),
                 "cdn_missing": [k for k in CDN_KEYS if k not in _env_keys(cfg)],
                 "job": jobs.current()}
 
@@ -274,6 +279,15 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         if j is None:
             raise HTTPException(404, "unknown job")
         return j
+
+    @app.post("/api/git/commit")
+    def git_commit(body: Commit):
+        try:
+            return {"commit": gitops.commit_releases(cfg, body.message)}
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        except RuntimeError as e:
+            raise HTTPException(502, str(e))
 
     # ── dsp ──────────────────────────────────────────────────────────────────
     @app.post("/api/releases/{catalog}/dsp/scan")
