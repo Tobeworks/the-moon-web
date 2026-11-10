@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from studio.dsp import apply_links, candidates
+from studio.dsp import apply_links, candidates, scan_errors
 
 REPO_DATA = Path(__file__).parents[3] / "data"
 
@@ -39,6 +39,16 @@ def test_existing_platform_is_skipped_but_empty_placeholder_is_not():
     existing = [{"name": "spotify", "url": "x"}, {"name": "apple_music", "url": ""}]
     c = by_name(candidates(SAMPLE, "Logic Moon", existing))
     assert "spotify" not in c and "apple_music" in c
+
+
+def test_scan_errors_ignores_no_match_but_reports_real_failures():
+    result = {"results": {
+        "spotify": {"error": "best candidate below threshold (50.9 < 70.0)"},
+        "deezer": {"error": "no candidates found"},
+        "beatport": {"error": None},
+        "apple_music": {"error": "Error: BrowserType.launch: Executable doesn't exist at /x\n╔═══╗"},
+    }}
+    assert scan_errors(result) == ["apple_music: Error: BrowserType.launch: Executable doesn't exist at /x"]
 
 
 @pytest.fixture

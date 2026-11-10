@@ -290,7 +290,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             result = dsp.scan(cfg, url)
         except (RuntimeError, ValueError, OSError) as e:
             raise HTTPException(502, str(e))
-        return {"candidates": dsp.candidates(result, source.get("artist", ""), plats)}
+        return {"candidates": dsp.candidates(result, source.get("artist", ""), plats),
+                "errors": dsp.scan_errors(result)}
 
     @app.post("/api/releases/{catalog}/dsp/apply")
     def dsp_apply(catalog: str, body: Links):

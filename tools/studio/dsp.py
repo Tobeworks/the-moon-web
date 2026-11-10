@@ -40,6 +40,14 @@ def candidates(scraper_json: dict, artist: str, existing: list[dict]) -> list[di
     return out
 
 
+def scan_errors(scraper_json: dict) -> list[str]:
+    """Real failures per platform (e.g. missing Playwright browser). 'No match' is not an error."""
+    quiet = ("best candidate below threshold", "no candidates found")
+    return [f"{name}: {r['error'].splitlines()[0][:160]}"
+            for name, r in (scraper_json.get("results") or {}).items()
+            if r.get("error") and not r["error"].startswith(quiet)]
+
+
 def scan(cfg: Config, bandcamp_url: str) -> dict:
     res = subprocess.run(["uv", "run", "python", "cli.py", bandcamp_url, "--stdout"],
                          cwd=cfg.scraper_dir, capture_output=True, text=True, timeout=240)

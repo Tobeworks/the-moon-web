@@ -183,7 +183,9 @@ def test_dsp_scan_and_apply(client, studio_env, monkeypatch):
     cat = entry["catalog"]
     entry["artist"] = "Logic Moon"
     studio_env.releases_path.write_text(json.dumps(data))
-    found = client.post(f"/api/releases/{cat}/dsp/scan").json()["candidates"]
+    scan = client.post(f"/api/releases/{cat}/dsp/scan").json()
+    assert scan["errors"] == []
+    found = scan["candidates"]
     assert found[0]["name"] == "deezer" and found[0]["accepted"]
     r = client.post(f"/api/releases/{cat}/dsp/apply", json={"links": [found[0]]})
     assert r.status_code == 200

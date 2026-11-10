@@ -292,8 +292,9 @@ async function viewDetail(app, catalog, focus) {
   const dspPanel = h('div', {class: 'panel', id: 'panel-D'}, h('h2', {}, '5 · DSP-Links'),
     h('p', {class: 'note'}, 'Sucht über die Bandcamp-URL. Übernommen werden nur Treffer ab Confidence 85 mit passendem Künstler.'),
     h('div', {class: 'row gap'}, h('button', {class: 'btn', disabled: st.P !== 'ok', onclick: guard(async () => {
-      dspBox.replaceChildren(h('p', {class: 'note'}, 'Suche läuft … (bis zu 2 Minuten)'));
+      dspBox.replaceChildren(h('p', {class: 'note'}, 'Suche läuft … (dauert etwa 2 Minuten)'));
       const r = await api(`/api/releases/${catalog}/dsp/scan`, {method: 'POST'}).catch(e => { dspBox.replaceChildren(); throw e; });
+      if (r.errors.length) banner('Scraper-Fehler: ' + r.errors.join(' | '));
       renderDsp(r.candidates);
     })}, 'Links suchen')), st.P !== 'ok' && h('p', {class: 'note'}, 'Erst nach dem Push möglich.'), dspBox,
     (d.entry && d.entry.platforms || []).length ? h('div', {class: 'files mono'}, d.entry.platforms.map(p => h('div', {}, h('span', {}, p.name), h('span', {}, p.url)))) : null);
