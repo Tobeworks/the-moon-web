@@ -59,6 +59,14 @@ def test_copy_conflict_not_overwritten(rd, tmp_path):
     assert (rd / "audio" / "a.wav").read_bytes() == b"new"
 
 
+def test_copying_the_same_file_again_is_unchanged_not_a_conflict(rd, tmp_path):
+    f = tmp_path / "a.wav"
+    f.write_bytes(b"data")
+    copy_files(rd, [f])
+    again = copy_files(rd, [f])
+    assert again["unchanged"] == ["a.wav"] and again["conflicts"] == [] and again["copied"] == []
+
+
 def test_copy_folder_source(rd, tmp_path):
     src = tmp_path / "wavs"
     src.mkdir()

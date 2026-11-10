@@ -103,8 +103,25 @@ def test_files_copy_and_conflict(client, folder, tmp_path):
     src.write_bytes(b"w")
     body = {"paths": [str(src)]}
     assert client.post("/api/releases/TMR-099/files", json=body).json()["copied"] == ["in.wav"]
+    assert client.post("/api/releases/TMR-099/files", json=body).json()["unchanged"] == ["in.wav"]
+    src.write_bytes(b"changed")
     assert client.post("/api/releases/TMR-099/files", json=body).json()["conflicts"] == ["in.wav"]
     assert client.post("/api/releases/TMR-099/files", json={"paths": ["rel/path.wav"]}).status_code == 400
+
+
+def test_adding_audio_reads_the_tracks_automatically(client, folder, jobs, studio_env, tmp_path):
+    wav = tmp_path / "02_second.wav"
+    wav.write_bytes(b"w")
+    png = tmp_path / "other.png"
+    png.write_bytes(b"p")
+    r = client.post("/api/releases/TMR-099/files", json={"paths": [str(png)]}).json()
+    assert r["job_id"] is None and jobs.started == []
+    r = client.post("/api/releases/TMR-099/files", json={"paths": [str(wav)]}).json()
+    assert r["job_id"] == "job1" and jobs.started[-1] == [str(studio_env.tmr), "generate", str(folder)]
+    jobs.busy = True
+    wav2 = tmp_path / "03_third.wav"
+    wav2.write_bytes(b"w")
+    assert client.post("/api/releases/TMR-099/files", json={"paths": [str(wav2)]}).json()["job_id"] is None
 
 
 def test_upload_streams_and_conflicts(client, folder):

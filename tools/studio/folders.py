@@ -54,7 +54,7 @@ def copy_files(release_dir: Path, sources: list[Path],
     for s in sources:
         s = Path(s)
         files += sorted(f for f in s.iterdir() if f.is_file()) if s.is_dir() else [s]
-    res = {"copied": [], "conflicts": [], "skipped": []}
+    res = {"copied": [], "conflicts": [], "skipped": [], "unchanged": []}
     for f in files:
         kind = classify(f)
         if kind is None or f.name.startswith("."):
@@ -62,7 +62,8 @@ def copy_files(release_dir: Path, sources: list[Path],
             continue
         target = release_dir / kind / f.name
         if target.exists() and f.name not in overwrite:
-            res["conflicts"].append(f.name)
+            same = target.stat().st_size == f.stat().st_size and target.stat().st_mtime_ns == f.stat().st_mtime_ns
+            res["unchanged" if same else "conflicts"].append(f.name)  # copy2 keeps mtime: same = already there
             continue
         shutil.copy2(f, target)
         res["copied"].append(f.name)

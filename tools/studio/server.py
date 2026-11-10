@@ -159,6 +159,15 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         job_meta[job_id] = {"kind": kind, "total": total}
         return {"job_id": job_id}
 
+    def read_tracks(folder: Path, copied: list[str]) -> str | None:
+        """New audio files → run `generate` so release.json lists them (keeps hand edits)."""
+        if not any(folders.classify(Path(n)) == "audio" for n in copied):
+            return None
+        try:
+            return start([str(cfg.tmr), "generate", str(folder)], f"generate {folder.name[:7].upper()}")["job_id"]
+        except HTTPException:  # another job is running: the user can click "Tracks einlesen"
+            return None
+
     # ── pages ────────────────────────────────────────────────────────────────
     @app.get("/")
     def index(request: Request, key: str | None = None):
@@ -250,7 +259,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         paths = [Path(p) for p in body.paths]
         if any(not p.is_absolute() or not p.exists() for p in paths):
             raise HTTPException(400, "paths must be existing absolute paths")
-        return folders.copy_files(need_folder(folder), paths, frozenset(body.overwrite))
+        res = folders.copy_files(need_folder(folder), paths, frozenset(body.overwrite))
+        return {**res, "job_id": read_tracks(folder, res["copied"])}
 
     @app.post("/api/releases/{catalog}/upload")
     async def upload(catalog: str, files: list[UploadFile] = File(...), overwrite: bool = Form(False)):
@@ -269,7 +279,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             with open(target, "wb") as out:
                 while chunk := await f.read(1024 * 1024):
                     out.write(chunk)
-        return {"copied": [t.name for _, t in plan],
+        return {"job_id": read_tracks(folder, [t.name for _, t in plan]),
+                "copied": [t.name for _, t in plan],
                 "skipped": [Path(f.filename or "").name for f in files
                             if Path(f.filename or "").name not in {t.name for _, t in plan}]}
 

@@ -196,6 +196,9 @@ def convert_release(release_path: str, force: bool = False):
     tracks  = release.get('tracks', [])
 
     ok(f"{catalog} — {artist} — {title}")
+    if not tracks:
+        fail("No tracks in release.json — add audio files and run generate first")
+        sys.exit(1)
     ok(f"{len(tracks)} track(s)")
 
     # ── Artwork ────────────────────────────────────────────────────────────────

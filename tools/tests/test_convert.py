@@ -31,6 +31,17 @@ def test_cover_is_newer_detects_changed_cover(release_dir):
     assert not cover_is_newer(release_dir / "artwork", [mp3])
 
 
+def test_no_tracks_is_an_error_not_a_silent_success(release_dir):
+    import json
+    p = release_dir / "release.json"
+    data = json.loads(p.read_text())
+    data["tracks"] = []
+    p.write_text(json.dumps(data))
+    with pytest.raises(SystemExit) as e:
+        convert_release(str(release_dir))
+    assert e.value.code == 1
+
+
 def test_missing_audio_file_gives_exit_code_1(release_dir):
     (release_dir / "audio" / "01_first.wav").unlink()
     with pytest.raises(SystemExit) as e:

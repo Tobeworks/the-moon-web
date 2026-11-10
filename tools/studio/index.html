@@ -258,7 +258,7 @@ async function viewDetail(app, catalog, focus) {
     const r = await api(`/api/releases/${catalog}/files`, {method: 'POST', json: {paths, overwrite}});
     if (r.conflicts.length && confirm(`Überschreiben?\n${r.conflicts.join('\n')}`))
       return sendPaths(paths, r.conflicts);
-    reload();
+    if (r.job_id) followJob(r.job_id, 0); else reload();
   };
   const pick = kind => guard(async () => {
     const r = await api('/api/pick', {method: 'POST', json: {kind}});
@@ -267,7 +267,10 @@ async function viewDetail(app, catalog, focus) {
   const upload = async (files, overwrite) => {
     const form = new FormData(); [...files].forEach(f => form.append('files', f));
     if (overwrite) form.append('overwrite', 'true');
-    try { await api(`/api/releases/${catalog}/upload`, {method: 'POST', form}); reload(); }
+    try {
+      const r = await api(`/api/releases/${catalog}/upload`, {method: 'POST', form});
+      if (r.job_id) followJob(r.job_id, 0); else reload();
+    }
     catch (e) {
       if (e.status === 409 && !overwrite && confirm(`Überschreiben?\n${(e.data.conflicts || []).join('\n')}`)) return upload(files, true);
       banner(e.message);

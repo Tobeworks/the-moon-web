@@ -84,7 +84,8 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
 
 1. **Assets**: WAVs und Cover mit **Dateien wählen …**, **Ordner wählen …** oder
    **Cover wählen …** (macOS-Dialog, kopiert direkt) oder per Drag & Drop in die Fläche ziehen.
-   Gibt es eine Datei schon, wirst du gefragt, ob sie überschrieben werden soll.
+   Gibt es eine Datei mit anderem Inhalt schon, wirst du gefragt, ob sie überschrieben werden soll.
+   Sobald Audiodateien dazukommen, liest das Studio die Tracks selbst ein (wie **Tracks einlesen**).
 2. **Metadaten**: Artist, Titel, Datum, Genre, Bandcamp-URL und den Releasetext (`about.md`) eintragen →
    **Speichern**. Danach **Tracks einlesen** (liest Titel und Länge aus den Audiodateien, eigene
    Tracktitel bleiben erhalten) und **Validieren**.
