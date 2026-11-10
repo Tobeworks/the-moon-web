@@ -13,7 +13,7 @@ from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
 from commands.checks import publish_problems
-from studio import dsp, folders, gitops
+from studio import ai, dsp, folders, gitops
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
 from studio.progress import progress
@@ -65,6 +65,11 @@ class Push(BaseModel):
 
 class Commit(BaseModel):
     message: str = ""
+
+
+class AboutRequest(BaseModel):
+    notes: str = ""
+    draft: str = ""
 
 
 class Links(BaseModel):
@@ -173,6 +178,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                 "cdn_configured": all(k in _env_keys(cfg) for k in CDN_KEYS),
                 "genres": sorted(set(GENRES) | {e["genre"] for e in entries() if e.get("genre")}),
                 "releases_dirty": gitops.releases_dirty(cfg),
+                "ai_configured": ai.ready(cfg),
                 "cdn_missing": [k for k in CDN_KEYS if k not in _env_keys(cfg)],
                 "job": jobs.current()}
 
@@ -319,6 +325,26 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
     @app.post("/api/jobs/{job_id}/cancel")
     def job_cancel(job_id: str):
         return {"cancelled": jobs.cancel(job_id)}
+
+    @app.post("/api/releases/{catalog}/about/generate")
+    def about_generate(catalog: str, body: AboutRequest):
+        from commands.checks import about_is_placeholder
+
+        catalog, folder, entry = ctx(catalog)
+        if not ai.ready(cfg):
+            raise HTTPException(400, "ANTHROPIC_API_KEY fehlt in der .env im Repo-Root.")
+        release = release_json(folder) or entry or {}
+        examples = []
+        for e in entries():
+            text = (e.get("about") or "").strip()
+            if e["catalog"].upper() != catalog and text:
+                examples.append("\n".join(l for l in text.splitlines() if not l.startswith("#")).strip())
+        draft = "" if about_is_placeholder(body.draft) else body.draft
+        try:
+            text = ai.generate_about(cfg, release, body.notes, draft, examples[:3])
+        except ai.AiError as e:
+            raise HTTPException(502, str(e))
+        return {"text": text}
 
     @app.post("/api/git/commit")
     def git_commit(body: Commit):

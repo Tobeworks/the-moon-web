@@ -286,6 +286,15 @@ async function viewDetail(app, catalog, focus) {
   const m = {};
   const plat = (rel.platforms && rel.platforms.bandcamp) || ((d.entry && d.entry.platforms || []).find(p => p.name === 'bandcamp') || {}).url || '';
   const mf = (k, label, props = {}, wide) => h('label', {class: wide ? 'wide' : ''}, h('span', {class: 'label'}, label), m[k] = h('input', props));
+  const notes = h('input', {placeholder: 'Stichworte für die KI: Stimmung, Idee hinter dem Titel … (optional)'});
+  const aiBtn = h('button', {class: 'btn', disabled: !state.ai_configured, onclick: guard(async () => {
+    aiBtn.disabled = true; aiBtn.textContent = 'KI schreibt …';
+    try {
+      const r = await api(`/api/releases/${catalog}/about/generate`, {method: 'POST', json: {notes: notes.value, draft: m.about.value}});
+      m.about.value = `# ${m.title.value || rel.title || ''}\n\n${r.text}`;
+      banner('Entwurf eingefügt. Prüfen, anpassen und speichern.', false);
+    } finally { aiBtn.disabled = !state.ai_configured; aiBtn.textContent = 'Text mit KI schreiben'; }
+  })}, 'Text mit KI schreiben');
   const metaPanel = h('div', {class: 'panel', id: 'panel-V'}, h('h2', {}, '2 · Metadaten'),
     h('div', {class: 'form'},
       mf('artist', 'Artist', {value: rel.artist || ''}), mf('title', 'Titel', {value: rel.title || ''}),
@@ -294,7 +303,11 @@ async function viewDetail(app, catalog, focus) {
         ['', ...new Set([...state.genres, rel.genre || ''])].map(g => h('option', {value: g, selected: g === (rel.genre || '')}, g || '—'))))
       , mf('bandcamp', 'Bandcamp-URL', {value: plat}, true),
       h('label', {class: 'wide'}, h('span', {class: 'label'}, 'about.md (Releasetext, landet auf der Website)'),
-        m.about = h('textarea', {}, d.about))),
+        m.about = h('textarea', {}, d.about)),
+      h('div', {class: 'wide'}, notes,
+        h('div', {class: 'row gap'}, aiBtn, h('span', {class: 'note', style: 'margin:0'}, state.ai_configured
+          ? 'Sendet Titel, Tracknamen, Stichworte, den aktuellen Text und drei ältere Releasetexte an die Anthropic-API. Der Entwurf wird nicht gespeichert.'
+          : 'ANTHROPIC_API_KEY fehlt in der .env im Repo-Root.')))),
     h('div', {class: 'row gap'},
       h('button', {class: 'btn fill', onclick: guard(async () => {
         await api(`/api/releases/${catalog}/meta`, {method: 'PUT', json: {fields: Object.fromEntries(['artist', 'title', 'release_date', 'genre', 'bandcamp'].map(k => [k, m[k].value])), about: m.about.value}});

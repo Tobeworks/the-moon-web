@@ -195,6 +195,45 @@ def test_detail_lists_cover_name(client, folder):
     assert client.get("/api/releases/TMR-099").json()["files"]["cover"] == "cover_600.jpg"
 
 
+def test_about_generate_uses_release_notes_and_style_examples(client, folder, monkeypatch):
+    from studio import ai
+    seen = {}
+
+    def fake(cfg, release, notes="", draft="", examples=None, client=None):
+        seen.update(release=release, notes=notes, draft=draft, examples=examples)
+        return "Generated text."
+
+    monkeypatch.setattr(ai, "generate_about", fake)
+    monkeypatch.setattr(ai, "ready", lambda cfg: True)
+    r = client.post("/api/releases/TMR-099/about/generate", json={"notes": "rain", "draft": "# T\n\nWrite your release description here."})
+    assert r.status_code == 200 and r.json() == {"text": "Generated text."}
+    assert seen["release"]["title"] == "Test Title" and seen["notes"] == "rain"
+    assert seen["draft"] == ""  # placeholder draft is not sent
+    assert 1 <= len(seen["examples"]) <= 3 and not any(e.startswith("#") for e in seen["examples"])
+
+
+def test_about_generate_errors(client, folder, monkeypatch):
+    from studio import ai
+    monkeypatch.setattr(ai, "ready", lambda cfg: False)
+    assert client.post("/api/releases/TMR-099/about/generate", json={}).status_code == 400
+    monkeypatch.setattr(ai, "ready", lambda cfg: True)
+
+    def boom(*a, **k):
+        raise ai.AiError("kaputt")
+
+    monkeypatch.setattr(ai, "generate_about", boom)
+    r = client.post("/api/releases/TMR-099/about/generate", json={})
+    assert r.status_code == 502 and "kaputt" in r.text
+
+
+def test_state_reports_ai_configured_without_leaking_key(client, studio_env, monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    assert client.get("/api/state").json()["ai_configured"] is False
+    (studio_env.web_root / ".env").write_text("ANTHROPIC_API_KEY=sk-secret-value\n")
+    r = client.get("/api/state")
+    assert r.json()["ai_configured"] is True and "sk-secret-value" not in r.text
+
+
 def test_cdn_configured_flag_does_not_leak_values(client):
     r = client.get("/api/state")
     assert r.json()["cdn_configured"] is True

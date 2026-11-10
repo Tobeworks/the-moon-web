@@ -89,8 +89,13 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
    **Speichern**. Danach **Tracks einlesen** (liest Titel und Länge aus den Audiodateien, eigene
    Tracktitel bleiben erhalten) und **Validieren**.
    Der Text in `about.md` landet auf der Website. Der Platzhalter-Text sperrt den Push.
+   **Text mit KI schreiben** erzeugt einen Entwurf (Claude, `ANTHROPIC_API_KEY` in der `.env`). Optional
+   Stichworte dazu schreiben. Der Entwurf landet nur im Textfeld und wird erst mit **Speichern** übernommen.
+   Gesendet werden Titel, Tracknamen, Stichworte, der aktuelle Text und drei ältere Releasetexte als Stilvorlage.
 3. **Konvertieren**: erzeugt MP3 in 128k (Web-Player) und 320k (Download) und die Cover-Varianten.
    Hast du das Cover geändert, ist **Überschreiben** schon angehakt. Sonst behalten die MP3s das alte Bild.
+   Der **Fortschrittsbalken** unter der Kopfzeile zeigt, wie weit Konvertieren und Push sind. **Abbrechen**
+   stoppt die Aufgabe. Unter **Anhören** spielst du die Tracks ab (MP3 128k, sonst die WAV-Originale).
 4. **Push ans CDN**: **Freigeben und hochladen …** öffnet eine Zusammenfassung (Dateien, Größe, Ziel).
    Zum Starten musst du die Katalognummer eintippen. Der Push lädt hoch und schreibt den Eintrag in
    `data/releases.json`. Davor entsteht ein Backup in `data/backups/`.
