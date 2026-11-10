@@ -315,7 +315,8 @@ async function viewDetail(app, catalog, focus) {
       })}, 'Speichern'),
       h('button', {class: 'btn', onclick: () => run('generate')}, 'Tracks einlesen'),
       h('button', {class: 'btn ghost', onclick: () => run('validate')}, 'Validieren')),
-    st.V === 'open' && d.problems.validation.map(p => h('p', {class: 'note', style: 'color:var(--warn)'}, '! ' + p)));
+    st.V === 'open' && d.problems.validation.map(p => h('p', {class: 'note', style: 'color:var(--warn)'}, '! ' + p)),
+    d.warnings.map(w => h('p', {class: 'note'}, 'Hinweis: ' + w)));
 
   // convert
   const force = h('input', {type: 'checkbox', checked: st.K === 'stale'});
@@ -427,6 +428,7 @@ async function pushDialog(catalog) {
     h('p', {class: 'mono'}, `${p.files.length} Dateien · ${fmtMB(p.total_bytes)}`),
     h('div', {class: 'files mono', style: 'max-height:220px;overflow:auto'}, p.files.map(f => h('div', {}, h('span', {}, f.name), h('span', {}, fmtMB(f.size))))),
     p.problems.map(x => h('p', {class: 'problem'}, '! ' + x)),
+    p.warnings.map(x => h('p', {class: 'note'}, 'Hinweis: ' + x)),
     h('label', {class: 'gap'}, h('span', {class: 'label'}, `Zur Bestätigung ${catalog} eintippen`), typed),
     h('div', {class: 'row gap'}, go, h('button', {class: 'btn ghost', onclick: () => dlg.close()}, 'Abbrechen')));
   dlg.showModal();

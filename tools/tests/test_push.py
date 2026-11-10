@@ -112,13 +112,6 @@ def no_network(monkeypatch):
     return push
 
 
-def test_push_stops_before_upload_on_placeholder_about(release_dir, no_network):
-    (release_dir / "about.md").write_text("# T\n\nWrite your release description here.\n")
-    with pytest.raises(SystemExit) as e:
-        no_network.push_release(str(release_dir))
-    assert e.value.code == 1
-
-
 def test_push_stops_before_upload_on_fill_in(release_dir, no_network):
     data = json.loads((release_dir / "release.json").read_text())
     data["artist"] = "FILL_IN"
@@ -152,11 +145,12 @@ class FakeSftp:
         pass
 
 
-def test_push_without_any_platform_url(release_dir, data_dir, monkeypatch):
+def run_push(release_dir, data_dir, monkeypatch, **release_changes):
+    """Full push against a fake CDN; returns (saved entry, fake sftp)."""
     import commands.push as push
 
     (release_dir / "release.json").write_text(json.dumps({
-        **json.loads((release_dir / "release.json").read_text()), "platforms": {}}))
+        **json.loads((release_dir / "release.json").read_text()), **release_changes}))
     for br in ("128", "320"):
         d = release_dir / "export" / "mp3" / br
         d.mkdir(parents=True)
@@ -166,10 +160,18 @@ def test_push_without_any_platform_url(release_dir, data_dir, monkeypatch):
         "CDN_HOST": "h", "CDN_USER": "u", "CDN_PROTOCOL": "sftp", "CDN_PUBLIC_URL": "https://cdn.example"})
     monkeypatch.setattr(push, "sftp_connect", lambda env: (sftp, FakeSftp()))
     monkeypatch.setattr(push, "RELEASES_PATH", data_dir / "releases.json")
-
     push.push_release(str(release_dir))
+    return json.loads((data_dir / "releases.json").read_text())["releases"][0], sftp
 
-    saved = json.loads((data_dir / "releases.json").read_text())["releases"][0]
+
+def test_push_without_text_or_date_goes_through_without_placeholders(release_dir, data_dir, monkeypatch):
+    (release_dir / "about.md").write_text("# T\n\nWrite your release description here.\n")
+    saved, _ = run_push(release_dir, data_dir, monkeypatch, release_date="YYYY-MM-DD", platforms={})
+    assert saved["about"] == "" and "release_date" not in saved
+
+
+def test_push_without_any_platform_url(release_dir, data_dir, monkeypatch):
+    saved, sftp = run_push(release_dir, data_dir, monkeypatch, platforms={})
     assert saved["catalog"] == "TMR-099" and saved["platforms"] == []
     assert saved["tracks"][0]["url"].endswith("/128/01_first.mp3")
     assert len(sftp.uploaded) == 3  # 128k + 320k MP3 and the raw cover (no export/artwork)

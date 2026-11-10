@@ -37,6 +37,11 @@ def test_a_ok_needs_audio_and_cover(release_dir):
     assert release_status(None, release_dir, None)["A"] == "open"
 
 
+def test_v_stays_ok_without_about_text(release_dir):
+    (release_dir / "about.md").unlink()
+    assert release_status(None, release_dir, None)["V"] == "ok"
+
+
 def test_v_open_with_fill_in(release_dir):
     assert release_status(None, release_dir, None)["V"] == "ok"
     p = release_dir / "release.json"
@@ -46,14 +51,22 @@ def test_v_open_with_fill_in(release_dir):
     assert release_status(None, release_dir, None)["V"] == "open"
 
 
-def test_validation_problems_name_each_reason(tmp_path):
+def test_blockers_and_warnings_are_separate(tmp_path):
     from studio.folders import create_release
-    d = create_release(tmp_path, "TMR-050", "Aethery Fields", "Old Fog Horn")  # no tracks, no cover, no about
-    problems = validation_problems(d)
-    assert any("Release-Datum" in p for p in problems)
-    assert any("Tracks einlesen" in p for p in problems)
-    assert any("about.md" in p for p in problems)
+    from studio.status import validation_warnings
+    d = create_release(tmp_path, "TMR-050", "Aethery Fields", "Old Fog Horn")  # no tracks, date, cover, about
+    assert len(validation_problems(d)) == 1 and "Tracks einlesen" in validation_problems(d)[0]
+    warnings = " ".join(validation_warnings(d))
+    assert "Release-Datum" in warnings and "Releasetext" in warnings and "Cover-Name" in warnings
     assert validation_problems(tmp_path / "missing") == ["release.json fehlt"]
+
+
+def test_fill_in_artist_is_a_blocker(release_dir):
+    p = release_dir / "release.json"
+    d = json.loads(p.read_text())
+    d["artist"] = "FILL_IN"
+    p.write_text(json.dumps(d))
+    assert validation_problems(release_dir) == ["Artist fehlt"]
 
 
 def test_validation_problems_empty_for_complete_release(release_dir):
@@ -67,7 +80,10 @@ def test_missing_audio_file_is_a_problem(release_dir):
 
 def test_pushed_release_does_not_count_open_a_v_k_but_keeps_stale(release_dir):
     assert release_status(entry(), release_dir, None)["V"] == "ok"
-    (release_dir / "about.md").write_text("# T\n")
+    p = release_dir / "release.json"
+    d = json.loads(p.read_text())
+    d["artist"] = "FILL_IN"
+    p.write_text(json.dumps(d))
     s = release_status(entry(), release_dir, None)
     assert (s["A"], s["V"], s["K"]) == ("ok", "na", "na")
     mp3s(release_dir, cover_newer=True)

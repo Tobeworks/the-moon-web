@@ -82,8 +82,7 @@ def validate_release(release_path: str, generate_md: bool = False):
 
     about_path = path / 'about.md'
     if not about_path.exists() or about_is_placeholder(about_path.read_text(encoding='utf-8')):
-        fail("about.md — missing or still the placeholder text")
-        errors.append('about.md')
+        warn("about.md — empty or still the placeholder text (push still works)")
     else:
         ok("about.md written")
 

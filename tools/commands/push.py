@@ -17,7 +17,8 @@ from pathlib import Path
 
 from colorama import init, Fore, Style
 
-from commands.checks import PLATFORM_NAMES, publish_problems
+from commands.checks import (PLATFORM_NAMES, about_is_placeholder, is_placeholder,
+                             publish_problems, publish_warnings)
 
 init(autoreset=True)
 
@@ -298,6 +299,8 @@ def build_entry(release, about, cover, artwork, existing, urls) -> dict:
         })
 
     release_date = release.get("release_date", "")
+    if is_placeholder(release_date):
+        release_date = ""  # "YYYY-MM-DD" must not reach the site
     year = release.get("year") or (release_date[:4] if release_date[:4].isdigit() else "")
 
     platforms = dict(release.get("platforms") or release.get("plaforms") or {})
@@ -390,7 +393,11 @@ def push_release(release_path: str):
             fail(pr)
         fail("Not publishable yet — nothing was uploaded.")
         sys.exit(1)
-    ok("Release data complete (no placeholders)")
+    for w in publish_warnings(data, about):
+        warn(w)
+    if about_is_placeholder(about):
+        about = ""  # never publish the generator's placeholder text
+    ok("Release data ok")
 
     # ── Resolve audio files ────────────────────────────────────────────────────
     header("3. ASSETS")

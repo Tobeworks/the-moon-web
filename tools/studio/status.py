@@ -9,7 +9,7 @@ import subprocess
 from datetime import date
 from pathlib import Path
 
-from commands.checks import publish_problems
+from commands.checks import publish_problems, publish_warnings
 from commands.convert import cover_is_newer
 from studio.config import Config
 from studio.folders_types import AUDIO_EXT, IMAGE_EXT
@@ -40,20 +40,30 @@ def _step_assets(folder: Path) -> str:
     return "ok" if ok else "open"
 
 
-PROBLEM_DE = {
-    "artist": "Artist fehlt", "title": "Titel fehlt", "catalog": "Katalognummer fehlt",
-    "release_date": "Release-Datum fehlt", "artwork.cover": "Cover-Name fehlt (Tracks einlesen)",
-    "about.md": "about.md ist leer oder noch der Platzhalter",
+PROBLEM_DE = {"artist": "Artist fehlt", "title": "Titel fehlt", "catalog": "Katalognummer fehlt"}
+WARNING_DE = {
+    "release_date": "Kein Release-Datum: gilt sofort als veröffentlicht",
+    "artwork.cover": "Cover-Name nicht gesetzt („Tracks einlesen“ trägt ihn ein)",
+    "about.md": "Kein Releasetext: der Text auf der Website bleibt leer",
 }
 
 
+def _release_and_about(folder: Path):
+    about_path = folder / "about.md"
+    return _read_release(folder), about_path.read_text(encoding="utf-8") if about_path.exists() else ""
+
+
+def validation_warnings(folder: Path) -> list[str]:
+    """Hints that do not block a push, in plain German."""
+    release, about = _release_and_about(folder)
+    return [] if release is None else [WARNING_DE.get(w.split(" ")[0], w) for w in publish_warnings(release, about)]
+
+
 def validation_problems(folder: Path) -> list[str]:
-    """Why the release data is not complete yet, in plain German. Empty list = complete."""
-    release = _read_release(folder)
+    """What blocks a push: missing basics, in plain German. Empty list = ready."""
+    release, about = _release_and_about(folder)
     if release is None:
         return ["release.json fehlt"]
-    about_path = folder / "about.md"
-    about = about_path.read_text(encoding="utf-8") if about_path.exists() else ""
     problems = [PROBLEM_DE.get(p.split(" ")[0], p) for p in publish_problems(release, about)]
     tracks = release.get("tracks") or []
     if not tracks:

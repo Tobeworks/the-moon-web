@@ -31,15 +31,22 @@ def about_is_placeholder(text: str) -> bool:
     return all(line.startswith("#") or not line.strip() for line in text.splitlines())
 
 
-def publish_problems(release: dict, about: str) -> list[str]:
-    """Reasons why a release must not be pushed yet. Empty list = fine."""
-    problems = [
+def publish_problems(release: dict, about: str = "") -> list[str]:
+    """Reasons why a release must not be pushed. Only what the site cannot do without."""
+    return [
         f"{field} is missing or still a placeholder"
-        for field in ("artist", "title", "catalog", "release_date")
+        for field in ("artist", "title", "catalog")
         if is_placeholder(release.get(field))
     ]
+
+
+def publish_warnings(release: dict, about: str) -> list[str]:
+    """Things worth fixing that do not stop a push (it still goes through)."""
+    warnings = []
+    if is_placeholder(release.get("release_date")):
+        warnings.append("release_date is missing — the release counts as released immediately")
     if is_placeholder((release.get("artwork") or {}).get("cover")):
-        problems.append("artwork.cover is missing or still a placeholder")
+        warnings.append("artwork.cover is not set")
     if about_is_placeholder(about):
-        problems.append("about.md is missing or still the placeholder text")
-    return problems
+        warnings.append("about.md is empty or still the placeholder — the release text will be blank")
+    return warnings

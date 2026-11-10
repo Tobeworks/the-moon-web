@@ -161,10 +161,21 @@ def test_push_starts_job_when_ready(client, folder, jobs, studio_env):
     assert jobs.started == [[str(studio_env.tmr), "push", str(folder)]]
 
 
-def test_detail_lists_problems(client, folder):
+def test_missing_text_is_a_warning_not_a_push_blocker(client, folder, jobs):
     (folder / "about.md").write_text("# T\n")
-    p = client.get("/api/releases/TMR-099").json()["problems"]
-    assert any("about.md" in x for x in p["validation"]) and any("about.md" in x for x in p["push"])
+    d = client.get("/api/releases/TMR-099").json()
+    assert d["problems"] == {"validation": [], "push": []}
+    assert any("Releasetext" in w for w in d["warnings"])
+    assert client.post("/api/releases/TMR-099/push", json={"confirm": "TMR-099"}).status_code == 200
+
+
+def test_detail_lists_blockers(client, folder):
+    p = folder / "release.json"
+    d = json.loads(p.read_text())
+    d["title"] = "FILL_IN"
+    p.write_text(json.dumps(d))
+    problems = client.get("/api/releases/TMR-099").json()["problems"]
+    assert problems["validation"] == ["Titel fehlt"] and "Titel fehlt" in problems["push"]
 
 
 def test_push_needs_no_platform_url(client, folder, jobs, studio_env):

@@ -134,12 +134,16 @@ Der Knopf ist grau, wenn eine der Meldungen darunter steht (auch im Panel Metada
 
 | Meldung | Ursache |
 |---|---|
-| `Artist fehlt`, `Titel fehlt`, `Release-Datum fehlt` | unter Metadaten ausfüllen und speichern |
-| `Keine Tracks …` / `Cover-Name fehlt` | Audiodateien hinzufügen, dann **Tracks einlesen** |
-| `about.md ist leer oder noch der Platzhalter` | Releasetext schreiben (oder mit KI entwerfen) und speichern |
+| `Artist fehlt`, `Titel fehlt`, `Katalognummer fehlt` | unter Metadaten ausfüllen und speichern |
+| `Keine Tracks …` | Audiodateien hinzufügen, dann **Tracks einlesen** |
 | `Noch nicht konvertiert` | erst Konvertieren |
 | `Cover ist neuer als die MP3s` | Konvertieren mit **Überschreiben** |
 | `missing in .env: …` | CDN-Schlüssel in der `.env` im Repo-Root fehlen |
+
+Mehr braucht der Push nicht. **Kein** Hindernis sind Releasetext, Release-Datum, Cover-Name, Genre
+und Plattform-Links (auch keine Bandcamp-URL). Dazu zeigt das Studio nur **Hinweise**. Ohne Text
+bleibt der Text auf der Website leer, ein Platzhalter-Text wird nie veröffentlicht. Ohne Datum gilt
+das Release sofort als veröffentlicht.
 
 ---
 
@@ -147,7 +151,7 @@ Der Knopf ist grau, wenn eine der Meldungen darunter steht (auch im Panel Metada
 
 ```bash
 ./tools/tmr generate <asset-ordner>              # release.json aus den Audiodateien (behält Handarbeit)
-./tools/tmr validate <asset-ordner>              # Prüfung (--generate-md schreibt release_draft.md)
+./tools/tmr validate <asset-ordner>              # volle Prüfung (strenger als der Push; --generate-md schreibt release_draft.md)
 ./tools/tmr convert  <asset-ordner> [--force]    # WAV/AIFF → MP3 128k + 320k, ID3-Tags, Cover-Varianten
 ./tools/tmr push     <asset-ordner>              # CDN-Upload + data/releases.json (geht nach außen!)
 ./tools/tmr social   <asset-ordner> --init       # social.json anlegen, dann bearbeiten

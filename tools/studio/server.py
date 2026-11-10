@@ -16,7 +16,8 @@ from studio import ai, dsp, folders, gitops
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
 from studio.progress import progress
-from studio.status import _step_converted, find_folder, list_releases, validation_problems
+from studio.status import (_step_converted, find_folder, list_releases, validation_problems,
+                           validation_warnings)
 
 CATALOG_RE = re.compile(r"^TMR-\d{3,}$")
 RUN_STEPS = {"generate", "validate", "convert", "social"}
@@ -215,6 +216,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                 "about": about_of(folder),
                 "problems": {"validation": validation_problems(folder) if folder else [],
                              "push": push_problems(catalog, folder, entry)},
+                "warnings": validation_warnings(folder) if folder else [],
                 "files": {"audio": names("audio", folders.AUDIO_EXT),
                           "artwork": names("artwork", folders.IMAGE_EXT),
                           "mp3": [f"{f.parent.name}/{f.name}" for f in mp3_files(folder)] if folder else [],
@@ -300,7 +302,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                      if l.startswith("CDN_PUBLIC_URL=")), "")
         return {"files": files, "total_bytes": sum(f["size"] for f in files),
                 "target": f"{base}/releases/{folder.name}/",
-                "problems": push_problems(catalog, folder, entry)}
+                "problems": push_problems(catalog, folder, entry),
+                "warnings": validation_warnings(folder)}
 
     @app.post("/api/releases/{catalog}/push")
     def push(catalog: str, body: Push):

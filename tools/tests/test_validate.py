@@ -31,16 +31,11 @@ def test_placeholder_cover_name_is_rejected(release_dir):
         validate_release(str(release_dir))
 
 
-def test_placeholder_about_is_rejected(release_dir):
+def test_placeholder_or_missing_about_is_only_a_warning(release_dir):
     (release_dir / "about.md").write_text("# T\n\nWrite your release description here.\n")
-    with pytest.raises(SystemExit):
-        validate_release(str(release_dir))
-
-
-def test_missing_about_is_rejected(release_dir):
+    validate_release(str(release_dir))
     (release_dir / "about.md").unlink()
-    with pytest.raises(SystemExit):
-        validate_release(str(release_dir))
+    validate_release(str(release_dir))
 
 
 def test_jpg_cover_is_accepted(release_dir):
