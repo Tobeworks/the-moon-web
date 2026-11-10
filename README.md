@@ -13,7 +13,7 @@ Built with Astro, Tailwind CSS v4, Vue 3, and PocketBase.
 - **[Vue 3](https://vuejs.org)** + **[Pinia](https://pinia.vuejs.org)** + **[Vue Router](https://router.vuejs.org)** — admin SPA
 - **[PocketBase](https://pocketbase.io)** v0.36 — self-hosted backend (newsletter, promo system, feedback, campaigns, promo list)
 - **[Nodemailer](https://nodemailer.com)** — transactional email
-- **[the-moon-os](https://github.com/Tobeworks/the-moon-os)** — git submodule containing release data (`data/releases.json`) and shared assets
+- **`data/releases.json`** — release data (source of truth), maintained via `tools/tmr`
 
 ---
 
@@ -61,7 +61,7 @@ pnpm start
 
 ### Release pages
 
-Releases are stored in `the-moon-os/data/releases.json` (git submodule). Each release has a dedicated page at `/releases/[catalog-slug]` with:
+Releases are stored in `data/releases.json`. Each release has a dedicated page at `/releases/[catalog-slug]` with:
 
 - Artwork, metadata, platform links
 - Embedded audio player (`src/components/AudioPlayer.astro`)
@@ -227,8 +227,8 @@ src/
     releases/         # Release detail pages
   styles/
     global.css        # Tailwind v4 theme tokens + base styles
-the-moon-os/          # Git submodule — release data + shared assets
-tools/
+data/                 # Release data (releases.json) + schema
+tools/                # tmr toolchain (convert, push, ...)
   pocketbase/
     pb_migrations/    # PocketBase schema migrations (run on startup)
 ```

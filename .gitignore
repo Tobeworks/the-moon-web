@@ -40,3 +40,7 @@ Icon[
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# tmr toolchain venv
+tools/venv/
+__pycache__/

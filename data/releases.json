@@ -1,0 +1,1252 @@
+{
+  "$schema": "./releases.schema.json",
+  "_meta": {
+    "generated": "2026-11-09T16:19:45.832481+00:00",
+    "label": "The Moon Records",
+    "version": "1"
+  },
+  "releases": [
+    {
+      "catalog": "TMR-017",
+      "artist": "Logic Moon",
+      "title": "Perihelion Drift",
+      "format": "EP",
+      "year": "2026",
+      "genre": "Dark Ambient",
+      "about": "# Perihelion Drift\n\nTwo pieces of dark ambient from Logic Moon. The title comes from orbital mechanics: perihelion is the point where a body passes closest to the sun.\n\n\"Perihelion Drift\" and \"Velum\" are both massive and rain-heavy, dark from start to finish, with very little that offers a way out. \"Velum\" is Latin for veil.",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Perihelion Drift",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/128/01_perihelion_drift.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/320/01_perihelion_drift.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Velum",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/128/02_velum.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/320/02_velum.mp3"
+        }
+      ],
+      "pushed_at": "2026-11-09T16:19:45.832141+00:00",
+      "release_date": "2026-11-13"
+    },
+    {
+      "catalog": "TMR-016",
+      "artist": "Logic Moon & Diogene",
+      "title": "Sometimes In Your Dreams",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "about": "# Sometimes In Your Dreams\n\nLogic Moon and Diogene return together, following up on \u201cMiracles\u201d, their last release on Siril Records. Where that record looked up, this one closes its eyes.\n\n\u201cSometimes In Your Dreams\u201d stays in the half-awake zone: slow harmonic layers that drift in and out of focus, familiar shapes that dissolve when you try to hold them. Nothing is rushed, nothing quite arrives, it just keeps unfolding, the way a dream does before you remember it.",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/sometimes-in-your-dreams"
+        }
+      ],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Sometimes In Your Dreams",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/audio/128/01_sometimes_in_your_dreams.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/audio/320/01_sometimes_in_your_dreams.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Heart Blast",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/audio/128/02_heart_blast.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/audio/320/02_heart_blast.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Heart Blast (Slwd)",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/audio/128/03_heart_blast_slwd_01.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-016-logic-moon-diogene-sometimes-in-your-dreams/audio/320/03_heart_blast_slwd_01.mp3"
+        }
+      ],
+      "pushed_at": "2026-10-22T08:35:29.850657+00:00",
+      "release_date": "2026-10-30"
+    },
+    {
+      "catalog": "TMR-015",
+      "artist": "Logic Moon",
+      "title": "The North",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "about": "# The North\n\nTwo pieces from Logic Moon that face away from the light. The North is not a place on a map, it is a direction of travel \u2014 and everything that way gets colder, thinner, quieter.\n\nSpectre opens in half-light. Sustained tones that never quite resolve, something moving at the edge of hearing. The North follows it out into the open, where the air is thin enough to see through and the reverb runs longer than it should.\n\nEthereal, but not weightless. Something is underneath.",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/the-north"
+        }
+      ],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Spectre",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/audio/128/01_spectre.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/audio/320/01_spectre.mp3"
+        },
+        {
+          "number": 2,
+          "title": "The North",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/audio/128/02_the_north.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-015-logic-moon-the-north/audio/320/02_the_north.mp3"
+        }
+      ],
+      "pushed_at": "2026-08-29T09:05:08.893501+00:00",
+      "release_date": "2026-09-04"
+    },
+    {
+      "catalog": "TMR-014",
+      "artist": "Logic Moon & Henrik Meierkord",
+      "title": "Spelrum",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "about": "# Spelrum\n\nA collaboration between Logic Moon and Henrik Meierkord \u2014 two ambient practitioners meeting in the space between control and drift. \"Spelrum\" is Swedish for room to move, leeway, the margin left open for something to happen. That's the record: two players trading restraint for restraint, until what's left is the gap between them.\n\n\"Tidsmarginal\" opens the EP as its emotional core \u2014 slow, aching tonal shifts measured against a clock that never quite resolves. \"Spelrum\" closes it under tension, low tones held taut rather than released, cello overtones bowing through the mix, the leeway of the title never fully cashed in.\n\nTwo tracks. No excess. The Moon Records at its coldest and most patient.",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/spelrum"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/album/3n44fuZZ3eyZNR66oAcwNI"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/spelrum-single/6817846373"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0HLLSZLCP"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/sets/spelrum"
+        }
+      ],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Tidsmarginal",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/audio/128/01_tidsmarginal.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/audio/320/01_tidsmarginal.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Spelrum",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/audio/128/02_spelrum.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-014-logic-moon-henrik-meierkord-spelrum/audio/320/02_spelrum.mp3"
+        }
+      ],
+      "pushed_at": "2026-08-14T05:54:27.666708+00:00",
+      "release_date": "2026-08-14"
+    },
+    {
+      "catalog": "TMR-013",
+      "artist": "Aethery Fields",
+      "title": "Sub Lacuna",
+      "format": "Album",
+      "year": "2026",
+      "genre": "Ambient",
+      "about": "# Sub Lacuna\n\nThe new album from Aethery Fields is a journey into the damp, pressurised depths of the subconscious. Where earlier works drifted through foggy expanses, this album descends, slowly, irreversibly, through layers of sound that feel like water. Cold. Alive. Restless.\nTurbulent textures meet organic stillness. Kelp forests sway in the shifting light of currents. The ocean floor breathes. Sub Lacuna is the most experimental work under the Aethery Fields banner to date, an album that sounds wet, in every sense of the word.\nTracks like Sub Lacuna, Kelp Reef Garden and Sea Floor are not merely locations. They are states of being. Levels of consciousness. Measures of pressure.",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/sub-lacuna"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/album/2bxN0dpZaHsUWobKqZy7Zk"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/sub-lacuna/6782685097"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0H2Q78WZH"
+        }
+      ],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Still Bay Nautica",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/01_still_bay_nautica.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/01_still_bay_nautica.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Sub Lacuna",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/02_sub_lacuna.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/02_sub_lacuna.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Kelp Reef Garden",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/03_kelp_reef_garden.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/03_kelp_reef_garden.mp3"
+        },
+        {
+          "number": 4,
+          "title": "Anemone Foam",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/04_anemone_foam.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/04_anemone_foam.mp3"
+        },
+        {
+          "number": 5,
+          "title": "Filigree Urchin",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/05_filigree_urchin.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/05_filigree_urchin.mp3"
+        },
+        {
+          "number": 6,
+          "title": "Pale Blue Coral",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/06_pale_blue_coral.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/06_pale_blue_coral.mp3"
+        },
+        {
+          "number": 7,
+          "title": "Plume Atoll",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/07_plume_atoll.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/07_plume_atoll.mp3"
+        },
+        {
+          "number": 8,
+          "title": "Sea Floor",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/128/08_sea_floor.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-013-aethery-fields-sub-lacuna/audio/320/08_sea_floor.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-21T12:09:07.842958+00:00",
+      "release_date": "2026-05-15"
+    },
+    {
+      "catalog": "TMR-012",
+      "artist": "Logic Moon",
+      "title": "Stellar Refuge",
+      "format": "Single",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/stellar-refuge"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/stellar-refuge"
+        }
+      ],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Stellar Refuge",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/audio/128/01_logic_moon_stellar_refuge.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-012-logic-moon-stellar-refuge/audio/320/01_logic_moon_stellar_refuge.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-16T13:08:50.004017+00:00",
+      "release_date": "2026-04-17"
+    },
+    {
+      "catalog": "TMR-011",
+      "artist": "Logic Moon",
+      "title": "Clockworks",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Clockwork",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/audio/128/01_logic_moon_clockwork.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/audio/320/01_logic_moon_clockwork.mp3"
+        },
+        {
+          "number": 2,
+          "title": "The Last Of Us",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/audio/128/02_logic_moon_the_last_of_us.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-011-logic-moon-clockworks/audio/320/02_logic_moon_the_last_of_us.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:21:30.279498+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/clockworks"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/clockwork"
+        }
+      ],
+      "release_date": "2026-03-17T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-010",
+      "artist": "Logic Moon",
+      "title": "It May Never Coming Back",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "D4Rk",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/audio/128/01_logic_moon_d4rk.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/audio/320/01_logic_moon_d4rk.mp3"
+        },
+        {
+          "number": 2,
+          "title": "It May Not Coming Back",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/audio/128/02_logic_moon_it_may_not_coming_back.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/audio/320/02_logic_moon_it_may_not_coming_back.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Shdws",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/audio/128/03_logic_moon_shdws.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-010-logic-moon-it-may-never-coming-back/audio/320/03_logic_moon_shdws.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:20:43.442298+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/it-may-never-coming-back"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/sets/it-may-never-coming-back"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/album/5cRFOsGT9aFprlVqCbRstu"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/it-may-never-coming-back-single/6804971310"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0HGFG1CWK"
+        }
+      ],
+      "release_date": "2026-01-02T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-009",
+      "artist": "Aethery Fields",
+      "title": "hello.",
+      "format": "Album",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Still",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/01_01_still.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/01_01_still.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Kind",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/02_02_kind.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/02_02_kind.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Song1",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/03_03_song1.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/03_03_song1.mp3"
+        },
+        {
+          "number": 4,
+          "title": "Memo",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/04_04_memo.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/04_04_memo.mp3"
+        },
+        {
+          "number": 5,
+          "title": "Searching",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/05_05_searching.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/05_05_searching.mp3"
+        },
+        {
+          "number": 6,
+          "title": "Tapone",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/06_06_tapone.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/06_06_tapone.mp3"
+        },
+        {
+          "number": 7,
+          "title": "Fall",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/07_07_fall.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/07_07_fall.mp3"
+        },
+        {
+          "number": 8,
+          "title": "Wounds",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/08_08_wounds.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/08_08_wounds.mp3"
+        },
+        {
+          "number": 9,
+          "title": "Morning Waves",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/09_09_morning_waves.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/09_09_morning_waves.mp3"
+        },
+        {
+          "number": 10,
+          "title": "10   Poets",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/128/10_10_poets.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-009-aethery-fields-hello/audio/320/10_10_poets.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:19:31.665183+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/hello"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/album/6WtFQ5S4DW3gFrb1SUHgeZ"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/hello/1879244541"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0GPNJMLJP"
+        }
+      ],
+      "release_date": "2025-11-21T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-008",
+      "artist": "Aethery Fields",
+      "title": "\u30b9\u30e9\u30a4\u30f3",
+      "format": "Single",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Debut",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/audio/128/01_aethery_fields_debut.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-008-aethery-fields-debut/audio/320/01_aethery_fields_debut.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:16:38.795670+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/-"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/album/0IiHrjhYraVi8i7LTVRrpA"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/%E3%82%B9%E3%83%A9%E3%82%A4%E3%83%B3-single/1841797203"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0FSCSN95Z"
+        }
+      ],
+      "release_date": "2025-09-22T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-007",
+      "artist": "Logic Moon",
+      "title": "Reminiscence",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "On",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/audio/128/01_logic_moon_on.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/audio/320/01_logic_moon_on.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Reminiscence",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/audio/128/02_logic_moon_reminiscence.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-007-logic-moon-reminiscence/audio/320/02_logic_moon_reminiscence.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:15:49.779798+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/reminiscence"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/album/0w7U9kPwyVdJmZogOwakzy"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/reminiscence-single/6771725858"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0H2J14PQG"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/sets/reminiscence"
+        }
+      ],
+      "release_date": "2025-09-04T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-006",
+      "artist": "Logic Moon",
+      "title": "Heim",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Alfheim",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/audio/128/01_logic_moon_alfheim.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/audio/320/01_logic_moon_alfheim.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Helheim",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/audio/128/02_logic_moon_helheim.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-006-logic-moon-heim/audio/320/02_logic_moon_helheim.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:15:08.978355+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/heim"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/album/6v7jTE6nbqHTQ6Hte1UvkY"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/heim-single/1879494358"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0GPR9BX7N"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/sets/heim"
+        }
+      ],
+      "release_date": "2025-10-10T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-005",
+      "artist": "Logic Moon",
+      "title": "Metamorphosis",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Metamorphosis",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/audio/128/01_logic_moon_metamorphosis_01_metamorphosis.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/audio/320/01_logic_moon_metamorphosis_01_metamorphosis.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Stasis",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/audio/128/02_logic_moon_metamorphosis_02_stasis.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-005-logic-moon-metamorphosis/audio/320/02_logic_moon_metamorphosis_02_stasis.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:14:20.553845+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/metamorphosis"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/album/4ARC06MQafSSiejvfHPTJw"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/metamorphosis-single/1842322314"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0FSSHYYQ1"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/metamorphosis-part-1"
+        }
+      ],
+      "release_date": "2025-05-05T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-004",
+      "artist": "Logic Moon",
+      "title": "Memories Of Tomorrow",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Re\u0301Union",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/128/01_logic_moon_memories_of_tomorrow_01_reunion.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/320/01_logic_moon_memories_of_tomorrow_01_reunion.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Memories Of Tomorrow",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/128/02_logic_moon_memories_of_tomorrow_02_memories_of_tomorrow.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/320/02_logic_moon_memories_of_tomorrow_02_memories_of_tomorrow.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Lunar",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/128/03_logic_moon_memories_of_tomorrow_03_lunar.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/320/03_logic_moon_memories_of_tomorrow_03_lunar.mp3"
+        },
+        {
+          "number": 4,
+          "title": "This Will Destroy You",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/128/04_logic_moon_memories_of_tomorrow_04_this_will_destroy_you.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-004-logic-moon-memories-of-tomorrow/audio/320/04_logic_moon_memories_of_tomorrow_04_this_will_destroy_you.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:13:35.664352+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/memories-of-tomorrow"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/album/7JuDYWfUR7jB2FtvUj793U"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/memories-of-tomorrow-ep/1852307450"
+        },
+        {
+          "name": "deezer",
+          "url": "https://www.deezer.com/de/album/854570502"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0G1VMD699"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/memories-of-tomorrow"
+        }
+      ],
+      "release_date": "2025-06-03T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-003",
+      "artist": "Logic Moon",
+      "title": "Atlas",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Atlas",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/audio/128/01_logic_moon_atlas.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/audio/320/01_logic_moon_atlas.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Emeril Fields",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/audio/128/02_logic_moon_emeril_fields.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/audio/320/02_logic_moon_emeril_fields.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Magno Gold",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/audio/128/03_logic_moon_magno_gold.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-003-logic-moon-atlas/audio/320/03_logic_moon_magno_gold.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T13:30:03.246691+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/atlas"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/album/4Vz7VMzLCYPmfg8v3gguav"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/atlas-single/1815128687"
+        },
+        {
+          "name": "deezer",
+          "url": "https://www.deezer.com/de/album/758645881"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0F92QS7Z2"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/sets/atlas"
+        }
+      ],
+      "release_date": "2025-03-08T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-002",
+      "artist": "Logic Moon",
+      "title": "Glow",
+      "format": "EP",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Glow",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/128/01_01_glow.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/320/01_01_glow.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Seance",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/128/02_02_seance.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/320/02_02_seance.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Heima",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/128/03_03_heima.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/320/03_03_heima.mp3"
+        },
+        {
+          "number": 4,
+          "title": "Manifest",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/128/04_04_manifest.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-002-logic-moon-glow/audio/320/04_04_manifest.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:11:16.783027+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/glow"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/track/4ACTvBLX61RTSr4sKIsf1F"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/glow-ep/1803080150"
+        },
+        {
+          "name": "deezer",
+          "url": "https://www.deezer.com/de/album/724974921"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0DZXSWLML"
+        },
+        {
+          "name": "soundcloud",
+          "url": "https://soundcloud.com/logic-moon/glow"
+        }
+      ],
+      "release_date": "2025-01-06T00:00:00+00:00"
+    },
+    {
+      "catalog": "TMR-001",
+      "artist": "Logic Moon",
+      "title": "Music For Film Vol.1",
+      "format": "Album",
+      "year": "",
+      "genre": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/artwork/cover_600.webp"
+        }
+      },
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Outland",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/01_outland.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/01_outland.mp3"
+        },
+        {
+          "number": 2,
+          "title": "New Arcadia",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/02_new_arcadia.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/02_new_arcadia.mp3"
+        },
+        {
+          "number": 3,
+          "title": "Settlers",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/03_settlers.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/03_settlers.mp3"
+        },
+        {
+          "number": 4,
+          "title": "Metropolis",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/04_metropolis.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/04_metropolis.mp3"
+        },
+        {
+          "number": 5,
+          "title": "Horizon",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/05_horizon.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/05_horizon.mp3"
+        },
+        {
+          "number": 6,
+          "title": "Meld",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/06_meld.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/06_meld.mp3"
+        },
+        {
+          "number": 7,
+          "title": "Tranqility",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/07_tranqility.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/07_tranqility.mp3"
+        },
+        {
+          "number": 8,
+          "title": "Artifacts",
+          "runtime": "",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/128/08_artifacts.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-001-logic-moon-music-for-film-vol-1/audio/320/08_artifacts.mp3"
+        }
+      ],
+      "pushed_at": "2026-04-14T11:10:19.719107+00:00",
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/music-for-film-vol-1"
+        },
+        {
+          "name": "spotify",
+          "url": "https://open.spotify.com/intl-de/album/6NY5fLgoTaGBouYPXHnaTj"
+        },
+        {
+          "name": "apple_music",
+          "url": "https://music.apple.com/us/album/music-for-film-vol-1/1783088680"
+        },
+        {
+          "name": "deezer",
+          "url": "https://www.deezer.com/de/album/678796311"
+        },
+        {
+          "name": "amazon_music",
+          "url": "https://music.amazon.com/albums/B0DPHR2J3N"
+        }
+      ],
+      "release_date": "2024-11-25T00:00:00+00:00"
+    }
+  ]
+}

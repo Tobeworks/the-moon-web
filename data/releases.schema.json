@@ -1,0 +1,200 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Releases",
+    "description": "Schema for releases.json data files",
+    "type": "object",
+    "required": [
+        "_meta",
+        "releases"
+    ],
+    "additionalProperties": false,
+    "properties": {
+        "_meta": {
+            "type": "object",
+            "required": [
+                "generated",
+                "label",
+                "version"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "generated": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp when the file was generated"
+                },
+                "label": {
+                    "type": "string",
+                    "description": "Label name"
+                },
+                "version": {
+                    "type": "string",
+                    "description": "Schema version"
+                }
+            }
+        },
+        "releases": {
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/release"
+            }
+        }
+    },
+    "$defs": {
+        "release": {
+            "type": "object",
+            "required": [
+                "catalog",
+                "artist",
+                "title",
+                "format",
+                "tracks",
+                "pushed_at"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "catalog": {
+                    "type": "string",
+                    "pattern": "^TMR-\\d{3,}$",
+                    "description": "Catalog number (e.g., TMR-001)"
+                },
+                "artist": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "format": {
+                    "type": "string",
+                    "enum": [
+                        "Single",
+                        "EP",
+                        "LP",
+                        "Album",
+                        "Compilation",
+                        "Mixtape"
+                    ]
+                },
+                "year": {
+                    "type": "string",
+                    "pattern": "^$|^\\d{4}$",
+                    "description": "Release year (4 digits) or empty string"
+                },
+                "genre": {
+                    "type": "string"
+                },
+                "about": {
+                    "type": "string",
+                    "description": "Release description / liner notes"
+                },
+                "credits": {
+                    "type": "string",
+                    "description": "Credits text"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Genre tags"
+                },
+                "cover": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Default cover image URL"
+                },
+                "artwork": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                            "jpg",
+                            "webp"
+                        ],
+                        "additionalProperties": false,
+                        "properties": {
+                            "jpg": {
+                                "type": "string",
+                                "format": "uri"
+                            },
+                            "webp": {
+                                "type": "string",
+                                "format": "uri"
+                            }
+                        }
+                    }
+                },
+                "platforms": {
+                    "type": "array",
+                    "description": "Streaming / purchase platform links",
+                    "items": {
+                        "type": "object",
+                        "required": ["name", "url"],
+                        "additionalProperties": true,
+                        "properties": {
+                            "name": {
+                                "type": "string",
+                                "description": "Platform identifier (e.g. bandcamp, spotify, apple_music)"
+                            },
+                            "url": {
+                                "type": "string",
+                                "format": "uri",
+                                "description": "Link to the release on this platform"
+                            }
+                        }
+                    }
+                },
+                "tracks": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/track"
+                    },
+                    "minItems": 1
+                },
+                 "release_date": {
+                                "type": "string",
+                                "format": "date",
+                                "description": "Release date (YYYY-MM-DD)"
+                            },
+                "pushed_at": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "ISO 8601 timestamp when the release was pushed"
+                }
+            }
+        },
+        "track": {
+            "type": "object",
+            "required": [
+                "number",
+                "title",
+                "url"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "number": {
+                    "type": "integer",
+                    "minimum": 1
+                },
+                "title": {
+                    "type": "string"
+                },
+                "runtime": {
+                    "type": "string",
+                    "pattern": "^$|^\\d{1,2}:\\d{2}(:\\d{2})?$",
+                    "description": "Track duration (MM:SS or HH:MM:SS) or empty string"
+                },
+                "url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Audio file URL (128kbps)"
+                },
+                "url_320": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Audio file URL (320kbps)"
+                }
+            }
+        }
+    }
+}

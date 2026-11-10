@@ -3,7 +3,7 @@
  * Used by the release page, the OG-image / story-cover endpoints and DspLinks.
  */
 import sharp from 'sharp';
-import releasesData from '../../the-moon-os/data/releases.json';
+import releasesData from '../../data/releases.json';
 
 export type Platform = { name: string; url: string };
 export type Release = (typeof releasesData.releases)[number];

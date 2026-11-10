@@ -164,7 +164,7 @@
 import { ref, onMounted } from 'vue';
 import { adminApi, newsletterSubscribersApi, type Campaign, type NewsletterSubscriber } from '../../../lib/admin-api';
 import { buildReleaseNewsletter } from '../../../lib/newsletterTemplate';
-import releasesData from '../../../../the-moon-os/data/releases.json';
+import releasesData from '../../../../data/releases.json';
 
 const tab = ref<'campaigns' | 'subscribers'>('campaigns');
 

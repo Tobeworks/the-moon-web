@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIContext } from 'astro';
 import { getContract } from '../../../../../lib/pocketbase';
 import { sendContractSigningEmail } from '../../../../../lib/mailer';
-import releasesData from '../../../../../../the-moon-os/data/releases.json';
+import releasesData from '../../../../../../data/releases.json';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });

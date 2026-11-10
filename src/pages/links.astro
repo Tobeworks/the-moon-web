@@ -4,7 +4,7 @@ export const prerender = false;
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ReleaseSpotlight from '../components/ReleaseSpotlight.astro';
 import { getLinktreeItems } from '../lib/pocketbase';
-import releasesData from '../../the-moon-os/data/releases.json';
+import releasesData from '../../data/releases.json';
 
 const items = await getLinktreeItems();
 

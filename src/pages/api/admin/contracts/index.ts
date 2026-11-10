@@ -5,7 +5,7 @@ import { getContracts, getContractTemplate, createContract } from '../../../../l
 import { sendContractSigningEmail } from '../../../../lib/mailer';
 import { generateSigningToken } from '../../../../lib/splitSheetHash';
 import { renderTemplate, findPlaceholders } from '../../../../lib/contractTemplate';
-import releasesData from '../../../../../the-moon-os/data/releases.json';
+import releasesData from '../../../../../data/releases.json';
 
 const json = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), { status, headers: { 'content-type': 'application/json' } });

@@ -1,0 +1,14 @@
+#!/bin/bash
+# The Moon Records CLI — bootstrapper
+# Activates venv and dispatches to the-moon.py
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+if [ ! -d "$SCRIPT_DIR/venv" ]; then
+  echo "✗ venv not found. Run: bash tools/setup.sh"
+  exit 1
+fi
+
+source "$SCRIPT_DIR/venv/bin/activate"
+python "$SCRIPT_DIR/the-moon.py" "$@"
+deactivate

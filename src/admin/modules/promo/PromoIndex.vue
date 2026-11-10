@@ -286,7 +286,7 @@ import { ref, onMounted } from 'vue';
 import { promoApi, promoRecordsApi, type PromoSubscriber, type PromoRecord } from '../../../lib/admin-api';
 
 // ── Releases (embedded from build-time import) ──────────────────────────────
-import releasesJson from '../../../../the-moon-os/data/releases.json';
+import releasesJson from '../../../../data/releases.json';
 
 interface Release { slug: string; catalog: string; title: string; artist: string; coverUrl?: string; about?: string; }
 const releases: Release[] = (releasesJson as any).releases.map((r: any) => ({

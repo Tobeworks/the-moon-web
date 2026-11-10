@@ -190,7 +190,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { splitSheetsApi, type SplitSheetWithSplits, type Split, type SplitSheetRelease } from '../../../lib/admin-api';
-import releasesJson from '../../../../the-moon-os/data/releases.json';
+import releasesJson from '../../../../data/releases.json';
 
 interface Release { catalog: string; artist: string; title: string; }
 const releases: Release[] = (releasesJson as any).releases.map((r: any) => ({
