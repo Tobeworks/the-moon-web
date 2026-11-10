@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tmr studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@200;300;400;600&family=Space+Mono&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0C0C0C; --low:#141414; --surface:#1C1C1C; --high:#252525;
+    --fg:#E8E4D8; --fg-dim:rgba(232,228,216,.9); --fg-faint:rgba(232,228,216,.7); --fg-muted:rgba(232,228,216,.55);
+    --accent:#C4B98A; --accent-dim:rgba(196,185,138,.08); --accent-border:rgba(196,185,138,.25); --accent-strong:rgba(196,185,138,.6);
+    --ok:#9DB88A; --warn:#D9A55B; --off:rgba(232,228,216,.3);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{font-size:18px}
+  body{background:var(--bg);color:var(--fg);font-family:'Josefin Sans',Futura,Arial,sans-serif;font-weight:300;line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+  .mono{font-family:'Space Mono','Courier New',monospace}
+  .label{font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--fg-muted)}
+  header{min-height:72px;display:flex;align-items:center;gap:32px;padding:0 40px;border-bottom:1px solid var(--accent-border);position:sticky;top:0;background:var(--bg);z-index:5;flex-wrap:wrap}
+  .logo{font-weight:600;letter-spacing:.3em;text-transform:uppercase}
+  .logo span{color:var(--accent)}
+  nav{display:flex;gap:8px}
+  nav a{color:var(--fg-muted);text-decoration:none;font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;padding:14px 16px;border-bottom:2px solid transparent;min-height:48px;display:flex;align-items:center}
+  nav a.on{color:var(--accent);border-bottom-color:var(--accent)}
+  .spacer{flex:1}
+  .chip{font-size:.8rem;display:flex;align-items:center;gap:8px}
+  .chip.warn{color:var(--warn)}.chip.ok{color:var(--ok)}
+  main{max-width:1280px;margin:0 auto;padding:48px 40px 96px}
+  h1{font-weight:200;font-size:2.4rem;letter-spacing:.12em;text-transform:uppercase;line-height:1.2}
+  h2{font-weight:400;font-size:1.05rem;letter-spacing:.2em;text-transform:uppercase;margin-bottom:24px}
+  .row{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+  .btn{font:inherit;font-size:.85rem;letter-spacing:.18em;text-transform:uppercase;min-height:48px;padding:0 24px;border:1px solid var(--accent-strong);color:var(--accent);background:transparent;cursor:pointer}
+  .btn:hover:not(:disabled){background:var(--accent-dim)}
+  .btn.fill{background:var(--accent);color:var(--bg);font-weight:600}
+  .btn.ghost{border-color:var(--accent-border);color:var(--fg-faint)}
+  .btn.danger{border-color:var(--warn);color:var(--warn)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  .banner{border:1px solid var(--warn);color:var(--warn);padding:16px 24px;margin-bottom:32px}
+  .banner.err{border-color:#d87a6a;color:#d87a6a}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--accent-border);border:1px solid var(--accent-border);margin:40px 0}
+  .stat{background:var(--low);padding:24px}
+  .stat b{display:block;font-weight:200;font-size:2.4rem;margin-top:8px}
+  .stat.warn b{color:var(--warn)}
+  table{width:100%;border-collapse:collapse}
+  th{text-align:left;padding:12px;font-weight:300}
+  td{padding:20px 12px;border-top:1px solid var(--accent-border);vertical-align:middle}
+  tr.click{cursor:pointer}tr.click:hover td{background:var(--accent-dim)}
+  .pipe{display:flex;gap:8px}
+  .step{min-width:48px;height:48px;padding:0 6px;border:1px solid var(--off);display:grid;place-items:center;font-size:.85rem;color:var(--off);font-family:'Space Mono',monospace}
+  .step.ok{border-color:var(--ok);color:var(--ok)}
+  .step.next{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+  .step.warn,.step.stale{border-color:var(--warn);color:var(--warn)}
+  .tag{font-size:.8rem;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border:1px solid var(--accent-border);color:var(--fg-faint);white-space:nowrap}
+  .tag.up{border-color:var(--accent);color:var(--accent)}
+  .legend{display:flex;gap:24px;flex-wrap:wrap;margin-top:24px;font-size:.8rem;color:var(--fg-muted)}
+  .note{font-size:.85rem;color:var(--fg-muted);margin-top:12px}
+  .crumb a{color:var(--accent);text-decoration:none;cursor:pointer}
+  .crumb{font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--fg-muted);margin-bottom:24px}
+  .panel{background:var(--low);border:1px solid var(--accent-border);padding:32px;margin-bottom:24px}
+  .drop{border:1px dashed var(--accent-strong);padding:40px 24px;text-align:center;color:var(--fg-faint);background:var(--accent-dim)}
+  .drop.over{background:rgba(196,185,138,.18)}
+  .drop .row{justify-content:center;margin-top:20px}
+  .files{margin-top:24px}
+  .files div{display:flex;justify-content:space-between;gap:16px;padding:10px 0;border-top:1px solid var(--accent-border);font-size:.85rem}
+  .form{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+  .form .wide{grid-column:1/-1}
+  .form label{display:block}
+  input,select,textarea{width:100%;margin-top:8px;min-height:48px;background:var(--surface);border:1px solid var(--accent-border);color:var(--fg);font:inherit;padding:10px 14px}
+  textarea{min-height:160px;resize:vertical}
+  input[type=checkbox]{width:22px;min-height:22px;margin:0 10px 0 0;vertical-align:middle}
+  .log{background:#080808;border:1px solid var(--accent-border);padding:20px;font-size:.85rem;line-height:1.7;color:var(--fg-faint);height:260px;overflow:auto;white-space:pre-wrap}
+  .log.fail{border-color:var(--warn)}
+  .dsp{display:grid;grid-template-columns:36px 160px 1fr 120px;gap:16px;align-items:center;padding:14px 0;border-top:1px solid var(--accent-border);font-size:.9rem;word-break:break-all}
+  dialog{background:var(--low);color:var(--fg);border:1px solid var(--accent-strong);padding:40px;max-width:720px;width:90%;margin:auto}
+  dialog::backdrop{background:rgba(0,0,0,.8)}
+  .problem{color:var(--warn);margin:8px 0}
+  .gap{margin-top:24px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">The Moon <span>/ Studio</span></div>
+  <nav><a href="#/" id="nav-over">Übersicht</a><a href="#/new" id="nav-new">Neu anlegen</a></nav>
+  <div class="spacer"></div>
+  <div class="chip mono" id="chip-git"></div>
+  <div class="chip mono" id="chip-cdn"></div>
+</header>
+<main id="app"></main>
+<dialog id="dlg"></dialog>
+
+<script>
+const STEP_NAMES = {A:'Assets', V:'Daten vollständig', K:'Konvertiert', P:'Gepusht (CDN)', G:'Git committet', D:'DSP-Links'};
+const NEXT_LABEL = {A:'Dateien', V:'Metadaten', K:'Konvertieren', P:'Pushen', G:'Committen', D:'DSP-Links'};
+const GLYPH = {ok:'✓', open:'·', stale:'↻', na:'–', warn:'!'};
+const $ = s => document.querySelector(s);
+let state = null, jobTimer = null;
+
+const h = (tag, props = {}, ...kids) => {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props || {})) {
+    if (k === 'class') e.className = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else if (v === true) e.setAttribute(k, '');
+    else if (v !== false && v != null) e.setAttribute(k, v);
+  }
+  for (const kid of kids.flat()) if (kid != null && kid !== false) e.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return e;
+};
+
+async function api(path, opts = {}) {
+  const init = {method: opts.method || 'GET', headers: {}};
+  if (opts.json !== undefined) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.json); }
+  if (opts.form) init.body = opts.form;
+  const res = await fetch(path, init);
+  let data = null;
+  try { data = await res.json(); } catch (e) {}
+  if (!res.ok) {
+    const d = data && data.detail;
+    const err = new Error(typeof d === 'string' ? d : (d && d.conflicts ? 'Dateien existieren schon' : res.statusText));
+    err.status = res.status; err.data = d;
+    throw err;
+  }
+  return data;
+}
+
+function banner(msg, err = true) {
+  const b = h('div', {class: 'banner' + (err ? ' err' : '')}, msg);
+  const app = $('#app'); app.prepend(b);
+  setTimeout(() => b.remove(), 8000);
+}
+const guard = fn => async (...a) => { try { await fn(...a); } catch (e) { banner(e.message); } };
+
+const fmtDate = s => s ? new Date(s + 'T00:00:00').toLocaleDateString('de-DE') : '—';
+const fmtMB = n => (n / 1048576).toFixed(1) + ' MB';
+function when(r) {
+  if (r.days_until == null) return h('span', {class: 'tag'}, 'kein Datum');
+  if (r.days_until > 0) return h('span', {class: 'tag up'}, `in ${r.days_until} ${r.days_until === 1 ? 'Tag' : 'Tagen'}`);
+  if (r.days_until === 0) return h('span', {class: 'tag up'}, 'heute');
+  return h('span', {class: 'tag'}, 'veröffentlicht');
+}
+
+function pipe(r) {
+  return h('div', {class: 'pipe'}, [...'AVKPGD'].map(k => {
+    const s = r.status[k], cls = k === r.next ? 'next' : s;
+    return h('span', {class: 'step ' + cls, title: `${STEP_NAMES[k]}: ${s}`}, k + GLYPH[s]);
+  }));
+}
+
+async function refresh() {
+  state = await api('/api/state');
+  const dirty = state.releases.filter(r => r.status.G === 'warn').length;
+  $('#chip-git').className = 'chip mono ' + (dirty ? 'warn' : 'ok');
+  $('#chip-git').textContent = dirty ? `! ${dirty} Release(s) nicht committet` : '✓ releases.json committet';
+  $('#chip-cdn').className = 'chip mono ' + (state.cdn_configured ? 'ok' : 'warn');
+  $('#chip-cdn').textContent = state.cdn_configured ? '✓ CDN konfiguriert' : '! CDN: .env unvollständig';
+}
+
+// ── router ─────────────────────────────────────────────────────────────────
+async function route() {
+  const hash = location.hash || '#/';
+  $('#nav-over').classList.toggle('on', hash === '#/');
+  $('#nav-new').classList.toggle('on', hash === '#/new');
+  await refresh();
+  const app = $('#app'); app.replaceChildren();
+  const m = hash.match(/^#\/r\/(TMR-\d+)(?:\/(\w+))?$/);
+  if (m) await viewDetail(app, m[1], m[2]);
+  else if (hash === '#/new') viewNew(app);
+  else viewOverview(app);
+  if (state.job && state.job.status === 'running') followJob(state.job.id, 0);
+}
+window.addEventListener('hashchange', guard(route));
+
+// ── overview ───────────────────────────────────────────────────────────────
+function viewOverview(app) {
+  const rs = state.releases;
+  const open = rs.filter(r => r.next && r.next !== 'D').length;
+  const noDsp = rs.filter(r => r.status.D === 'open' && r.status.P === 'ok').length;
+  app.append(
+    h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, 'Katalog'), h('h1', {}, 'Releases')),
+      h('div', {class: 'spacer'}), h('a', {class: 'btn fill', href: '#/new', style: 'text-decoration:none;display:flex;align-items:center'}, '+ Neues Release')),
+    !state.cdn_configured && h('div', {class: 'banner gap'}, `Push gesperrt: in .env fehlt ${state.cdn_missing.join(', ')}.`),
+    h('div', {class: 'stats'},
+      [['Gesamt', rs.length], ['Demnächst', rs.filter(r => r.upcoming).length], ['Offene Schritte', open, 1], ['Ohne DSP-Links', noDsp, 1]]
+        .map(([l, n, w]) => h('div', {class: 'stat' + (w && n ? ' warn' : '')}, h('span', {class: 'label'}, l), h('b', {}, n)))),
+    h('table', {}, h('thead', {}, h('tr', {class: 'label'}, ['Katalog', 'Titel', 'Release', 'Ablauf', 'Nächster Schritt'].map(t => h('th', {}, t)))),
+      h('tbody', {}, rs.map(r => h('tr', {class: 'click', onclick: () => location.hash = `#/r/${r.catalog}`},
+        h('td', {class: 'mono'}, r.catalog),
+        h('td', {}, r.title || '—', h('br'), h('span', {class: 'label'}, r.artist)),
+        h('td', {}, when(r), h('br'), h('span', {class: 'mono note'}, fmtDate(r.release_date))),
+        h('td', {}, pipe(r)),
+        h('td', {}, r.next ? h('a', {class: 'btn', href: `#/r/${r.catalog}/${r.next}`, style: 'text-decoration:none;display:inline-flex;align-items:center', onclick: e => e.stopPropagation()}, NEXT_LABEL[r.next]) : h('span', {class: 'label'}, 'fertig')))))),
+    h('div', {class: 'legend'}, Object.entries(STEP_NAMES).map(([k, v]) => h('span', {}, `${k} ${v}`)),
+      h('span', {}, '✓ erledigt · ! prüfen · ↻ veraltet · – nicht anwendbar')),
+    h('p', {class: 'note'}, 'Alle Werte werden bei jedem Laden aus data/releases.json, den Asset-Ordnern und git berechnet.'));
+}
+
+// ── new ────────────────────────────────────────────────────────────────────
+function viewNew(app) {
+  const f = {};
+  const field = (k, label, props = {}) => h('label', {}, h('span', {class: 'label'}, label), f[k] = h('input', props));
+  app.append(h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ' / Neu anlegen'), h('h1', {}, 'Neues Release'),
+    h('div', {class: 'panel gap', style: 'max-width:760px'},
+      h('div', {class: 'form'},
+        field('catalog', 'Katalognummer', {class: 'mono', value: state.next_catalog}),
+        field('release_date', 'Release-Datum', {type: 'date'}),
+        field('artist', 'Artist', {placeholder: 'Logic Moon'}), field('title', 'Titel')),
+      h('p', {class: 'note'}, 'Legt den Ordner tmr-NNN-artist-title in the-moon-assets mit audio/ und artwork/ an. Danach Dateien hinzufügen.'),
+      h('div', {class: 'row gap'}, h('button', {class: 'btn fill', onclick: guard(async () => {
+        const r = await api('/api/releases', {method: 'POST', json: {catalog: f.catalog.value, artist: f.artist.value, title: f.title.value, release_date: f.release_date.value}});
+        location.hash = `#/r/${r.catalog}/A`;
+      })}, 'Anlegen'), h('a', {class: 'btn ghost', href: '#/', style: 'text-decoration:none;display:flex;align-items:center'}, 'Abbrechen'))));
+}
+
+// ── detail ─────────────────────────────────────────────────────────────────
+async function viewDetail(app, catalog, focus) {
+  const d = await api(`/api/releases/${catalog}`);
+  const s = d.summary, st = s.status, rel = d.release || {};
+  const reload = guard(route);
+  const run = guard(async (step, extra = {}) => {
+    const r = await api(`/api/releases/${catalog}/run`, {method: 'POST', json: {step, ...extra}});
+    followJob(r.job_id, 0);
+  });
+
+  // assets
+  const sendPaths = async (paths, overwrite = []) => {
+    const r = await api(`/api/releases/${catalog}/files`, {method: 'POST', json: {paths, overwrite}});
+    if (r.conflicts.length && confirm(`Überschreiben?\n${r.conflicts.join('\n')}`))
+      return sendPaths(paths, r.conflicts);
+    reload();
+  };
+  const pick = kind => guard(async () => {
+    const r = await api('/api/pick', {method: 'POST', json: {kind}});
+    if (r.paths.length) await sendPaths(r.paths);
+  });
+  const upload = async (files, overwrite) => {
+    const form = new FormData(); [...files].forEach(f => form.append('files', f));
+    if (overwrite) form.append('overwrite', 'true');
+    try { await api(`/api/releases/${catalog}/upload`, {method: 'POST', form}); reload(); }
+    catch (e) {
+      if (e.status === 409 && !overwrite && confirm(`Überschreiben?\n${(e.data.conflicts || []).join('\n')}`)) return upload(files, true);
+      banner(e.message);
+    }
+  };
+  const drop = h('div', {class: 'drop'}, h('b', {}, 'WAVs und Cover hierher ziehen'), h('br'),
+    'oder mit den Knöpfen wählen. Dateien landen im Asset-Ordner des Releases.',
+    h('div', {class: 'row'}, h('button', {class: 'btn', onclick: pick('files')}, 'Dateien wählen …'),
+      h('button', {class: 'btn', onclick: pick('folder')}, 'Ordner wählen …'),
+      h('button', {class: 'btn ghost', onclick: pick('cover')}, 'Cover wählen …')));
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); upload(e.dataTransfer.files); });
+
+  // meta
+  const m = {};
+  const plat = (rel.platforms && rel.platforms.bandcamp) || ((d.entry && d.entry.platforms || []).find(p => p.name === 'bandcamp') || {}).url || '';
+  const mf = (k, label, props = {}, wide) => h('label', {class: wide ? 'wide' : ''}, h('span', {class: 'label'}, label), m[k] = h('input', props));
+  const metaPanel = h('div', {class: 'panel', id: 'panel-V'}, h('h2', {}, '2 · Metadaten'),
+    h('div', {class: 'form'},
+      mf('artist', 'Artist', {value: rel.artist || ''}), mf('title', 'Titel', {value: rel.title || ''}),
+      mf('release_date', 'Release-Datum', {type: 'date', value: /^\d{4}-/.test(rel.release_date || '') ? rel.release_date.slice(0, 10) : ''}),
+      mf('genre', 'Genre', {value: rel.genre || ''}), mf('bandcamp', 'Bandcamp-URL', {value: plat}, true),
+      h('label', {class: 'wide'}, h('span', {class: 'label'}, 'about.md (Releasetext, landet auf der Website)'),
+        m.about = h('textarea', {}, d.about))),
+    h('div', {class: 'row gap'},
+      h('button', {class: 'btn fill', onclick: guard(async () => {
+        await api(`/api/releases/${catalog}/meta`, {method: 'PUT', json: {fields: Object.fromEntries(['artist', 'title', 'release_date', 'genre', 'bandcamp'].map(k => [k, m[k].value])), about: m.about.value}});
+        banner('Gespeichert', false); reload();
+      })}, 'Speichern'),
+      h('button', {class: 'btn', onclick: () => run('generate')}, 'Tracks einlesen'),
+      h('button', {class: 'btn ghost', onclick: () => run('validate')}, 'Validieren')),
+    st.V === 'open' && h('p', {class: 'note', style: 'color:var(--warn)'}, '! Daten unvollständig oder about.md noch Platzhalter — Push bleibt gesperrt.'));
+
+  // convert
+  const force = h('input', {type: 'checkbox', checked: st.K === 'stale'});
+  const convPanel = h('div', {class: 'panel', id: 'panel-K'}, h('h2', {}, '3 · Konvertieren'),
+    h('div', {class: 'row'}, h('button', {class: 'btn fill', onclick: () => run('convert', {force: force.checked})}, 'Konvertieren'),
+      h('label', {class: 'note'}, force, 'Überschreiben (--force)', st.K === 'stale' ? ' — Cover ist neuer als die MP3s' : '')),
+    d.files.mp3.length ? h('div', {class: 'files mono'}, d.files.mp3.map(n => h('div', {}, n))) : null);
+
+  // push
+  const pushPanel = h('div', {class: 'panel', id: 'panel-P'}, h('h2', {}, '4 · Push ans CDN'),
+    h('p', {class: 'note'}, st.P === 'ok' ? 'Bereits gepusht. Ein erneuter Push behält DSP-Links und manuelle Felder.' : 'Lädt MP3s und Artwork hoch und schreibt den Eintrag in data/releases.json (mit Backup).'),
+    h('div', {class: 'row gap'}, h('button', {class: 'btn danger', disabled: !d.summary || st.K !== 'ok' || st.V !== 'ok' || !state.cdn_configured,
+      onclick: guard(() => pushDialog(catalog))}, 'Freigeben und hochladen …')),
+    !state.cdn_configured && h('p', {class: 'note'}, `In .env fehlt: ${state.cdn_missing.join(', ')}`),
+    st.G === 'warn' && h('p', {class: 'note', style: 'color:var(--warn)'}, `! releases.json nicht committet. Vorschlag: feat: ${catalog.toLowerCase()} release`));
+
+  // dsp
+  const dspBox = h('div', {});
+  const dspPanel = h('div', {class: 'panel', id: 'panel-D'}, h('h2', {}, '5 · DSP-Links'),
+    h('p', {class: 'note'}, 'Sucht über die Bandcamp-URL. Übernommen werden nur Treffer ab Confidence 85 mit passendem Künstler.'),
+    h('div', {class: 'row gap'}, h('button', {class: 'btn', disabled: st.P !== 'ok', onclick: guard(async () => {
+      dspBox.replaceChildren(h('p', {class: 'note'}, 'Suche läuft … (bis zu 2 Minuten)'));
+      const r = await api(`/api/releases/${catalog}/dsp/scan`, {method: 'POST'}).catch(e => { dspBox.replaceChildren(); throw e; });
+      renderDsp(r.candidates);
+    })}, 'Links suchen')), st.P !== 'ok' && h('p', {class: 'note'}, 'Erst nach dem Push möglich.'), dspBox,
+    (d.entry && d.entry.platforms || []).length ? h('div', {class: 'files mono'}, d.entry.platforms.map(p => h('div', {}, h('span', {}, p.name), h('span', {}, p.url)))) : null);
+  function renderDsp(c) {
+    if (!c.length) return dspBox.replaceChildren(h('p', {class: 'note'}, 'Keine neuen Treffer.'));
+    const boxes = c.map(x => h('input', {type: 'checkbox', checked: x.accepted}));
+    dspBox.replaceChildren(h('div', {class: 'gap'}, c.map((x, i) => h('div', {class: 'dsp'}, boxes[i], h('span', {class: 'mono'}, x.name),
+      h('span', {class: 'mono'}, x.url), h('span', {style: x.accepted ? '' : 'color:var(--warn)'}, x.accepted ? `✓ ${x.confidence}` : `! ${x.reason}`)))),
+      h('div', {class: 'row gap'}, h('button', {class: 'btn fill', onclick: guard(async () => {
+        const links = c.filter((_, i) => boxes[i].checked).map(x => ({name: x.name, url: x.url}));
+        await api(`/api/releases/${catalog}/dsp/apply`, {method: 'POST', json: {links}});
+        banner('Links übernommen', false); reload();
+      })}, 'Ausgewählte übernehmen')));
+  }
+
+  const logBox = h('div', {class: 'log mono', id: 'log'}, 'Noch kein Job gestartet.');
+  app.append(
+    h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ` / ${catalog}`),
+    h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, s.artist), h('h1', {}, s.title || catalog)),
+      h('div', {class: 'spacer'}), when(s), h('span', {class: 'mono'}, fmtDate(s.release_date))),
+    h('div', {class: 'gap'}, pipe(s)),
+    h('div', {class: 'gap'},
+      h('div', {class: 'panel', id: 'panel-A'}, h('h2', {}, '1 · Assets'), drop,
+        h('div', {class: 'files mono'}, [...d.files.audio, ...d.files.artwork].map(n => h('div', {}, n)))),
+      metaPanel, convPanel, pushPanel, dspPanel,
+      h('div', {class: 'panel'}, h('h2', {}, 'Protokoll'), logBox)));
+  const target = focus && $('#panel-' + focus);
+  if (target) target.scrollIntoView({block: 'start'});
+}
+
+// ── push dialog ────────────────────────────────────────────────────────────
+async function pushDialog(catalog) {
+  const p = await api(`/api/releases/${catalog}/push-preview`);
+  const dlg = $('#dlg'), typed = h('input', {class: 'mono', placeholder: catalog});
+  const go = h('button', {class: 'btn danger', disabled: true, onclick: guard(async () => {
+    const r = await api(`/api/releases/${catalog}/push`, {method: 'POST', json: {confirm: typed.value}});
+    dlg.close(); followJob(r.job_id, 0);
+  })}, 'Jetzt hochladen');
+  typed.addEventListener('input', () => go.disabled = p.problems.length > 0 || typed.value.trim().toUpperCase() !== catalog);
+  dlg.replaceChildren(h('h2', {}, `${catalog} ans CDN senden`),
+    h('p', {class: 'note'}, `Ziel: ${p.target}`),
+    h('p', {class: 'mono'}, `${p.files.length} Dateien · ${fmtMB(p.total_bytes)}`),
+    h('div', {class: 'files mono', style: 'max-height:220px;overflow:auto'}, p.files.map(f => h('div', {}, h('span', {}, f.name), h('span', {}, fmtMB(f.size))))),
+    p.problems.map(x => h('p', {class: 'problem'}, '! ' + x)),
+    h('label', {class: 'gap'}, h('span', {class: 'label'}, `Zur Bestätigung ${catalog} eintippen`), typed),
+    h('div', {class: 'row gap'}, go, h('button', {class: 'btn ghost', onclick: () => dlg.close()}, 'Abbrechen')));
+  dlg.showModal();
+}
+
+// ── job log (polling) ──────────────────────────────────────────────────────
+function followJob(id, since) {
+  clearTimeout(jobTimer);
+  const log = $('#log');
+  if (!log) return;
+  if (since === 0) log.textContent = '';
+  const tick = async () => {
+    try {
+      const j = await api(`/api/jobs/${id}?since=${since}`);
+      if (j.lines.length) { log.textContent += j.lines.join('\n') + '\n'; log.scrollTop = log.scrollHeight; }
+      since = j.next;
+      if (j.status === 'running') { jobTimer = setTimeout(tick, 500); return; }
+      log.classList.toggle('fail', j.status === 'failed');
+      log.textContent += j.status === 'ok' ? '\n✓ fertig' : `\n✗ fehlgeschlagen (Exit ${j.exit_code})`;
+      await refresh();
+    } catch (e) { banner(e.message); }
+  };
+  tick();
+}
+
+guard(route)();
+</script>
+</body>
+</html>

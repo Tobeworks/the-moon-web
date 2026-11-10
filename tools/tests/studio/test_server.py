@@ -192,3 +192,13 @@ def test_dsp_scan_and_apply(client, studio_env, monkeypatch):
     assert saved["platforms"][-1]["name"] == "deezer"
     assert client.post(f"/api/releases/{cat}/dsp/apply",
                        json={"links": [{"name": "deezer", "url": ""}]}).status_code == 400
+
+
+def test_index_served_with_key(studio_env):
+    c = TestClient(create_app(studio_env, TOKEN, FakeJobs()), base_url=BASE)
+    assert c.get("/").status_code == 401
+    assert c.get("/?key=wrong").status_code == 401
+    r = c.get(f"/?key={TOKEN}", follow_redirects=False)
+    assert r.status_code == 303 and "studio=" in r.headers["set-cookie"]
+    page = c.get("/")
+    assert page.status_code == 200 and "tmr studio" in page.text
