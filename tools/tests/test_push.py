@@ -131,3 +131,45 @@ def test_push_requires_public_url(release_dir, no_network, monkeypatch):
     monkeypatch.setattr(no_network, "load_env", lambda: {"CDN_HOST": "h", "CDN_USER": "u"})
     with pytest.raises(SystemExit):
         no_network.push_release(str(release_dir))
+
+
+# ── a full push without any platform link must work (links come later) ───────
+
+class FakeSftp:
+    def __init__(self):
+        self.uploaded = []
+
+    def stat(self, path):
+        raise FileNotFoundError(path)
+
+    def mkdir(self, path):
+        pass
+
+    def put(self, local, remote):
+        self.uploaded.append(remote)
+
+    def close(self):
+        pass
+
+
+def test_push_without_any_platform_url(release_dir, data_dir, monkeypatch):
+    import commands.push as push
+
+    (release_dir / "release.json").write_text(json.dumps({
+        **json.loads((release_dir / "release.json").read_text()), "platforms": {}}))
+    for br in ("128", "320"):
+        d = release_dir / "export" / "mp3" / br
+        d.mkdir(parents=True)
+        (d / "01_first.mp3").write_bytes(b"x")
+    sftp = FakeSftp()
+    monkeypatch.setattr(push, "load_env", lambda: {
+        "CDN_HOST": "h", "CDN_USER": "u", "CDN_PROTOCOL": "sftp", "CDN_PUBLIC_URL": "https://cdn.example"})
+    monkeypatch.setattr(push, "sftp_connect", lambda env: (sftp, FakeSftp()))
+    monkeypatch.setattr(push, "RELEASES_PATH", data_dir / "releases.json")
+
+    push.push_release(str(release_dir))
+
+    saved = json.loads((data_dir / "releases.json").read_text())["releases"][0]
+    assert saved["catalog"] == "TMR-099" and saved["platforms"] == []
+    assert saved["tracks"][0]["url"].endswith("/128/01_first.mp3")
+    assert len(sftp.uploaded) == 3  # 128k + 320k MP3 and the raw cover (no export/artwork)

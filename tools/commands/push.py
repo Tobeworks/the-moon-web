@@ -175,6 +175,9 @@ def upload_file(client, local: Path, remote: str, client_type: str):
             client.storbinary(f"STOR {remote}", f)
 
 
+RELEASES_PATH = Path(__file__).parents[2] / "data" / "releases.json"
+
+
 def test_connection():
     """Test FTP/SFTP connection and permissions — no upload."""
     print(
@@ -526,8 +529,8 @@ def push_release(release_path: str):
 
     # ── Update data/releases.json ──────────────────────────────────────────────
     header("7. UPDATING releases.json")
-    repo_root = Path(__file__).parents[2]
-    releases_path = repo_root / "data" / "releases.json"
+    releases_path = RELEASES_PATH
+    repo_root = releases_path.parents[1]
 
     with open(releases_path) as f:
         releases_data = json.load(f)

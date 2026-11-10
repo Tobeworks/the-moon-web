@@ -161,6 +161,15 @@ def test_push_starts_job_when_ready(client, folder, jobs, studio_env):
     assert jobs.started == [[str(studio_env.tmr), "push", str(folder)]]
 
 
+def test_push_needs_no_platform_url(client, folder, jobs, studio_env):
+    p = folder / "release.json"
+    d = json.loads(p.read_text())
+    d["platforms"] = {}
+    p.write_text(json.dumps(d))
+    assert client.get("/api/releases/TMR-099/push-preview").json()["problems"] == []
+    assert client.post("/api/releases/TMR-099/push", json={"confirm": "TMR-099"}).status_code == 200
+
+
 def test_push_refused_without_cdn_config(client, folder, jobs, studio_env):
     (studio_env.web_root / ".env").write_text("")
     assert client.post("/api/releases/TMR-099/push", json={"confirm": "TMR-099"}).status_code == 400
