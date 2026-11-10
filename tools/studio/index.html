@@ -276,7 +276,9 @@ async function viewDetail(app, catalog, focus) {
     h('div', {class: 'form'},
       mf('artist', 'Artist', {value: rel.artist || ''}), mf('title', 'Titel', {value: rel.title || ''}),
       mf('release_date', 'Release-Datum', {type: 'date', value: /^\d{4}-/.test(rel.release_date || '') ? rel.release_date.slice(0, 10) : ''}),
-      mf('genre', 'Genre', {value: rel.genre || ''}), mf('bandcamp', 'Bandcamp-URL', {value: plat}, true),
+      h('label', {}, h('span', {class: 'label'}, 'Genre'), m.genre = h('select', {},
+        ['', ...new Set([...state.genres, rel.genre || ''])].map(g => h('option', {value: g, selected: g === (rel.genre || '')}, g || '—'))))
+      , mf('bandcamp', 'Bandcamp-URL', {value: plat}, true),
       h('label', {class: 'wide'}, h('span', {class: 'label'}, 'about.md (Releasetext, landet auf der Website)'),
         m.about = h('textarea', {}, d.about))),
     h('div', {class: 'row gap'},

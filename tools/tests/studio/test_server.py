@@ -156,6 +156,11 @@ def test_push_preview_lists_mp3_and_artwork(client, folder):
     assert p["total_bytes"] == 25 and p["problems"] == []
 
 
+def test_state_genres_include_existing_and_defaults(client):
+    genres = client.get("/api/state").json()["genres"]
+    assert {"Ambient", "Dark Ambient"} <= set(genres) and genres == sorted(genres)
+
+
 def test_cdn_configured_flag_does_not_leak_values(client):
     r = client.get("/api/state")
     assert r.json()["cdn_configured"] is True

@@ -22,6 +22,7 @@ CATALOG_RE = re.compile(r"^TMR-\d{3,}$")
 RUN_STEPS = {"generate", "validate", "convert", "social"}
 CDN_KEYS = ("CDN_HOST", "CDN_USER", "CDN_PUBLIC_URL")
 INDEX = Path(__file__).parent / "index.html"
+GENRES = ["Ambient", "Dark Ambient", "Drone", "Cinematic", "Electronic"]  # extend here
 
 
 class NewRelease(BaseModel):
@@ -160,6 +161,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         return {"releases": list_releases(cfg, date.today()),
                 "next_catalog": folders.next_catalog(entries(), cfg.assets_dir),
                 "cdn_configured": all(k in _env_keys(cfg) for k in CDN_KEYS),
+                "genres": sorted(set(GENRES) | {e["genre"] for e in entries() if e.get("genre")}),
                 "releases_dirty": gitops.releases_dirty(cfg),
                 "cdn_missing": [k for k in CDN_KEYS if k not in _env_keys(cfg)],
                 "job": jobs.current()}
