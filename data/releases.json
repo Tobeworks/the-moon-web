@@ -1,7 +1,7 @@
 {
   "$schema": "./releases.schema.json",
   "_meta": {
-    "generated": "2026-11-09T16:19:45.832481+00:00",
+    "generated": "2026-11-10T09:15:30.577686+00:00",
     "label": "The Moon Records",
     "version": "1"
   },
@@ -38,19 +38,19 @@
         {
           "number": 1,
           "title": "Perihelion Drift",
-          "runtime": "",
+          "runtime": "7:12",
           "url": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/128/01_perihelion_drift.mp3",
           "url_320": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/320/01_perihelion_drift.mp3"
         },
         {
           "number": 2,
           "title": "Velum",
-          "runtime": "",
+          "runtime": "5:57",
           "url": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/128/02_velum.mp3",
           "url_320": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/audio/320/02_velum.mp3"
         }
       ],
-      "pushed_at": "2026-11-09T16:19:45.832141+00:00",
+      "pushed_at": "2026-11-10T09:15:30.577476+00:00",
       "release_date": "2026-11-13"
     },
     {
