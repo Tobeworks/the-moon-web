@@ -97,6 +97,16 @@ def test_k_stale_when_cover_newer(release_dir):
     assert release_status(None, release_dir, None)["K"] == "ok"
 
 
+def test_k_open_when_mp3_names_do_not_match_track_titles(release_dir):
+    mp3s(release_dir)
+    assert release_status(None, release_dir, None)["K"] == "ok"
+    p = release_dir / "release.json"
+    d = json.loads(p.read_text())
+    d["tracks"][0]["title"] = "Renamed"
+    p.write_text(json.dumps(d))
+    assert release_status(None, release_dir, None)["K"] == "open"
+
+
 def test_k_open_without_mp3s(release_dir):
     assert release_status(None, release_dir, None)["K"] == "open"
 

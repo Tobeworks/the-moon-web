@@ -12,6 +12,7 @@ from pathlib import Path
 from studio.folders_types import AUDIO_EXT, IMAGE_EXT  # noqa: F401  (re-exported)
 
 META_FIELDS = {"artist", "title", "release_date", "format", "genre", "year"}
+EXTRA_FIELDS = {"bandcamp", "track_titles"}
 
 
 def slug(text: str) -> str:
@@ -74,12 +75,20 @@ def write_meta(release_dir: Path, fields: dict, about: str | None) -> dict:
     path = release_dir / "release.json"
     if not path.exists():
         raise ValueError("release.json missing — create the release first")
-    unknown = set(fields) - META_FIELDS - {"bandcamp"}
+    unknown = set(fields) - META_FIELDS - EXTRA_FIELDS
     if unknown:
         raise ValueError(f"unknown field(s): {', '.join(sorted(unknown))}")
     release = json.loads(path.read_text())
     for k, v in fields.items():
-        if k == "bandcamp":
+        if k == "track_titles":
+            by_number = {str(t.get("number")): t for t in release.get("tracks") or []}
+            for number, title in v.items():
+                if str(number) not in by_number:
+                    raise ValueError(f"no track {number}")
+                if not str(title).strip():
+                    raise ValueError(f"track {number}: title is empty")
+                by_number[str(number)]["title"] = str(title).strip()
+        elif k == "bandcamp":
             platforms = release.get("platforms") or {}
             platforms["bandcamp"] = v or None
             release["platforms"] = platforms

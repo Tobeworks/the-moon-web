@@ -53,6 +53,11 @@ def slugify(s: str) -> str:
 ID3_COVER_MAX = 1500    # px — embedded in every MP3, so keep it small
 
 
+def mp3_name(track: dict, fallback: str = "") -> str:
+    """Converted file name: NN_<track title>.mp3 (the title, never the source file name)."""
+    return f"{str(track.get('number', 0)).zfill(2)}_{slugify(track.get('title') or fallback)}.mp3"
+
+
 def find_cover(artwork_dir: Path) -> Path | None:
     """First PNG/JPG/TIFF in artwork/ (same order everywhere)."""
     for ext in ('*.png', '*.jpg', '*.jpeg', '*.tif', '*.tiff'):
@@ -250,9 +255,7 @@ def convert_release(release_path: str, force: bool = False):
                 errors += 1
                 continue
 
-            num      = str(track.get('number', 0)).zfill(2)
-            slug     = slugify(track.get('title', src_path.stem))
-            out_name = f"{num}_{slug}.mp3"
+            out_name = mp3_name(track, src_path.stem)
             out_path = output_dir / out_name
 
             if out_path.exists() and not force:
@@ -281,6 +284,13 @@ def convert_release(release_path: str, force: bool = False):
             except Exception as e:
                 fail(f"  Track {track.get('number')} [{bitrate_label}] — failed: {e}")
                 errors += 1
+
+        # drop MP3s of renamed or removed tracks so they are not uploaded later
+        wanted = {mp3_name(t, Path(t.get('file', '')).stem) for t in tracks}
+        for stale in sorted(output_dir.glob('*.mp3')):
+            if stale.name not in wanted:
+                stale.unlink()
+                warn(f"  [{bitrate_label}] removed outdated {stale.name}")
 
         total_converted += converted
         total_skipped   += skipped

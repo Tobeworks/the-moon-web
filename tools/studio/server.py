@@ -12,6 +12,8 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
+from commands.convert import mp3_name
+
 from studio import ai, dsp, folders, gitops
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
@@ -223,6 +225,9 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             f.name for f in (folder / sub).glob("*") if f.suffix.lower() in exts) if folder else []
         return {"summary": row(catalog), "release": release_json(folder), "entry": entry,
                 "about": about_of(folder),
+                "tracks": [{"number": t.get("number"), "title": t.get("title", ""), "file": t.get("file", ""),
+                            "duration": t.get("duration", ""), "mp3": mp3_name(t, Path(t.get("file", "")).stem)}
+                           for t in release_json(folder).get("tracks") or []],
                 "problems": {"validation": validation_problems(folder) if folder else [],
                              "push": push_problems(catalog, folder, entry)},
                 "warnings": validation_warnings(folder) if folder else [],

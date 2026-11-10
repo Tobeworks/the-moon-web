@@ -234,6 +234,17 @@ def test_media_rejects_other_files(client, folder, path):
     assert client.get(f"/api/releases/TMR-099/{path}").status_code == 404
 
 
+def test_detail_tracks_show_the_mp3_name(client, folder):
+    t = client.get("/api/releases/TMR-099").json()["tracks"][0]
+    assert t["title"] == "First" and t["mp3"] == "01_first.mp3" and t["file"] == "01_first.wav"
+
+
+def test_meta_can_rename_a_track(client, folder):
+    r = client.put("/api/releases/TMR-099/meta", json={"fields": {"track_titles": {"1": "Fog Horn"}}})
+    assert r.status_code == 200
+    assert client.get("/api/releases/TMR-099").json()["tracks"][0]["mp3"] == "01_fog_horn.mp3"
+
+
 def test_detail_lists_cover_name(client, folder):
     assert client.get("/api/releases/TMR-099").json()["files"]["cover"] == "cover_600.jpg"
 

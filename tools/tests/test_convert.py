@@ -42,6 +42,20 @@ def test_no_tracks_is_an_error_not_a_silent_success(release_dir):
     assert e.value.code == 1
 
 
+@pytest.mark.skipif(shutil.which("ffmpeg") is None, reason="ffmpeg not installed")
+def test_renamed_track_replaces_the_old_mp3(release_dir):
+    import json
+    convert_release(str(release_dir))
+    p = release_dir / "release.json"
+    data = json.loads(p.read_text())
+    data["tracks"][0]["title"] = "Fresh Name"
+    p.write_text(json.dumps(data))
+    convert_release(str(release_dir))
+    for br in ("128", "320"):
+        names = sorted(f.name for f in (release_dir / "export" / "mp3" / br).glob("*.mp3"))
+        assert names == ["01_fresh_name.mp3"]
+
+
 def test_missing_audio_file_gives_exit_code_1(release_dir):
     (release_dir / "audio" / "01_first.wav").unlink()
     with pytest.raises(SystemExit) as e:

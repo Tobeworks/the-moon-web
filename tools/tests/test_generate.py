@@ -20,6 +20,13 @@ def test_fresh_folder_gets_tracks_with_duration_and_placeholder_about(release_di
     assert about_is_placeholder((release_dir / "about.md").read_text())
 
 
+def test_title_from_filename_has_no_underscores(release_dir):
+    (release_dir / "audio" / "01_first.wav").rename(release_dir / "audio" / "Logic Moon - Drifter_Two.wav")
+    (release_dir / "release.json").unlink()
+    generate_release(str(release_dir))
+    assert read(release_dir)["tracks"][0]["title"] == "Drifter Two"
+
+
 def test_rerun_keeps_hand_edited_titles_and_extra_fields(release_dir):
     data = read(release_dir)
     data["tracks"][0]["title"] = "Handmade Title"

@@ -10,7 +10,7 @@ from datetime import date
 from pathlib import Path
 
 from commands.checks import publish_problems, publish_warnings
-from commands.convert import cover_is_newer
+from commands.convert import cover_is_newer, mp3_name
 from studio.config import Config
 from studio.folders_types import AUDIO_EXT, IMAGE_EXT
 
@@ -86,10 +86,10 @@ def _step_converted(folder: Path) -> str:
     for br in ("128", "320"):
         d = folder / "export" / "mp3" / br
         for t in tracks:
-            hit = list(d.glob(f"{str(t.get('number', 0)).zfill(2)}_*.mp3")) if d.exists() else []
-            if not hit:
+            hit = d / mp3_name(t, Path(t.get("file", "")).stem)
+            if not hit.is_file():
                 return "open"
-            found += hit
+            found.append(hit)
     return "stale" if cover_is_newer(folder / "artwork", found) else "ok"
 
 

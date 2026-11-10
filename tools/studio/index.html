@@ -289,6 +289,12 @@ async function viewDetail(app, catalog, focus) {
   const m = {};
   const plat = (rel.platforms && rel.platforms.bandcamp) || ((d.entry && d.entry.platforms || []).find(p => p.name === 'bandcamp') || {}).url || '';
   const mf = (k, label, props = {}, wide) => h('label', {class: wide ? 'wide' : ''}, h('span', {class: 'label'}, label), m[k] = h('input', props));
+  const tt = {};  // track number → title input
+  const trackBlock = d.tracks.length ? h('div', {class: 'wide'},
+    h('span', {class: 'label'}, 'Tracktitel (bestimmen den Namen der MP3: NN_titel.mp3)'),
+    d.tracks.map(t => h('div', {class: 'gap'}, h('label', {}, h('span', {class: 'note', style: 'margin:0'}, `Track ${t.number} · Original: ${t.file}`),
+      tt[t.number] = h('input', {value: t.title})),
+      h('span', {class: 'note mono'}, `→ ${t.mp3}`)))) : null;
   const notes = h('input', {placeholder: 'Stichworte für die KI: Stimmung, Idee hinter dem Titel … (optional)'});
   const aiBtn = h('button', {class: 'btn', disabled: !state.ai_configured, onclick: guard(async () => {
     aiBtn.disabled = true; aiBtn.textContent = 'KI schreibt …';
@@ -305,6 +311,7 @@ async function viewDetail(app, catalog, focus) {
       h('label', {}, h('span', {class: 'label'}, 'Genre'), m.genre = h('select', {},
         ['', ...new Set([...state.genres, rel.genre || ''])].map(g => h('option', {value: g, selected: g === (rel.genre || '')}, g || '—'))))
       , mf('bandcamp', 'Bandcamp-URL', {value: plat}, true),
+      trackBlock,
       h('label', {class: 'wide'}, h('span', {class: 'label'}, 'about.md (Releasetext, landet auf der Website)'),
         m.about = h('textarea', {}, d.about)),
       h('div', {class: 'wide'}, notes,
@@ -313,7 +320,7 @@ async function viewDetail(app, catalog, focus) {
           : 'ANTHROPIC_API_KEY fehlt in der .env im Repo-Root.')))),
     h('div', {class: 'row gap'},
       h('button', {class: 'btn fill', onclick: guard(async () => {
-        await api(`/api/releases/${catalog}/meta`, {method: 'PUT', json: {fields: Object.fromEntries(['artist', 'title', 'release_date', 'genre', 'bandcamp'].map(k => [k, m[k].value])), about: m.about.value}});
+        await api(`/api/releases/${catalog}/meta`, {method: 'PUT', json: {fields: {...Object.fromEntries(['artist', 'title', 'release_date', 'genre', 'bandcamp'].map(k => [k, m[k].value])), track_titles: Object.fromEntries(Object.entries(tt).map(([n, i]) => [n, i.value]))}, about: m.about.value}});
         banner('Gespeichert', false); reload();
       })}, 'Speichern'),
       h('button', {class: 'btn', onclick: () => run('generate')}, 'Tracks einlesen'),

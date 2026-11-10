@@ -43,7 +43,7 @@ def slugify(name: str) -> str:
         title = name.split(' - ')[-1]
         # Strip leading track number if present: "01 Réunion" → "Réunion"
         title = re.sub(r'^\d+\s+', '', title)
-        return title.strip()
+        return title.replace('_', ' ').strip()
     # Fallback: remove leading number+underscore, replace separators
     name = re.sub(r'^\d+_', '', name)
     return name.replace('_', ' ').replace('-', ' ').title()

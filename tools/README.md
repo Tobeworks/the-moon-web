@@ -86,7 +86,7 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
    **Cover wählen …** (macOS-Dialog, kopiert direkt) oder per Drag & Drop in die Fläche ziehen.
    Gibt es eine Datei mit anderem Inhalt schon, wirst du gefragt, ob sie überschrieben werden soll.
    Sobald Audiodateien dazukommen, liest das Studio die Tracks selbst ein (wie **Tracks einlesen**).
-2. **Metadaten**: Artist, Titel, Datum, Genre, Bandcamp-URL und den Releasetext (`about.md`) eintragen →
+2. **Metadaten**: Artist, Titel, Datum, Genre, Bandcamp-URL, die **Tracktitel** und den Releasetext (`about.md`) eintragen →
    **Speichern**. Danach **Tracks einlesen** (liest Titel und Länge aus den Audiodateien, eigene
    Tracktitel bleiben erhalten) und **Validieren**.
    Der Text in `about.md` landet auf der Website. Der Platzhalter-Text sperrt den Push.
@@ -94,6 +94,8 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
    Stichworte dazu schreiben. Der Entwurf landet nur im Textfeld und wird erst mit **Speichern** übernommen.
    Gesendet werden Titel, Tracknamen, Stichworte, der aktuelle Text und drei ältere Releasetexte als Stilvorlage.
 3. **Konvertieren**: erzeugt MP3 in 128k (Web-Player) und 320k (Download) und die Cover-Varianten.
+   Die MP3s heißen `NN_<tracktitel>.mp3` (zum Beispiel `01_still_bay_nautica.mp3`), nie nach dem Namen der
+   Originaldatei. Änderst du einen Tracktitel, konvertierst du neu, die alte MP3 wird dabei entfernt.
    Hast du das Cover geändert, ist **Überschreiben** schon angehakt. Sonst behalten die MP3s das alte Bild.
    Der **Fortschrittsbalken** unter der Kopfzeile zeigt, wie weit Konvertieren und Push sind. **Abbrechen**
    stoppt die Aufgabe. Unter **Anhören** spielst du die Tracks ab (WAV-Original, sonst 320k-MP3).

@@ -75,6 +75,18 @@ def test_copy_folder_source(rd, tmp_path):
     assert sorted(copy_files(rd, [src])["copied"]) == ["1.wav", "2.wav"]
 
 
+def test_write_meta_renames_tracks_by_number(rd):
+    release = json.loads((rd / "release.json").read_text())
+    release["tracks"] = [{"number": 1, "title": "Old", "file": "a.wav"}, {"number": 2, "title": "Two", "file": "b.wav"}]
+    (rd / "release.json").write_text(json.dumps(release))
+    r = write_meta(rd, {"track_titles": {"1": "  Drifter "}}, None)
+    assert [t["title"] for t in r["tracks"]] == ["Drifter", "Two"]
+    with pytest.raises(ValueError):
+        write_meta(rd, {"track_titles": {"9": "x"}}, None)
+    with pytest.raises(ValueError):
+        write_meta(rd, {"track_titles": {"1": " "}}, None)
+
+
 def test_write_meta_updates_and_rejects_unknown(rd):
     r = write_meta(rd, {"artist": "New", "bandcamp": "https://x.bandcamp.com/album/y"}, "# B\n\nText.")
     assert r["artist"] == "New" and r["platforms"]["bandcamp"].endswith("/y")
