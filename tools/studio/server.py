@@ -265,7 +265,9 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                     changed[key] = {n: t for n, t in value.items() if old.get(str(n)) != str(t).strip()}
                 else:
                     old = (before.get("platforms") or {}).get("bandcamp") if key == "bandcamp" else before.get(key)
-                    if (value or "") != (old or ""):
+                    lacking = key == "bandcamp" and not any(
+                        p["name"] == "bandcamp" and p.get("url") for p in entry.get("platforms") or [])
+                    if (value or "") != (old or "") or (lacking and value):
                         changed[key] = value
             about_changed = body.about is not None and body.about != before_about
             try:

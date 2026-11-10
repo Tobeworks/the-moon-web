@@ -376,6 +376,16 @@ def test_saving_metadata_of_a_published_release_updates_releases_json(client, fo
     assert again.json()["published"] == []
 
 
+def test_saving_passes_on_a_bandcamp_url_the_entry_lacks_even_if_unchanged(client, folder, studio_env):
+    data = json.loads(studio_env.releases_path.read_text())
+    data["releases"].insert(0, {**data["releases"][0], "catalog": "TMR-099", "platforms": []})
+    studio_env.releases_path.write_text(json.dumps(data))
+    rel = json.loads((folder / "release.json").read_text())  # fixture already has a bandcamp URL
+    url = rel["platforms"]["bandcamp"]
+    r = client.put("/api/releases/TMR-099/meta", json={"fields": {"bandcamp": url}})
+    assert r.json()["published"] == ["bandcamp"]
+
+
 def test_saving_an_unpublished_release_touches_no_releases_json(client, folder, studio_env):
     before = studio_env.releases_path.read_text()
     r = client.put("/api/releases/TMR-099/meta", json={"fields": {"genre": "Ambient"}})
