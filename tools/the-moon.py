@@ -76,7 +76,8 @@ def sftp_test():
     test_connection()
 
 @cli.command()
-@click.option('--port', default=8765, show_default=True, help='Local port.')
+@click.option('--port', default=8777, show_default=True,
+              help='Local port (next free one if taken). 8765 belongs to Release Studio.')
 @click.option('--no-open', is_flag=True, default=False, help="Don't open the browser.")
 def studio(port, no_open):
     """Start the local browser UI (127.0.0.1 only)."""
@@ -84,9 +85,10 @@ def studio(port, no_open):
     import webbrowser
 
     import uvicorn
-    from studio.config import load_config
+    from studio.config import free_port, load_config
     from studio.server import create_app
 
+    port = free_port(port)
     token = secrets.token_urlsafe(16)
     url = f"http://127.0.0.1:{port}/?key={token}"
     click.echo(f"tmr studio → {url}\n(Ctrl+C to stop)")

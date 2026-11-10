@@ -1,6 +1,7 @@
 """config.py — paths used by tmr studio."""
 
 import os
+import socket
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -18,6 +19,15 @@ class Config:
     @property
     def tmr(self) -> Path:
         return self.web_root / "tools" / "tmr"
+
+
+def free_port(start: int, tries: int = 20) -> int:
+    """First port from `start` upwards that nothing listens on (127.0.0.1)."""
+    for port in range(start, start + tries):
+        with socket.socket() as s:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
+                return port
+    raise OSError(f"no free port in {start}-{start + tries - 1}")
 
 
 def load_config() -> Config:

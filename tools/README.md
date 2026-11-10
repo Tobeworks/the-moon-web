@@ -41,10 +41,10 @@ Verbindung zum CDN testen (lädt nichts hoch):
 ```bash
 ./tools/tmr studio                  # öffnet den Browser
 ./tools/tmr studio --no-open        # nur die Adresse ausgeben
-./tools/tmr studio --port 8800      # anderer Port (Standard 8765)
+./tools/tmr studio --port 8800      # anderer Port (Standard 8777, sonst der nächste freie)
 ```
 
-- Im Terminal erscheint eine Adresse wie `http://127.0.0.1:8765/?key=…`. Der Schlüssel
+- Im Terminal erscheint eine Adresse wie `http://127.0.0.1:8777/?key=…`. Der Schlüssel
   ist bei jedem Start neu. Ohne ihn lässt der Server nichts zu.
 - **Beenden:** `Strg+C` im Terminal. Ein laufender Job bricht dabei ab.
 - Das Studio läuft nur auf deinem Rechner (`127.0.0.1`) und nie auf dem Server.
@@ -174,7 +174,7 @@ the-moon-assets/tmr-018-artist-title/
 |---|---|
 | `venv not found` | `bash tools/setup.sh` |
 | `ModuleNotFoundError` im Studio | `source tools/venv/bin/activate && pip install -r tools/requirements.txt` |
-| Port belegt | `./tools/tmr studio --port 8800` |
+| Port belegt | wird automatisch der nächste freie genommen (Standard 8777; 8765 gehört Release Studio), oder `--port` setzen |
 | Oben rechts `CDN: .env unvollständig` | `.env` im Repo-Root ergänzen (Schlüssel siehe Abschnitt 1) |
 | DSP-Suche schlägt fehl | Bandcamp-URL eingetragen? `uv` installiert? Pfad des Scrapers prüfen (`TMR_SCRAPER_DIR`) |
 | `releases.json NOT written — schema violation` | Eintrag verletzt `data/releases.schema.json`, die Datei bleibt unverändert |
