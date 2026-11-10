@@ -1,209 +1,208 @@
-# The Moon Records Toolchain
+# The Moon Records, Toolchain und Studio
 
-Command-line interface for the world's first 100% code-based music label.
+Alles für den Release-Ablauf: Ordner anlegen, Dateien übernehmen, Metadaten pflegen,
+konvertieren, ans CDN hochladen, DSP-Links nachtragen.
+
+Es gibt zwei Wege, die dasselbe tun:
+
+- **Studio**: lokale Oberfläche im Browser (`./tools/tmr studio`). Der bequeme Weg.
+- **CLI**: `./tools/tmr <befehl> <asset-ordner>`. Das Studio ruft genau diese Befehle auf.
 
 ---
 
-## Setup
-
-One-time setup — creates a Python virtual environment and installs all dependencies:
+## 1. Einrichtung (einmalig)
 
 ```bash
-bash tools/setup.sh
+bash tools/setup.sh                 # legt tools/venv an und installiert alles
+brew install ffmpeg                 # falls noch nicht vorhanden (MP3-Konvertierung)
 ```
 
-**System requirements:**
-- Python 3.10+
-- ffmpeg (for audio conversion and video encoding)
+Voraussetzungen im Dateisystem:
 
----
+| Was | Wo |
+|---|---|
+| Web-Repo (dieses Repo) | `…/The Moon/the-moon-web` |
+| Asset-Ordner der Releases | `…/The Moon/the-moon-assets` (Nachbarordner) |
+| DSP-Scraper (nur für DSP-Links) | `/Users/tobe/Sites/logic-moon.de/dsp_scraper`, braucht `uv` |
+| CDN-Zugang | Datei `.env` im Repo-Root mit `CDN_HOST`, `CDN_PROTOCOL`, `CDN_PORT`, `CDN_USER`, `CDN_PASSWORD`, `CDN_BASE_PATH`, `CDN_PUBLIC_URL` |
 
-## Usage
+Abweichende Pfade: Umgebungsvariablen `TMR_ASSETS_DIR` und `TMR_SCRAPER_DIR`.
 
-All commands run through the `pg` bootstrapper from the repo root:
+Verbindung zum CDN testen (lädt nichts hoch):
 
 ```bash
-tools/tmr <command> <release-path> [options]
-```
-
-The `release-path` is the asset folder in `the-moon-assets/`, e.g.:
-
-```
-.the-moon-assets/tmr-001-input-null-vector-field-signals
+./tools/tmr sftp-test
 ```
 
 ---
 
-## Studio (browser UI)
+## 2. Studio starten
 
 ```bash
-./tools/tmr studio            # opens http://127.0.0.1:8765/?key=<token>
-./tools/tmr studio --no-open --port 8800
+./tools/tmr studio                  # öffnet den Browser
+./tools/tmr studio --no-open        # nur die Adresse ausgeben
+./tools/tmr studio --port 8800      # anderer Port (Standard 8765)
 ```
 
-Local-only UI over the commands below: overview of all releases with their
-step status (A assets, V data complete, K converted, P pushed, G committed,
-D DSP links), file/folder pickers and drag & drop, metadata + `about.md`,
-convert/push with live log, DSP links via `dsp_scraper`. Status is computed
-from `data/releases.json`, the asset folders and git — there is no extra
-database. Push needs `CDN_HOST`, `CDN_USER`, `CDN_PUBLIC_URL` (and the other
-`CDN_*` keys) in the repo-root `.env`, and always asks for a typed confirmation.
-
-Tests: `cd tools && source venv/bin/activate && pip install -r requirements-dev.txt && python -m pytest tests`
+- Im Terminal erscheint eine Adresse wie `http://127.0.0.1:8765/?key=…`. Der Schlüssel
+  ist bei jedem Start neu. Ohne ihn lässt der Server nichts zu.
+- **Beenden:** `Strg+C` im Terminal. Ein laufender Job bricht dabei ab.
+- Das Studio läuft nur auf deinem Rechner (`127.0.0.1`) und nie auf dem Server.
 
 ---
 
-## Commands
+## 3. Bedienung
 
-### `generate`
-Scans the `audio/` folder for WAV or AIFF files and writes a pre-filled `release.json`.
+### Übersicht
+
+Eine Zeile pro Release, neueste zuerst. Releases, die nur als Ordner existieren
+(noch nicht gepusht), stehen mit dabei.
+
+Sechs Kästchen zeigen den Stand:
+
+| | Schritt | erledigt, wenn |
+|---|---|---|
+| **A** | Assets | Audio in `audio/` und Cover in `artwork/` liegen im Ordner |
+| **V** | Daten | Artist, Titel, Datum, Cover-Name stehen drin, `about.md` ist geschrieben, alle Audiodateien da |
+| **K** | Konvertiert | MP3 (128k und 320k) für jeden Track vorhanden |
+| **P** | Gepusht | Eintrag in `data/releases.json` mit `pushed_at` |
+| **G** | Git | Eintrag entspricht dem letzten Commit von `data/releases.json` |
+| **D** | DSP-Links | `spotify`, `apple_music`, `amazon_music`, `deezer` mit URL eingetragen |
+
+Symbole: `✓` erledigt, `·` offen, `!` prüfen (zum Beispiel nicht committet), `↻` veraltet
+(Cover ist neuer als die MP3s), `–` nicht anwendbar (ältere Releases ohne Asset-Ordner).
+Das hervorgehobene Kästchen ist der nächste Schritt. Der Knopf rechts springt direkt dorthin.
+
+Ein Klick auf eine Zeile öffnet das Release.
+
+### Neues Release anlegen
+
+**Neu anlegen** → Katalognummer (wird vorgeschlagen), Datum, Artist, Titel → **Anlegen**.
+Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
+
+### Release bearbeiten (Reihenfolge von oben nach unten)
+
+1. **Assets**: WAVs und Cover mit **Dateien wählen …**, **Ordner wählen …** oder
+   **Cover wählen …** (macOS-Dialog, kopiert direkt) oder per Drag & Drop in die Fläche ziehen.
+   Gibt es eine Datei schon, wirst du gefragt, ob sie überschrieben werden soll.
+2. **Metadaten**: Artist, Titel, Datum, Genre, Bandcamp-URL und den Releasetext (`about.md`) eintragen →
+   **Speichern**. Danach **Tracks einlesen** (liest Titel und Länge aus den Audiodateien, eigene
+   Tracktitel bleiben erhalten) und **Validieren**.
+   Der Text in `about.md` landet auf der Website. Der Platzhalter-Text sperrt den Push.
+3. **Konvertieren**: erzeugt MP3 in 128k (Web-Player) und 320k (Download) und die Cover-Varianten.
+   Hast du das Cover geändert, ist **Überschreiben** schon angehakt. Sonst behalten die MP3s das alte Bild.
+4. **Push ans CDN**: **Freigeben und hochladen …** öffnet eine Zusammenfassung (Dateien, Größe, Ziel).
+   Zum Starten musst du die Katalognummer eintippen. Der Push lädt hoch und schreibt den Eintrag in
+   `data/releases.json`. Davor entsteht ein Backup in `data/backups/`.
+   Ein erneuter Push behält vorhandene DSP-Links und manuell ergänzte Felder.
+5. **DSP-Links** (erst nach dem Push, meist Wochen später): **Links suchen** fragt den Scraper über die
+   Bandcamp-URL ab. Vorausgewählt sind nur Treffer ab Confidence 85 mit passendem Künstler. Mit `!`
+   markierte Treffer prüfst du selbst und hakst sie bei Bedarf an. **Ausgewählte übernehmen** trägt sie ein.
+
+Unten auf der Seite zeigt das **Protokoll** die Ausgabe des laufenden Befehls.
+Es läuft immer nur ein Job gleichzeitig.
+
+### Nach dem Push: Git
+
+Das Studio committet und pusht **nie**. Nach einem Push zeigt es `!` bei **G** und einen
+Vorschlag für die Commit-Message. Dann machst du selbst:
 
 ```bash
-tools/tmr generate <release-path>
+git add data/releases.json && git commit -m "feat: tmr-018 release" && git push
 ```
 
-- Reads filenames, duration, sample rate, bit depth
-- Preserves existing manual values in `release.json` if the file already exists
-- Flags all fields that still require manual input after generation
+Erst der Push des Web-Repos löst den Website-Build aus.
 
-**After running:** Open `release.json` and fill in: `artist`, `title`, `release_date`, track titles.
+### Typischer Ablauf
+
+Neu anlegen → Dateien → Metadaten speichern → Tracks einlesen → Validieren → Konvertieren →
+Push → committen und pushen → Wochen später DSP-Links.
 
 ---
 
-### `validate`
-Validates a release asset folder against the The Moon Records schema.
+## 4. Gesperrter Push, was heißt das?
+
+Der Knopf ist grau oder der Dialog zeigt `!`, wenn:
+
+| Meldung | Ursache |
+|---|---|
+| `artist … is missing or still a placeholder` | `FILL_IN` oder leer, bitte unter Metadaten ausfüllen |
+| `about.md … placeholder text` | Releasetext fehlt oder ist noch der Platzhalter |
+| `not converted yet` | erst Konvertieren |
+| `cover changed after conversion` | Konvertieren mit **Überschreiben** |
+| `missing in .env: …` | CDN-Schlüssel in der `.env` im Repo-Root fehlen |
+
+---
+
+## 5. CLI ohne Studio
 
 ```bash
-tools/tmr validate <release-path>
-tools/tmr validate <release-path> --generate-md
+./tools/tmr generate <asset-ordner>              # release.json aus den Audiodateien (behält Handarbeit)
+./tools/tmr validate <asset-ordner>              # Prüfung (--generate-md schreibt release_draft.md)
+./tools/tmr convert  <asset-ordner> [--force]    # WAV/AIFF → MP3 128k + 320k, ID3-Tags, Cover-Varianten
+./tools/tmr push     <asset-ordner>              # CDN-Upload + data/releases.json (geht nach außen!)
+./tools/tmr social   <asset-ordner> --init       # social.json anlegen, dann bearbeiten
+./tools/tmr social   <asset-ordner> --format square|reel|all [--duration 30]
+./tools/tmr sftp-test                            # CDN-Verbindung prüfen, ohne Upload
 ```
 
-**Checks:**
-- `release.json` exists and is valid JSON
-- All required fields are non-empty
-- All track audio files exist in `audio/`
-- At least one PNG or JPG exists in `artwork/`
-- Cover image resolution ≥ 3000×3000px
+- Alle Befehle brechen mit Exit-Code 1 ab, wenn etwas nicht stimmt.
+- Das Cover wird in die MP3s als 1500-px-JPEG eingebettet (nicht als 3000-px-Master).
+- `social` rendert nach `<asset-ordner>/export/social/<format>/` (Details in `commands/social.py`).
+  Im Studio gibt es dafür noch keinen eigenen Knopf.
 
-`--generate-md` — if all checks pass, writes a `release_draft.md` into the asset folder.
+### Asset-Ordner
+
+```
+the-moon-assets/tmr-018-artist-title/
+├── audio/            WAV/AIFF-Quellen
+├── artwork/          Cover (PNG/JPG/TIFF, mindestens 3000×3000)
+├── export/
+│   ├── mp3/128/ und mp3/320/
+│   ├── artwork/      cover_3000/1500/600/300 als JPG und WebP
+│   └── social/
+├── release.json      Metadaten (Quelle für den Push)
+├── about.md          Releasetext
+└── social.json       optional
+```
 
 ---
 
-### `convert`
-Converts WAV/AIFF source files to MP3 320kbps CBR with full ID3 tagging and embedded cover art.
+## 6. Fehlerbehebung
+
+| Problem | Lösung |
+|---|---|
+| `venv not found` | `bash tools/setup.sh` |
+| `ModuleNotFoundError` im Studio | `source tools/venv/bin/activate && pip install -r tools/requirements.txt` |
+| Port belegt | `./tools/tmr studio --port 8800` |
+| Oben rechts `CDN: .env unvollständig` | `.env` im Repo-Root ergänzen (Schlüssel siehe Abschnitt 1) |
+| DSP-Suche schlägt fehl | Bandcamp-URL eingetragen? `uv` installiert? Pfad des Scrapers prüfen (`TMR_SCRAPER_DIR`) |
+| `releases.json NOT written — schema violation` | Eintrag verletzt `data/releases.schema.json`, die Datei bleibt unverändert |
+| Alte Version von `releases.json` zurückholen | Backups liegen in `data/backups/` (nicht in Git) |
+
+---
+
+## 7. Tests und Aufbau
 
 ```bash
-tools/tmr convert <release-path>
-tools/tmr convert <release-path> --force
+cd tools && source venv/bin/activate
+pip install -r requirements-dev.txt
+python -m pytest tests
 ```
 
-**Tags written:** Artist, Title, Album, Track number, Year, Label, Catalog number, Cover art (APIC).
+| Pfad | Inhalt |
+|---|---|
+| `tools/the-moon.py`, `tools/tmr` | CLI-Einstieg |
+| `tools/commands/` | `generate`, `validate`, `convert`, `push`, `social`, gemeinsame Prüfungen (`checks.py`) |
+| `tools/studio/` | `status.py` (Stand berechnen), `folders.py` (Ordner, Dateien, Metadaten), `jobs.py`, `dsp.py`, `server.py` (API), `index.html` (die ganze Oberfläche) |
+| `tools/tests/` | Tests, nutzen nur Temp-Ordner und erreichen nie das CDN |
 
-**Output:** `<release-path>/export/mp3/`
-
-`--force` — overwrites existing MP3 files.
+Design und Plan: `docs/superpowers/specs/2026-11-10-tmr-studio-design.md`,
+`docs/superpowers/plans/2026-11-10-tmr-studio.md`.
 
 ---
 
-### `social`
-Renders social media video assets from release audio and artwork.
+## 8. Eigenständiges Werkzeug
 
-```bash
-# Initialise social.json config (run once, then edit)
-tools/tmr social <release-path> --init
-
-# Render all tracks, square format
-tools/tmr social <release-path> --format square
-
-# Render all tracks, all formats
-tools/tmr social <release-path> --format all
-
-# Render a single track
-tools/tmr social <release-path> --format square --track 1
-
-# Custom duration
-tools/tmr social <release-path> --format reel --duration 45
-```
-
-**Formats:** `square` (1080×1080), `reel` (1080×1920), `all`
-
-**Output:** `<release-path>/export/social/<format>/`
-
-**Brand defaults:** `#CC2222` accent, `#0E0E0E` background, Barlow Condensed font, Terminal Glow waveform.
-
-**`social.json`** — generated by `--init`, controls per-track start times, duration overrides, title overrides, and skip flags. Edit before rendering.
-
----
-
-## Release Asset Structure
-
-```
-the-moon-assets/
-└── tmr-001-logic-moon-example/
-    ├── audio/
-    │   └── 01_track-title.wav        ← source files
-    ├── artwork/
-    │   └── cover.png                 ← min 3000×3000px
-    ├── export/
-    │   ├── mp3/                      ← convert output
-    │   └── social/                   ← social output
-    │       ├── square/
-    │       └── reel/
-    ├── release.json                  ← source of truth
-    └── social.json                   ← social render config (optional)
-```
-
----
-
-## Workflow
-
-```
-generate → validate → convert → social → push (coming)
-```
-
-1. `generate` — build release.json from audio files
-2. Edit `release.json` — fill in artist, title, track titles, release date
-3. Place cover in `artwork/`
-4. `validate` — confirm everything is correct
-5. `validate --generate-md` — generate release draft
-6. `convert` — export tagged MP3s
-7. `social --init` — generate social.json, edit start times
-8. `social --format all` — render video assets
-
----
-
-## Standalone Tools
-
-### `the-moon-vhs.sh`
-
-Applies the The Moon Records video effect stack to any MP4 file via FFmpeg. Standalone — does not require the Python environment.
-
-**Requirements:** `ffmpeg` (system install)
-
-```bash
-# Basic usage
-tools/the-moon-vhs.sh input.mp4
-
-# Custom output path
-tools/the-moon-vhs.sh input.mp4 output_pg.mp4
-```
-
-**Effects applied:**
-- Scanlines — horizontal 4px grid at 20% opacity
-- Film grain — temporal noise, intensity 14
-- Vignette — `PI/4.5`, dark edges / luminous center
-- Color grade — red channel +5%, green/blue slightly reduced
-
-**Output:** `input_pg.mp4` alongside the source file (or custom path if specified).
-
-Use this on any video — release teasers, social clips, behind-the-scenes footage — to apply the label aesthetic in post-production.
-
----
-
-## Adding Commands
-
-New commands go in `tools/commands/`. Register them in `tools/the-moon.py` following the existing pattern.
-
----
-
-*Part of the-moon-web*
+`tools/the-moon-vhs.sh input.mp4 [output.mp4]` legt den VHS-Look des Labels (Scanlines, Grain,
+Vignette, Farbkorrektur) per FFmpeg über ein Video. Braucht nur `ffmpeg`, nicht das venv.
