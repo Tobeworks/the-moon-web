@@ -1,11 +1,51 @@
 {
   "$schema": "./releases.schema.json",
   "_meta": {
-    "generated": "2026-11-10T09:15:30.577686+00:00",
+    "generated": "2026-11-10T10:09:11.898786+00:00",
     "label": "The Moon Records",
     "version": "1"
   },
   "releases": [
+    {
+      "catalog": "TMR-018",
+      "artist": "Aethery Fields",
+      "title": "Old Fog Horn",
+      "format": "EP",
+      "year": "2026",
+      "genre": "Dark Ambient",
+      "about": "",
+      "cover": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_600.jpg",
+      "artwork": {
+        "1500": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_1500.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_1500.webp"
+        },
+        "300": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_300.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_300.webp"
+        },
+        "3000": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_3000.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_3000.webp"
+        },
+        "600": {
+          "jpg": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_600.jpg",
+          "webp": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_600.webp"
+        }
+      },
+      "platforms": [],
+      "tracks": [
+        {
+          "number": 1,
+          "title": "Aethery Fields  - Old Fog Horn",
+          "runtime": "5:24",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/128/01_aethery_fields_old_fog_horn.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/320/01_aethery_fields_old_fog_horn.mp3"
+        }
+      ],
+      "pushed_at": "2026-11-10T10:09:11.898398+00:00",
+      "release_date": "2026-11-27"
+    },
     {
       "catalog": "TMR-017",
       "artist": "Logic Moon",
@@ -33,7 +73,12 @@
           "webp": "https://cdn.the-moon-records.de/releases/tmr-017-logic-moon-perihelion_drift/artwork/cover_600.webp"
         }
       },
-      "platforms": [],
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/album/perihelion-drift"
+        }
+      ],
       "tracks": [
         {
           "number": 1,
