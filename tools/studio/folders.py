@@ -9,7 +9,7 @@ import subprocess
 import unicodedata
 from pathlib import Path
 
-from studio.folders_types import AUDIO_EXT, IMAGE_EXT
+from studio.folders_types import AUDIO_EXT, IMAGE_EXT  # noqa: F401  (re-exported)
 
 META_FIELDS = {"artist", "title", "release_date", "format", "genre", "year"}
 
