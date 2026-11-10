@@ -9,7 +9,7 @@ import ReleaseCard from '../../components/ReleaseCard.astro';
 import ShareButtons from '../../components/ShareButtons.astro';
 import releasesData from '../../../data/releases.json';
 import { getFeedbackForRelease } from '../../lib/pocketbase';
-import { adjacent, isReleased as releaseIsOut, splitArtists, visiblePlatforms as platformsOf, yearOf } from '../../lib/release';
+import { adjacent, isReleased as releaseIsOut, playerTracksFor, splitArtists, visiblePlatforms as platformsOf, yearOf } from '../../lib/release';
 import { marked } from 'marked';
 
 const { slug } = Astro.params;
@@ -47,8 +47,8 @@ const playerTracks = tracks.map((t) => ({
 const releaseDate = release_date ? new Date(release_date) : null;
 const isReleased = releaseIsOut(release);
 const visiblePlatforms = platformsOf(release);
-// Before the release date the player offers the first track as a preview.
-const audioTracks = isReleased ? playerTracks : playerTracks.slice(0, 1);
+// Before the release date only the first track plays (preview); the others are listed greyed out.
+const audioTracks = playerTracksFor(playerTracks, isReleased);
 const displayYear = yearOf(release);
 
 // Format release date for display

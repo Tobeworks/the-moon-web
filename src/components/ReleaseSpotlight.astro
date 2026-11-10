@@ -1,6 +1,7 @@
 ---
 import DspLinks from './DspLinks.astro';
 import AudioPlayer from './AudioPlayer.astro';
+import { playerTracksFor } from '../lib/release';
 
 interface Track { number: number; title: string; url: string; }
 interface Platform { name: string; url: string; }
@@ -33,7 +34,7 @@ const now = new Date();
 const releaseDate = release_date ? new Date(release_date) : null;
 const isReleased = releaseDate ? releaseDate <= now : true;
 // Before the release date the player offers the first track as a preview.
-const audioTracks = isReleased ? playerTracks : playerTracks.slice(0, 1);
+const audioTracks = playerTracksFor(playerTracks, isReleased);
 const visiblePlatforms = isReleased ? (platforms ?? []).filter((p) => p.url) : [];
 
 const formattedReleaseDate = releaseDate

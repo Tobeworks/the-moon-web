@@ -44,6 +44,18 @@ export const isReleased = (r: Release) => (r.release_date ? new Date(r.release_d
 export const visiblePlatforms = (r: Release) =>
   isReleased(r) ? sortPlatforms(r.platforms as Platform[]) : [];
 
+export interface PlayerTrack {
+  number: number;
+  title: string;
+  url: string;
+  /** Listed but not playable (greyed out); its URL is withheld. */
+  locked?: boolean;
+}
+
+/** Before the release date only the first track plays; the others are listed greyed out. */
+export const playerTracksFor = (tracks: PlayerTrack[], released: boolean): PlayerTrack[] =>
+  released ? tracks : tracks.map((t, i) => (i === 0 ? t : { ...t, url: '', locked: true }));
+
 export const yearOf = (r: Release) => r.year || r.release_date?.slice(0, 4) || '';
 
 /** "A & B, C" → ["A", "B", "C"] */

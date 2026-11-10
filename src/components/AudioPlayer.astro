@@ -3,6 +3,8 @@ interface Track {
   number: number;
   title: string;
   url: string;
+  /** Listed greyed out, not playable (e.g. before the release date). */
+  locked?: boolean;
 }
 
 interface Props {
@@ -81,7 +83,13 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
     {tracks.map((track) => {
       const label = track.title.replace(/^.*?\s{2,}/, '').trim() || track.title;
       return (
-        <li class="audio-player__track" data-index={track.number - 1}>
+        <li
+          class:list={['audio-player__track', track.locked && 'opacity-40 pointer-events-none']}
+          data-index={track.number - 1}
+          data-locked={track.locked ? '' : undefined}
+          aria-disabled={track.locked ? 'true' : undefined}
+          title={track.locked ? 'Available on release day' : undefined}
+        >
           <span class="audio-player__track-num">{String(track.number).padStart(2, '0')}</span>
           <span class="audio-player__track-label">{label}</span>
           <svg class="audio-player__track-playing-icon" width="10" height="10" viewBox="0 0 10 10" fill="currentColor" aria-hidden="true">
@@ -399,7 +407,13 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
   function initPlayer(root: HTMLElement) {
     const tracksRaw = root.dataset.tracks;
     if (!tracksRaw) return;
-    const tracks: { number: number; title: string; url: string }[] = JSON.parse(tracksRaw);
+    const tracks: { number: number; title: string; url: string; locked?: boolean }[] = JSON.parse(tracksRaw);
+    // locked tracks are listed greyed out; prev/next/auto-advance skip them
+    const playable = tracks.map((t, i) => (t.locked ? -1 : i)).filter((i) => i >= 0);
+    const step = (from: number, dir: 1 | -1) => {
+      const pos = playable.indexOf(from);
+      return playable[(pos + dir + playable.length) % playable.length];
+    };
 
     const audio = new Audio();
     let currentIndex = 0;
@@ -426,7 +440,7 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
 
     function loadTrack(idx: number, autoPlay = false) {
       const t = tracks[idx];
-      if (!t) return;
+      if (!t || t.locked) return;
       currentIndex = idx;
       audio.src = t.url;
       audio.load();
@@ -457,7 +471,7 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
 
     btnPlay.addEventListener('click', () => {
       if (audio.src === '' || audio.src === window.location.href) {
-        loadTrack(0, true);
+        loadTrack(playable[0], true);
         return;
       }
       if (isPlaying) {
@@ -469,18 +483,16 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
     });
 
     btnPrev.addEventListener('click', () => {
-      const idx = (currentIndex - 1 + tracks.length) % tracks.length;
-      loadTrack(idx, isPlaying);
+      loadTrack(step(currentIndex, -1), isPlaying);
     });
 
     btnNext.addEventListener('click', () => {
-      const idx = (currentIndex + 1) % tracks.length;
-      loadTrack(idx, isPlaying);
+      loadTrack(step(currentIndex, 1), isPlaying);
     });
 
     // Click on track item
     trackItems.forEach((el, i) => {
-      el.addEventListener('click', () => loadTrack(i, true));
+      if (!tracks[i]?.locked) el.addEventListener('click', () => loadTrack(i, true));
     });
 
     // Audio events
@@ -498,8 +510,8 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
     });
 
     audio.addEventListener('ended', () => {
-      const next = currentIndex + 1;
-      if (next < tracks.length) {
+      const next = playable.find((i) => i > currentIndex);
+      if (next !== undefined) {
         loadTrack(next, true);
       } else {
         setPlaying(false);
@@ -527,8 +539,8 @@ const uid = `player-${Math.random().toString(36).slice(2, 9)}`;
       if (e.key === 'ArrowLeft')  audio.currentTime = Math.max(audio.currentTime - 5, 0);
     });
 
-    // Load first track (no autoplay)
-    loadTrack(0, false);
+    // Load first playable track (no autoplay)
+    if (playable.length) loadTrack(playable[0], false);
   }
 
   // Init all players on the page
