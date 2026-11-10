@@ -77,6 +77,14 @@
   dialog::backdrop{background:rgba(0,0,0,.8)}
   .problem{color:var(--warn);margin:8px 0}
   .gap{margin-top:24px}
+  progress{appearance:none;-webkit-appearance:none;border:0;height:8px;width:100%;background:var(--high);overflow:hidden;color:var(--accent)}
+  progress::-webkit-progress-bar{background:var(--high)}
+  progress::-webkit-progress-value{background:var(--accent)}
+  progress::-moz-progress-bar{background:var(--accent)}
+  .jobbar{position:sticky;top:72px;z-index:4;background:var(--low);border-bottom:1px solid var(--accent-border)}
+  .jobbar-in{max-width:1280px;margin:0 auto;padding:14px 40px;display:flex;align-items:center;gap:20px;font-size:.9rem}
+  .jobbar-in progress{flex:1;min-width:120px}
+  .jobbar-in .btn{min-height:44px}
 </style>
 </head>
 <body>
@@ -87,6 +95,7 @@
   <div class="chip mono" id="chip-git"></div>
   <div class="chip mono" id="chip-cdn"></div>
 </header>
+<div id="jobbar" class="jobbar" hidden aria-live="polite"></div>
 <main id="app"></main>
 <dialog id="dlg"></dialog>
 
@@ -95,7 +104,7 @@ const STEP_NAMES = {A:'Assets', V:'Daten vollständig', K:'Konvertiert', P:'Gepu
 const NEXT_LABEL = {A:'Dateien', V:'Metadaten', K:'Konvertieren', P:'Pushen', G:'Committen', D:'DSP-Links'};
 const GLYPH = {ok:'✓', open:'·', stale:'↻', na:'–', warn:'!'};
 const $ = s => document.querySelector(s);
-let state = null, jobTimer = null;
+let state = null, jobTimer = null, currentJobId = null, logText = 'Noch kein Job gestartet.';
 
 const h = (tag, props = {}, ...kids) => {
   const e = document.createElement(tag);
@@ -328,7 +337,7 @@ async function viewDetail(app, catalog, focus) {
       })}, 'Ausgewählte übernehmen')));
   }
 
-  const logBox = h('div', {class: 'log mono', id: 'log'}, 'Noch kein Job gestartet.');
+  const logBox = h('div', {class: 'log mono', id: 'log'}, logText);
   app.append(
     h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ` / ${catalog}`),
     h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, s.artist), h('h1', {}, s.title || catalog)),
@@ -362,21 +371,44 @@ async function pushDialog(catalog) {
   dlg.showModal();
 }
 
-// ── job log (polling) ──────────────────────────────────────────────────────
+// ── job bar and log (polling) ───────────────────────────────────────────────
+const JOB_STATE = {running: 'läuft', ok: 'fertig', failed: 'fehlgeschlagen', cancelled: 'abgebrochen'};
+const JOB_GLYPH = {running: '⟳', ok: '✓', failed: '✗', cancelled: '■'};
+
+function renderJobBar(j) {
+  const p = j.progress;
+  const bar = $('#jobbar'); bar.hidden = false;
+  bar.replaceChildren(h('div', {class: 'jobbar-in'},
+    h('span', {class: 'mono'}, JOB_GLYPH[j.status]),
+    h('span', {}, `${j.label} · ${JOB_STATE[j.status]}`),
+    h('progress', {max: 100, value: j.status === 'running' ? (p ? p.pct : null) : 100, 'aria-label': `Fortschritt ${j.label}`}),
+    h('span', {class: 'mono'}, p ? `${p.done}/${p.total} · ${p.pct} %` : ''),
+    j.status === 'running' && h('button', {class: 'btn ghost', onclick: guard(cancelJob)}, 'Abbrechen')));
+}
+
+async function cancelJob() {
+  if (!currentJobId || !confirm('Aufgabe abbrechen? Bereits Erledigtes bleibt erhalten.')) return;
+  await api(`/api/jobs/${currentJobId}/cancel`, {method: 'POST'});
+}
+
 function followJob(id, since) {
   clearTimeout(jobTimer);
-  const log = $('#log');
-  if (!log) return;
-  if (since === 0) log.textContent = '';
+  currentJobId = id;
+  if (since === 0) { logText = ''; const l = $('#log'); if (l) l.textContent = ''; }
   const tick = async () => {
     try {
       const j = await api(`/api/jobs/${id}?since=${since}`);
-      if (j.lines.length) { log.textContent += j.lines.join('\n') + '\n'; log.scrollTop = log.scrollHeight; }
+      if (j.lines.length) {
+        logText += j.lines.join('\n') + '\n';
+        const l = $('#log'); if (l) { l.textContent = logText; l.scrollTop = l.scrollHeight; }
+      }
       since = j.next;
+      renderJobBar(j);
       if (j.status === 'running') { jobTimer = setTimeout(tick, 500); return; }
-      log.classList.toggle('fail', j.status === 'failed');
-      log.textContent += j.status === 'ok' ? '\n✓ fertig' : `\n✗ fehlgeschlagen (Exit ${j.exit_code})`;
-      await refresh();
+      logText += j.status === 'ok' ? '\n✓ fertig' : j.status === 'cancelled' ? '\n■ abgebrochen' : `\n✗ fehlgeschlagen (Exit ${j.exit_code})`;
+      setTimeout(() => { if (!state.job || state.job.status !== 'running') $('#jobbar').hidden = true; }, 6000);
+      await route();  // statuses changed: re-render, then restore the log
+      const l = $('#log'); if (l) { l.textContent = logText; l.classList.toggle('fail', j.status === 'failed'); l.scrollTop = l.scrollHeight; }
     } catch (e) { banner(e.message); }
   };
   tick();

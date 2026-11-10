@@ -22,6 +22,8 @@ class Jobs:
         self._lock = threading.Lock()
         self._jobs: dict[str, dict] = {}
         self._running: str | None = None
+        self._procs: dict[str, subprocess.Popen] = {}
+        self._cancelled: set[str] = set()
 
     def start(self, argv: list[str], cwd: Path, label: str) -> str:
         with self._lock:
@@ -40,6 +42,9 @@ class Jobs:
             proc = subprocess.Popen(
                 argv, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
                 env={**os.environ, "PYTHONUNBUFFERED": "1"})
+            self._procs[job_id] = proc
+            if job_id in self._cancelled:
+                proc.terminate()
             for line in proc.stdout:
                 job["lines"].append(ANSI.sub("", line.rstrip("\n")))
                 if len(job["lines"]) > MAX_LINES:
@@ -52,7 +57,18 @@ class Jobs:
         job["exit_code"] = code
         with self._lock:
             self._running = None
-        job["status"] = "ok" if code == 0 else "failed"
+        job["status"] = "cancelled" if job_id in self._cancelled else "ok" if code == 0 else "failed"
+
+    def cancel(self, job_id: str) -> bool:
+        """Stop a running job. Returns False if it is not running."""
+        with self._lock:
+            if self._running != job_id:
+                return False
+            self._cancelled.add(job_id)
+        proc = self._procs.get(job_id)
+        if proc:
+            proc.terminate()
+        return True
 
     def get(self, job_id: str, since: int = 0) -> dict | None:
         job = self._jobs.get(job_id)

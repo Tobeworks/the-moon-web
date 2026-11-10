@@ -16,6 +16,7 @@ from commands.checks import publish_problems
 from studio import dsp, folders, gitops
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
+from studio.progress import progress
 from studio.status import find_folder, list_releases, release_status
 
 CATALOG_RE = re.compile(r"^TMR-\d{3,}$")
@@ -75,6 +76,7 @@ def _env_keys(cfg: Config) -> set[str]:
 def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
     app = FastAPI(title="tmr studio", docs_url=None, redoc_url=None, openapi_url=None)
     jobs = jobs or Jobs()
+    job_meta: dict[str, dict] = {}
 
     @app.middleware("http")
     async def guard(request: Request, call_next):
@@ -136,11 +138,13 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             problems.append("not converted yet")
         return problems
 
-    def start(argv, label):
+    def start(argv, label, kind=None, total=None):
         try:
-            return {"job_id": jobs.start(argv, cfg.web_root, label)}
+            job_id = jobs.start(argv, cfg.web_root, label)
         except JobBusy:
             raise HTTPException(409, "another job is running")
+        job_meta[job_id] = {"kind": kind, "total": total}
+        return {"job_id": job_id}
 
     # ── pages ────────────────────────────────────────────────────────────────
     @app.get("/")
@@ -249,7 +253,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             argv.append("--force")
         if body.step == "social" and body.format in ("square", "reel", "all"):
             argv += ["--format", body.format]
-        return start(argv, f"{body.step} {catalog}")
+        total = len(release_json(folder).get("tracks") or []) * 2 if body.step == "convert" else None
+        return start(argv, f"{body.step} {catalog}", body.step, total)
 
     @app.get("/api/releases/{catalog}/push-preview")
     def push_preview(catalog: str):
@@ -273,14 +278,21 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         missing = [k for k in CDN_KEYS if k not in _env_keys(cfg)]
         if missing:
             raise HTTPException(400, f"missing in .env: {', '.join(missing)}")
-        return start([str(cfg.tmr), "push", str(folder)], f"push {catalog}")
+        return start([str(cfg.tmr), "push", str(folder)], f"push {catalog}", "push",
+                     len(push_files(folder)))
 
     @app.get("/api/jobs/{job_id}")
     def job(job_id: str, since: int = 0):
         j = jobs.get(job_id, since)
         if j is None:
             raise HTTPException(404, "unknown job")
-        return j
+        meta = job_meta.get(job_id, {})
+        full = jobs.get(job_id, 0)["lines"] if meta.get("total") else []
+        return {**j, "kind": meta.get("kind"), "progress": progress(meta.get("kind"), full, meta.get("total"))}
+
+    @app.post("/api/jobs/{job_id}/cancel")
+    def job_cancel(job_id: str):
+        return {"cancelled": jobs.cancel(job_id)}
 
     @app.post("/api/git/commit")
     def git_commit(body: Commit):

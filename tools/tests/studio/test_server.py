@@ -30,6 +30,10 @@ class FakeJobs:
     def current(self):
         return None
 
+    def cancel(self, job_id):
+        self.cancelled = getattr(self, "cancelled", []) + [job_id]
+        return job_id == "job1"
+
 
 @pytest.fixture
 def jobs():
@@ -116,6 +120,19 @@ def test_run_builds_tmr_argv(client, folder, jobs, studio_env):
     assert r.status_code == 200 and r.json()["job_id"] == "job1"
     assert jobs.started[-1] == [str(studio_env.tmr), "convert", str(folder), "--force"]
     assert client.post("/api/releases/TMR-099/run", json={"step": "rm -rf"}).status_code == 400
+
+
+def test_job_response_has_progress_for_convert(client, folder):
+    job_id = client.post("/api/releases/TMR-099/run", json={"step": "convert"}).json()["job_id"]
+    j = client.get(f"/api/jobs/{job_id}").json()
+    assert j["kind"] == "convert" and j["progress"] == {"done": 0, "total": 2, "pct": 0}
+    job_id = client.post("/api/releases/TMR-099/run", json={"step": "validate"}).json()["job_id"]
+    assert client.get(f"/api/jobs/{job_id}").json()["progress"] is None
+
+
+def test_cancel_endpoint(client, jobs):
+    assert client.post("/api/jobs/job1/cancel").json() == {"cancelled": True}
+    assert client.post("/api/jobs/other/cancel").json() == {"cancelled": False}
 
 
 def test_second_job_is_409(client, folder, jobs):

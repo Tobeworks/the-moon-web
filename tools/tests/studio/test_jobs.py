@@ -48,6 +48,16 @@ def test_second_job_is_busy(tmp_path):
     assert jobs.current() is None
 
 
+def test_cancel_stops_running_job(tmp_path):
+    jobs = Jobs()
+    job_id = jobs.start(py("import time; time.sleep(30)"), tmp_path, "slow")
+    time.sleep(0.2)
+    assert jobs.cancel(job_id) is True
+    assert wait(jobs, job_id)["status"] == "cancelled"
+    assert jobs.cancel(job_id) is False
+    assert jobs.current() is None
+
+
 def test_since_returns_only_new_lines(tmp_path):
     jobs = Jobs()
     j = wait(jobs, jobs.start(py("print('a'); print('b'); print('c')"), tmp_path, "t"))
