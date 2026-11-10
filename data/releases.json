@@ -33,7 +33,12 @@
           "webp": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/artwork/cover_600.webp"
         }
       },
-      "platforms": [],
+      "platforms": [
+        {
+          "name": "bandcamp",
+          "url": "https://logicmoon.bandcamp.com/track/old-fog-horn"
+        }
+      ],
       "tracks": [
         {
           "number": 1,
