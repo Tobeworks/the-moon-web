@@ -9,7 +9,7 @@ import subprocess
 from datetime import date
 from pathlib import Path
 
-from commands.checks import publish_problems, publish_warnings
+from commands.checks import about_is_placeholder, is_placeholder, publish_problems, publish_warnings
 from commands.convert import cover_is_newer, mp3_name
 from studio.config import Config
 from studio.folders_types import AUDIO_EXT, IMAGE_EXT
@@ -53,17 +53,33 @@ def _release_and_about(folder: Path):
     return _read_release(folder), about_path.read_text(encoding="utf-8") if about_path.exists() else ""
 
 
-def validation_warnings(folder: Path) -> list[str]:
+def _with_live_entry(release: dict, about: str, entry: dict | None):
+    """For a live release the entry is the truth: placeholders in the folder don't count."""
+    if entry:
+        release = {**release, **{k: entry[k] for k in ("artist", "title", "release_date")
+                                 if is_placeholder(release.get(k)) and not is_placeholder(entry.get(k))}}
+        if about_is_placeholder(about) and not about_is_placeholder(entry.get("about")):
+            about = entry["about"]
+    return release, about
+
+
+def validation_warnings(folder: Path | None, entry: dict | None = None) -> list[str]:
     """Hints that do not block a push, in plain German."""
-    release, about = _release_and_about(folder)
-    return [] if release is None else [WARNING_DE.get(w.split(" ")[0], w) for w in publish_warnings(release, about)]
+    if entry:  # live: judge the entry's own text and date, not the folder's
+        release = {"release_date": entry.get("release_date"), "artwork": {"cover": "set"}}
+        about = entry.get("about") or ""
+    else:
+        release, about = _release_and_about(folder) if folder else ({}, "")
+        release = release or {}
+    return [WARNING_DE.get(w.split(" ")[0], w) for w in publish_warnings(release, about)]
 
 
-def validation_problems(folder: Path) -> list[str]:
+def validation_problems(folder: Path, entry: dict | None = None) -> list[str]:
     """What blocks a push: missing basics, in plain German. Empty list = ready."""
     release, about = _release_and_about(folder)
     if release is None:
         return ["release.json fehlt"]
+    release, about = _with_live_entry(release, about, entry)
     problems = [PROBLEM_DE.get(p.split(" ")[0], p) for p in publish_problems(release, about)]
     tracks = release.get("tracks") or []
     if not tracks:

@@ -110,14 +110,18 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
 Unten auf der Seite zeigt das **Protokoll** die Ausgabe des laufenden Befehls.
 Es läuft immer nur ein Job gleichzeitig.
 
-### Alte Daten übernehmen (automatisch)
+### Wo die Daten liegen (eine Quelle pro Zustand)
 
-Beim Start des Studios (und mit `./tools/tmr migrate`) werden die schon veröffentlichten Daten aus
-`data/releases.json` in die Asset-Ordner übernommen: DSP-Links, Genre, Jahr, Datum, fehlende Tracktitel
-und ein fehlender Releasetext. Es wird **nur ergänzt, was in der `release.json` leer oder Platzhalter ist**,
-vorhandene Werte bleiben. Umgekehrt trägt es Plattform-Links, die nur in der `release.json` des Ordners stehen
-(zum Beispiel eine nachträglich gespeicherte Bandcamp-URL), in `data/releases.json` ein. Von jeder geänderten Datei liegt eine Sicherung `release.json.before-migrate` daneben.
-`./tools/tmr migrate --dry-run` zeigt vorher, was passieren würde.
+| Zustand | Quelle der Wahrheit | Das Studio zeigt und speichert |
+|---|---|---|
+| noch nicht gepusht | `release.json` und `about.md` im Asset-Ordner | den Ordner |
+| veröffentlicht | der Eintrag in `data/releases.json` | den Eintrag, **ohne CDN-Upload** |
+
+Bei einem veröffentlichten Release schreibt **Speichern** direkt in `data/releases.json`
+(Backup in `data/backups/`). Der Ordner liefert dann nur noch Audio, Cover und die Dateinamen.
+Ein erneuter Push überschreibt Artist, Titel, Datum, Text, Genre, Links und Tracktitel
+des Eintrags **nicht**, er erneuert nur Dateien, URLs und Laufzeiten.
+Danach `data/releases.json` committen und pushen, erst das ändert die Website.
 
 ### Nach dem Push: Git
 

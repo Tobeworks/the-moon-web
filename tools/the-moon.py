@@ -13,7 +13,6 @@ Usage:
   ./tools/tmr social   <release-folder-path> --format reel — square | reel | carousel | all
   ./tools/tmr push     <release-folder-path>               — CDN upload + data/releases.json
   ./tools/tmr studio                                       — local browser UI for all of the above
-  ./tools/tmr migrate [--dry-run]                          — fill asset folders from data/releases.json
 """
 
 import click
@@ -76,24 +75,6 @@ def sftp_test():
     """Test SFTP connection and write permissions — no upload."""
     test_connection()
 
-def _run_migrate(apply: bool):
-    from studio.config import load_config
-    from studio.migrate import migrate_all
-
-    result = migrate_all(load_config(), apply=apply)
-    if not result:
-        click.echo("migrate: asset folders are up to date")
-    for catalog, changes in result.items():
-        click.echo(f"migrate {catalog}: " + "; ".join(changes) + ("" if apply else "  (dry run)"))
-
-
-@cli.command()
-@click.option('--dry-run', is_flag=True, default=False, help='Only show what would change.')
-def migrate(dry_run):
-    """Carry published data (releases.json) into the asset folders. Fill-only, never overwrites."""
-    _run_migrate(apply=not dry_run)
-
-
 @cli.command()
 @click.option('--port', default=8777, show_default=True,
               help='Local port (next free one if taken). 8765 belongs to Release Studio.')
@@ -107,7 +88,6 @@ def studio(port, no_open):
     from studio.config import free_port, load_config
     from studio.server import create_app
 
-    _run_migrate(apply=True)  # published data → asset folders, additive
     port = free_port(port)
     token = secrets.token_urlsafe(16)
     url = f"http://127.0.0.1:{port}/?key={token}"

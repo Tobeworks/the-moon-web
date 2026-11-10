@@ -58,6 +58,19 @@ def test_entry_runtime_falls_back_to_duration_and_year_from_date():
     assert e["year"] == "2026"
 
 
+def test_published_values_win_over_the_folder_and_the_folder_fills_gaps():
+    existing = {"catalog": "TMR-9", "artist": "Published Artist", "title": "Published Title", "genre": "",
+                "about": "Live text.", "release_date": "2026-01-01T00:00:00+00:00",
+                "tracks": [{"number": 1, "title": "Hand Edited", "runtime": "9:99"}]}
+    folder = {**RELEASE, "artist": "Folder Artist", "title": "FILL_IN", "genre": "Ambient",
+              "release_date": "2099-01-01"}
+    e = entry(release=folder, existing=existing, about="Folder text.")
+    assert (e["artist"], e["title"]) == ("Published Artist", "Published Title")  # published wins
+    assert e["genre"] == "Ambient"                                               # gap filled from the folder
+    assert e["about"] == "Live text." and e["release_date"] == "2026-01-01"
+    assert e["tracks"][0]["title"] == "Hand Edited" and e["tracks"][0]["runtime"] == "4:05"  # runtime from the files
+
+
 def test_entry_keeps_manual_fields_and_dsp_links_of_existing_entry():
     existing = {"catalog": "TMR-9", "genre": "Dark Ambient", "year": "2025",
                 "platforms": [p("spotify", "s")], "extra": 1}
@@ -175,3 +188,16 @@ def test_push_without_any_platform_url(release_dir, data_dir, monkeypatch):
     assert saved["catalog"] == "TMR-099" and saved["platforms"] == []
     assert saved["tracks"][0]["url"].endswith("/128/01_first.mp3")
     assert len(sftp.uploaded) == 3  # 128k + 320k MP3 and the raw cover (no export/artwork)
+
+
+def test_repush_of_a_live_release_keeps_its_data_even_if_the_folder_has_placeholders(release_dir, data_dir, monkeypatch):
+    path = data_dir / "releases.json"
+    data = json.loads(path.read_text())
+    data["releases"].insert(0, {**data["releases"][0], "catalog": "TMR-099", "artist": "Live Artist",
+                                "title": "Live Title", "about": "Live text.", "genre": "Drone",
+                                "platforms": [{"name": "spotify", "url": "https://s"}]})
+    path.write_text(json.dumps(data))
+    (release_dir / "about.md").write_text("# T\n\nWrite your release description here.\n")
+    saved, _ = run_push(release_dir, data_dir, monkeypatch, artist="FILL_IN", title="FILL_IN", release_date="YYYY-MM-DD")
+    assert (saved["artist"], saved["title"], saved["about"], saved["genre"]) == ("Live Artist", "Live Title", "Live text.", "Drone")
+    assert {"name": "spotify", "url": "https://s"} in saved["platforms"]

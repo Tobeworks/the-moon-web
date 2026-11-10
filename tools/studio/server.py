@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from commands.convert import mp3_name
 
-from studio import ai, dsp, folders, gitops, sync
+from studio import ai, dsp, folders, gitops, published
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
 from studio.progress import progress
@@ -145,7 +145,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
     def push_problems(catalog, folder, entry) -> list[str]:
         if folder is None:
             return ["kein Asset-Ordner für dieses Release"]
-        problems = validation_problems(folder)
+        problems = validation_problems(folder, entry)
         k = _step_converted(folder)
         if k == "stale":
             problems.append("Cover ist neuer als die MP3s: mit „Überschreiben“ neu konvertieren")
@@ -223,14 +223,12 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         catalog, folder, entry = ctx(catalog)
         names = lambda sub, exts: sorted(  # noqa: E731
             f.name for f in (folder / sub).glob("*") if f.suffix.lower() in exts) if folder else []
-        return {"summary": row(catalog), "release": release_json(folder), "entry": entry,
-                "about": about_of(folder),
-                "tracks": [{"number": t.get("number"), "title": t.get("title", ""), "file": t.get("file", ""),
-                            "duration": t.get("duration", ""), "mp3": mp3_name(t, Path(t.get("file", "")).stem)}
-                           for t in release_json(folder).get("tracks") or []],
-                "problems": {"validation": validation_problems(folder) if folder else [],
+        v = published.view(folder, entry)  # live release: the entry is the truth, else the folder files
+        return {"summary": row(catalog), "release": v["release"], "entry": entry,
+                "about": v["about"], "tracks": v["tracks"],
+                "problems": {"validation": validation_problems(folder, entry) if folder else [],
                              "push": push_problems(catalog, folder, entry)},
-                "warnings": validation_warnings(folder) if folder else [],
+                "warnings": validation_warnings(folder, entry) if (folder or entry) else [],
                 "files": {"audio": names("audio", folders.AUDIO_EXT),
                           "artwork": names("artwork", folders.IMAGE_EXT),
                           "mp3": [f"{f.parent.name}/{f.name}" for f in mp3_files(folder)] if folder else [],
@@ -251,31 +249,14 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
     @app.put("/api/releases/{catalog}/meta")
     def meta(catalog: str, body: Meta):
         catalog, folder, entry = ctx(catalog)
-        before, before_about = release_json(folder), about_of(folder)
         try:
-            release = folders.write_meta(need_folder(folder), body.fields, body.about)
+            if entry is not None:  # live release: save into releases.json (no CDN upload)
+                done = published.update_entry(cfg.releases_path, catalog, body.fields, body.about)
+                return {"release": published.view(folder, next(
+                    e for e in entries() if e["catalog"].upper() == catalog))["release"], "published": done}
+            return {"release": folders.write_meta(need_folder(folder), body.fields, body.about), "published": []}
         except ValueError as e:
             raise HTTPException(400, str(e))
-        published = []
-        if entry is not None:  # already live: pass the user's edits on to releases.json (no CDN upload)
-            changed = {}
-            for key, value in body.fields.items():
-                if key == "track_titles":
-                    old = {str(t.get("number")): t.get("title") for t in before.get("tracks") or []}
-                    changed[key] = {n: t for n, t in value.items() if old.get(str(n)) != str(t).strip()}
-                else:
-                    old = (before.get("platforms") or {}).get("bandcamp") if key == "bandcamp" else before.get(key)
-                    lacking = key == "bandcamp" and not any(
-                        p["name"] == "bandcamp" and p.get("url") for p in entry.get("platforms") or [])
-                    if (value or "") != (old or "") or (lacking and value):
-                        changed[key] = value
-            about_changed = body.about is not None and body.about != before_about
-            try:
-                published = sync.sync_published(cfg.releases_path, catalog, changed,
-                                                body.about if about_changed else None)
-            except ValueError as e:
-                raise HTTPException(400, f"releases.json not updated: {e}")
-        return {"release": release, "published": published}
 
     # ── files ────────────────────────────────────────────────────────────────
     @app.post("/api/releases/{catalog}/files")
@@ -339,7 +320,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         return {"files": files, "total_bytes": sum(f["size"] for f in files),
                 "target": f"{base}/releases/{folder.name}/",
                 "problems": push_problems(catalog, folder, entry),
-                "warnings": validation_warnings(folder)}
+                "warnings": validation_warnings(folder, entry)}
 
     @app.post("/api/releases/{catalog}/push")
     def push(catalog: str, body: Push):
@@ -375,7 +356,7 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         catalog, folder, entry = ctx(catalog)
         if not ai.ready(cfg):
             raise HTTPException(400, "ANTHROPIC_API_KEY fehlt in der .env im Repo-Root.")
-        release = release_json(folder) or entry or {}
+        release = published.view(folder, entry)["release"]
         examples = []
         for e in entries():
             text = (e.get("about") or "").strip()

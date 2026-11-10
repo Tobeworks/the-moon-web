@@ -361,17 +361,23 @@ def test_git_commit_endpoint(client, studio_env):
     assert client.get("/api/state").json()["releases_dirty"] is False
 
 
-def test_saving_metadata_of_a_published_release_updates_releases_json(client, folder, studio_env):
+def test_a_live_release_is_saved_into_releases_json_and_shown_from_it(client, folder, studio_env):
     data = json.loads(studio_env.releases_path.read_text())
-    entry = {**data["releases"][0], "catalog": "TMR-099", "platforms": [], "title": "Published Title"}
+    entry = {**data["releases"][0], "catalog": "TMR-099", "platforms": [], "artist": "Live Artist",
+             "title": "Live Title", "about": "Live text."}
     data["releases"].insert(0, entry)
     studio_env.releases_path.write_text(json.dumps(data))
+
+    shown = client.get("/api/releases/TMR-099").json()  # the folder says "Test Artist", the entry wins
+    assert shown["release"]["artist"] == "Live Artist" and shown["about"] == "Live text."
+
     r = client.put("/api/releases/TMR-099/meta", json={"fields": {
-        "bandcamp": "https://x.bandcamp.com/album/y", "title": "Test Title"}})  # title equals the folder's value
+        "title": "Live Title", "bandcamp": "https://x.bandcamp.com/album/y"}, "about": "Live text."})
     assert r.status_code == 200 and r.json()["published"] == ["bandcamp"]
     saved = next(x for x in json.loads(studio_env.releases_path.read_text())["releases"] if x["catalog"] == "TMR-099")
     assert saved["platforms"] == [{"name": "bandcamp", "url": "https://x.bandcamp.com/album/y"}]
-    assert saved["title"] == "Published Title"  # untouched: the user did not change it
+    folder_release = json.loads((folder / "release.json").read_text())
+    assert folder_release["title"] == "Test Title"  # the folder copy is not touched
     again = client.put("/api/releases/TMR-099/meta", json={"fields": {"bandcamp": "https://x.bandcamp.com/album/y"}})
     assert again.json()["published"] == []
 
@@ -380,8 +386,7 @@ def test_saving_passes_on_a_bandcamp_url_the_entry_lacks_even_if_unchanged(clien
     data = json.loads(studio_env.releases_path.read_text())
     data["releases"].insert(0, {**data["releases"][0], "catalog": "TMR-099", "platforms": []})
     studio_env.releases_path.write_text(json.dumps(data))
-    rel = json.loads((folder / "release.json").read_text())  # fixture already has a bandcamp URL
-    url = rel["platforms"]["bandcamp"]
+    url = json.loads((folder / "release.json").read_text())["platforms"]["bandcamp"]
     r = client.put("/api/releases/TMR-099/meta", json={"fields": {"bandcamp": url}})
     assert r.json()["published"] == ["bandcamp"]
 

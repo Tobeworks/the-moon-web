@@ -179,6 +179,14 @@ def upload_file(client, local: Path, remote: str, client_type: str):
 RELEASES_PATH = Path(__file__).parents[2] / "data" / "releases.json"
 
 
+def published_entry(catalog: str) -> dict | None:
+    """The live entry for this catalog in data/releases.json, if any."""
+    try:
+        return next((r for r in json.loads(RELEASES_PATH.read_text())["releases"] if r["catalog"] == catalog), None)
+    except (OSError, ValueError, KeyError):
+        return None
+
+
 def test_connection():
     """Test FTP/SFTP connection and permissions — no upload."""
     print(
@@ -284,15 +292,23 @@ def upsert_release(data: dict, entry: dict) -> None:
 
 
 def build_entry(release, about, cover, artwork, existing, urls) -> dict:
-    """Build the releases.json entry. `existing` (same catalog) keeps manual fields."""
+    """Build the releases.json entry. Once a release is published, its entry is the source of truth:
+    existing values win, the asset folder only fills gaps and supplies what comes from the files
+    (track length, CDN URLs, cover)."""
     existing = existing or {}
+
+    def prefer(key, folder_value):
+        old = existing.get(key)
+        return folder_value if is_placeholder(old) else old
+
+    old_titles = {t.get("number"): t.get("title") for t in existing.get("tracks") or []}
     tracks = []
     for i, t in enumerate(release.get("tracks", []), 1):
         num = t.get("number", i)
         u128, u320 = urls.get(num, ("", ""))
         tracks.append({
             "number": num,
-            "title": t.get("title", ""),
+            "title": old_titles.get(num) or t.get("title", ""),
             "runtime": t.get("runtime") or t.get("duration", ""),
             "url": u128,
             "url_320": u320,
@@ -301,6 +317,7 @@ def build_entry(release, about, cover, artwork, existing, urls) -> dict:
     release_date = release.get("release_date", "")
     if is_placeholder(release_date):
         release_date = ""  # "YYYY-MM-DD" must not reach the site
+    release_date = str(existing["release_date"])[:10] if not is_placeholder(existing.get("release_date")) else release_date
     year = release.get("year") or (release_date[:4] if release_date[:4].isdigit() else "")
 
     platforms = dict(release.get("platforms") or release.get("plaforms") or {})
@@ -310,12 +327,12 @@ def build_entry(release, about, cover, artwork, existing, urls) -> dict:
     entry = {
         **existing,
         "catalog": release["catalog"],
-        "artist": release.get("artist", ""),
-        "title": release.get("title", ""),
-        "format": release.get("format") or existing.get("format", ""),
-        "year": year or existing.get("year", ""),
-        "genre": release.get("genre") or existing.get("genre", ""),
-        "about": about,
+        "artist": prefer("artist", release.get("artist", "")),
+        "title": prefer("title", release.get("title", "")),
+        "format": prefer("format", release.get("format") or ""),
+        "year": prefer("year", year),
+        "genre": prefer("genre", release.get("genre") or ""),
+        "about": prefer("about", about),
         "cover": cover or existing.get("cover"),
         "artwork": artwork or existing.get("artwork", {}),
         "platforms": build_platforms(platforms, existing.get("platforms", [])),
@@ -387,6 +404,12 @@ def push_release(release_path: str):
 
     about_path = path / "about.md"
     about = about_path.read_text(encoding="utf-8").strip() if about_path.exists() else ""
+    live = published_entry(catalog)
+    if live:  # a live release: its entry is the truth, placeholders in the folder don't count
+        data = {**data, **{k: live[k] for k in ("artist", "title", "release_date")
+                           if is_placeholder(data.get(k)) and not is_placeholder(live.get(k))}}
+        if about_is_placeholder(about) and not about_is_placeholder(live.get("about")):
+            about = live["about"]
     problems = publish_problems(data, about)
     if problems:
         for pr in problems:
