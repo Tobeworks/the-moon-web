@@ -82,3 +82,33 @@ def test_migrate_all_skips_releases_without_folder_or_release_json(tmp_path, rel
     cfg = Config(web_root=web, assets_dir=assets, scraper_dir=tmp_path)
     result = migrate_all(cfg)
     assert list(result) == ["TMR-099"] and any("genre" in c for c in result["TMR-099"])
+
+
+def _setup_published(tmp_path, release_dir, entry_platforms, folder_platforms):
+    import shutil
+    web = tmp_path / "web"
+    (web / "data").mkdir(parents=True)
+    src = json.loads((__import__("pathlib").Path(__file__).parents[3] / "data" / "releases.json").read_text())
+    entry = {**src["releases"][0], "catalog": "TMR-099", "platforms": entry_platforms}
+    src["releases"] = [entry]
+    (web / "data" / "releases.json").write_text(json.dumps(src))
+    shutil.copy(__import__("pathlib").Path(__file__).parents[3] / "data" / "releases.schema.json", web / "data")
+    assets = tmp_path / "assets"
+    shutil.copytree(release_dir, assets / release_dir.name)
+    set_release(assets / release_dir.name, platforms=folder_platforms)
+    return Config(web_root=web, assets_dir=assets, scraper_dir=tmp_path), web / "data" / "releases.json"
+
+
+def _platforms(path):
+    return json.loads(path.read_text())["releases"][0]["platforms"]
+
+
+def test_links_set_only_in_the_folder_are_added_to_releases_json(tmp_path, release_dir):
+    cfg, path = _setup_published(tmp_path, release_dir, [{"name": "spotify", "url": "https://s"}],
+                                 {"bandcamp": "https://b", "spotify": "https://other", "deezer": None, "tidal": "https://t"})
+    result = migrate_all(cfg, apply=False)
+    assert _platforms(path) == [{"name": "spotify", "url": "https://s"}]  # dry run: nothing written
+    assert any("releases.json" in c and "bandcamp" in c for c in result["TMR-099"])
+    migrate_all(cfg)
+    assert _platforms(path) == [{"name": "spotify", "url": "https://s"}, {"name": "bandcamp", "url": "https://b"}]
+    assert migrate_all(cfg) == {}  # second run: nothing left to do

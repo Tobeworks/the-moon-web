@@ -115,7 +115,8 @@ Es läuft immer nur ein Job gleichzeitig.
 Beim Start des Studios (und mit `./tools/tmr migrate`) werden die schon veröffentlichten Daten aus
 `data/releases.json` in die Asset-Ordner übernommen: DSP-Links, Genre, Jahr, Datum, fehlende Tracktitel
 und ein fehlender Releasetext. Es wird **nur ergänzt, was in der `release.json` leer oder Platzhalter ist**,
-vorhandene Werte bleiben. Von jeder geänderten Datei liegt eine Sicherung `release.json.before-migrate` daneben.
+vorhandene Werte bleiben. Umgekehrt trägt es Plattform-Links, die nur in der `release.json` des Ordners stehen
+(zum Beispiel eine nachträglich gespeicherte Bandcamp-URL), in `data/releases.json` ein. Von jeder geänderten Datei liegt eine Sicherung `release.json.before-migrate` daneben.
 `./tools/tmr migrate --dry-run` zeigt vorher, was passieren würde.
 
 ### Nach dem Push: Git

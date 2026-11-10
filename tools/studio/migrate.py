@@ -9,7 +9,8 @@ import json
 import shutil
 from pathlib import Path
 
-from commands.checks import about_is_placeholder, is_placeholder
+from commands.checks import PLATFORM_NAMES, about_is_placeholder, is_placeholder
+from commands.push import write_releases
 from studio.config import Config
 from studio.status import find_folder
 
@@ -65,14 +66,38 @@ def migrate_release(entry: dict, folder: Path, apply: bool = True) -> list[str]:
     return changes
 
 
+def local_links_missing_in_entry(entry: dict, folder: Path) -> list[dict]:
+    """Platform links set in the folder's release.json that the published entry does not have yet."""
+    try:
+        local = json.loads((folder / "release.json").read_text()).get("platforms")
+    except (OSError, ValueError):
+        return []
+    if not isinstance(local, dict):
+        return []
+    have = {p["name"] for p in entry.get("platforms") or [] if p.get("url")}
+    return [{"name": n, "url": str(u).strip()} for n, u in local.items()
+            if n in PLATFORM_NAMES and str(u or "").strip() and n not in have]
+
+
 def migrate_all(cfg: Config, apply: bool = True) -> dict[str, list[str]]:
-    """{catalog: changes} for every published release whose asset folder had gaps."""
-    result = {}
-    for entry in json.loads(cfg.releases_path.read_text()).get("releases", []):
+    """{catalog: changes}. Both directions, fill-only: published → asset folder (release.json, about.md)
+    and folder → releases.json (platform links the entry lacks)."""
+    data = json.loads(cfg.releases_path.read_text())
+    result, entry_changed = {}, False
+    for entry in data.get("releases", []):
         folder = find_folder(cfg.assets_dir, entry["catalog"])
         if folder is None:
             continue
         changes = migrate_release(entry, folder, apply)
+        links = local_links_missing_in_entry(entry, folder)
+        if links:
+            changes.append("releases.json ← " + ", ".join(link["name"] for link in links))
+            if apply:
+                entry.setdefault("platforms", [])
+                entry["platforms"] = [p for p in entry["platforms"] if p.get("url")] + links
+                entry_changed = True
         if changes:
             result[entry["catalog"]] = changes
+    if entry_changed:
+        write_releases(cfg.releases_path, data)
     return result
