@@ -382,10 +382,11 @@ function playerPanel(catalog, d) {
   const stop = () => { if (cur) { cur.btn.textContent = '▶'; cur.fill.value = 0; cur.time.textContent = cur.total; } };
   const rows = tracks.map(t => {
     const pad = String(t.number).padStart(2, '0');
-    const mp3 = d.files.mp3.find(n => n.startsWith('128/' + pad + '_'));
+    const mp3 = d.files.mp3.find(n => n.startsWith('320/' + pad + '_'));
     const wav = t.file && d.files.audio.includes(t.file);
-    const src = mp3 ? `/api/releases/${catalog}/media/mp3-128/${encodeURIComponent(mp3.slice(4))}`
-      : wav ? `/api/releases/${catalog}/media/audio/${encodeURIComponent(t.file)}` : null;
+    // best quality first: the WAV original, else the 320k MP3
+    const src = wav ? `/api/releases/${catalog}/media/audio/${encodeURIComponent(t.file)}`
+      : mp3 ? `/api/releases/${catalog}/media/mp3-320/${encodeURIComponent(mp3.slice(4))}` : null;
     const row = {src, total: t.duration || '', btn: h('button', {class: 'btn ghost', disabled: !src, 'aria-label': `Abspielen: ${t.title}`}, '▶'),
       fill: h('progress', {max: 100, value: 0, 'aria-label': `Position: ${t.title}`}), time: h('span', {class: 'mono note'}, t.duration || '')};
     row.btn.addEventListener('click', () => {
@@ -397,7 +398,7 @@ function playerPanel(catalog, d) {
       if (cur === row && audio.duration) audio.currentTime = (e.offsetX / row.fill.clientWidth) * audio.duration;
     });
     row.el = h('div', {class: 'track'}, row.btn,
-      h('div', {}, `${t.number}. ${t.title || '—'}`, h('span', {class: 'label', style: 'margin-left:12px'}, mp3 ? 'MP3 128k' : wav ? 'WAV Original' : 'keine Datei'), row.fill), row.time);
+      h('div', {}, `${t.number}. ${t.title || '—'}`, h('span', {class: 'label', style: 'margin-left:12px'}, wav ? 'WAV Original' : mp3 ? 'MP3 320k' : 'keine Datei'), row.fill), row.time);
     return row;
   });
   audio.addEventListener('timeupdate', () => {
@@ -407,7 +408,7 @@ function playerPanel(catalog, d) {
   });
   audio.addEventListener('ended', () => { stop(); cur = null; });
   return h('div', {class: 'panel'}, h('h2', {}, 'Anhören'),
-    h('p', {class: 'note'}, 'Spielt die konvertierten MP3s (128k), sonst die WAV-Originale. Klick auf den Balken springt an die Stelle.'),
+    h('p', {class: 'note'}, 'Spielt die WAV-Originale, sonst die 320k-MP3s. Klick auf den Balken springt an die Stelle.'),
     rows.map(r => r.el));
 }
 

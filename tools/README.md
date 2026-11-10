@@ -95,7 +95,7 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
 3. **Konvertieren**: erzeugt MP3 in 128k (Web-Player) und 320k (Download) und die Cover-Varianten.
    Hast du das Cover geändert, ist **Überschreiben** schon angehakt. Sonst behalten die MP3s das alte Bild.
    Der **Fortschrittsbalken** unter der Kopfzeile zeigt, wie weit Konvertieren und Push sind. **Abbrechen**
-   stoppt die Aufgabe. Unter **Anhören** spielst du die Tracks ab (MP3 128k, sonst die WAV-Originale).
+   stoppt die Aufgabe. Unter **Anhören** spielst du die Tracks ab (WAV-Original, sonst 320k-MP3).
 4. **Push ans CDN**: **Freigeben und hochladen …** öffnet eine Zusammenfassung (Dateien, Größe, Ziel).
    Zum Starten musst du die Katalognummer eintippen. Der Push lädt hoch und schreibt den Eintrag in
    `data/releases.json`. Davor entsteht ein Backup in `data/backups/`.
