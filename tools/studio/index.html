@@ -122,6 +122,11 @@ const h = (tag, props = {}, ...kids) => {
   return e;
 };
 
+// append/replace that flatten arrays and skip null/false (plain append() would print them as text)
+const kidsOf = kids => kids.flat(Infinity).filter(k => k != null && k !== false);
+const add = (parent, ...kids) => parent.append(...kidsOf(kids));
+const replace = (parent, ...kids) => parent.replaceChildren(...kidsOf(kids));
+
 async function api(path, opts = {}) {
   const init = {method: opts.method || 'GET', headers: {}};
   if (opts.json !== undefined) { init.headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(opts.json); }
@@ -206,7 +211,7 @@ function viewOverview(app) {
   const rs = state.releases;
   const open = rs.filter(r => r.next && r.next !== 'D').length;
   const noDsp = rs.filter(r => r.status.D === 'open' && r.status.P === 'ok').length;
-  app.append(
+  add(app,
     commitBar(),
     h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, 'Katalog'), h('h1', {}, 'Releases')),
       h('div', {class: 'spacer'}), h('a', {class: 'btn fill', href: '#/new', style: 'text-decoration:none;display:flex;align-items:center'}, '+ Neues Release')),
@@ -230,7 +235,7 @@ function viewOverview(app) {
 function viewNew(app) {
   const f = {};
   const field = (k, label, props = {}) => h('label', {}, h('span', {class: 'label'}, label), f[k] = h('input', props));
-  app.append(h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ' / Neu anlegen'), h('h1', {}, 'Neues Release'),
+  add(app, h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ' / Neu anlegen'), h('h1', {}, 'Neues Release'),
     h('div', {class: 'panel gap', style: 'max-width:760px'},
       h('div', {class: 'form'},
         field('catalog', 'Katalognummer', {class: 'mono', value: state.next_catalog}),
@@ -368,7 +373,7 @@ async function viewDetail(app, catalog, focus) {
   }
 
   const logBox = h('div', {class: 'log mono', id: 'log'}, logText);
-  app.append(
+  add(app,
     h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ` / ${catalog}`),
     h('div', {class: 'row'}, d.files.cover && h('img', {class: 'cover', alt: 'Cover', src: `/api/releases/${catalog}/media/cover/${d.files.cover}`}),
       h('div', {}, h('div', {class: 'label'}, s.artist), h('h1', {}, s.title || catalog)),
@@ -433,7 +438,7 @@ async function pushDialog(catalog) {
     dlg.close(); followJob(r.job_id, 0);
   })}, 'Jetzt hochladen');
   typed.addEventListener('input', () => go.disabled = p.problems.length > 0 || typed.value.trim().toUpperCase() !== catalog);
-  dlg.replaceChildren(h('h2', {}, `${catalog} ans CDN senden`),
+  replace(dlg, h('h2', {}, `${catalog} ans CDN senden`),
     h('p', {class: 'note'}, `Ziel: ${p.target}`),
     h('p', {class: 'mono'}, `${p.files.length} Dateien · ${fmtMB(p.total_bytes)}`),
     h('div', {class: 'files mono', style: 'max-height:220px;overflow:auto'}, p.files.map(f => h('div', {}, h('span', {}, f.name), h('span', {}, fmtMB(f.size))))),
