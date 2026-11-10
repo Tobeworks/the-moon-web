@@ -9,6 +9,9 @@
     ],
     "additionalProperties": false,
     "properties": {
+        "$schema": {
+            "type": "string"
+        },
         "_meta": {
             "type": "object",
             "required": [

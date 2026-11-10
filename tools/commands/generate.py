@@ -12,6 +12,8 @@ from pathlib import Path
 import soundfile as sf
 from colorama import init, Fore, Style
 
+from commands.checks import ABOUT_PLACEHOLDER
+
 init(autoreset=True)
 
 AUDIO_EXTENSIONS = {'.wav', '.aif', '.aiff'}
@@ -101,6 +103,7 @@ def generate_release(release_path: str):
     header("2. READING FILE METADATA")
 
     tracks = []
+    unreadable = []
     for i, f in enumerate(audio_files, 1):
         try:
             audio_info = sf.info(str(f))
@@ -129,6 +132,11 @@ def generate_release(release_path: str):
 
         except Exception as e:
             fail(f"Could not read {f.name}: {e}")
+            unreadable.append(f.name)
+
+    if unreadable:
+        fail(f"{len(unreadable)} audio file(s) unreadable — release.json not touched")
+        sys.exit(1)
 
     # ── Check for existing release.json ──────────────────────────────────────
     header("3. GENERATING RELEASE.JSON")
@@ -149,8 +157,14 @@ def generate_release(release_path: str):
     catalog_match = re.match(r'^(tmr-\d+)', folder_name, re.IGNORECASE)
     catalog = catalog_match.group(1).upper() if catalog_match else "TMR-XXX"
 
-    # Build release.json — preserve existing manual values where set
-    release = {
+    # Keep hand-edited track fields (title etc.): match by audio file name
+    old_tracks = {t.get('file'): t for t in existing.get('tracks', [])}
+    tracks = [{**t, **{k: v for k, v in old_tracks.get(t['file'], {}).items()
+                       if k not in ('number', 'duration', '_meta', 'file')}} for t in tracks]
+
+    # Build release.json — preserve existing manual values where set,
+    # including fields this generator does not know about (year, genre, ...)
+    release = {**existing,
         "release_id":   existing.get('release_id') or catalog,
         "artist":       existing.get('artist') or "FILL_IN",
         "title":        existing.get('title') or "FILL_IN",
@@ -182,7 +196,7 @@ def generate_release(release_path: str):
     if not about_path.exists():
         about_path.write_text(
             f"# {existing.get('title') or 'Release Title'}\n\n"
-            "Write your release description here.\n"
+            f"{ABOUT_PLACEHOLDER}\n"
         )
         ok(f"about.md created → {about_path}")
     else:

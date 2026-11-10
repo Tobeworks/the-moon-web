@@ -4,14 +4,14 @@ The Moon Records CLI
 The operating layer for the world's first 100% code-based music label.
 
 Usage:
-  ./pg generate <release-folder-path>               — scan audio, write release.json
-  ./pg validate <release-folder-path>               — validate against schema
-  ./pg validate <release-folder-path> --generate-md — validate + write release.md draft
-  ./pg convert  <release-folder-path>               — WAV/AIFF → MP3 320k + ID3 tags + cover
-  ./pg convert  <release-folder-path> --force       — overwrite existing MP3s
-  ./pg social   <release-folder-path>               — render social media assets
-  ./pg social   <release-folder-path> --format reel — square | reel | carousel | all
-  ./pg push     <release-folder-path>               [coming]
+  ./tools/tmr generate <release-folder-path>               — scan audio, write release.json
+  ./tools/tmr validate <release-folder-path>               — validate against schema
+  ./tools/tmr validate <release-folder-path> --generate-md — validate + write release.md draft
+  ./tools/tmr convert  <release-folder-path>               — WAV/AIFF → MP3 320k + ID3 tags + cover
+  ./tools/tmr convert  <release-folder-path> --force       — overwrite existing MP3s
+  ./tools/tmr social   <release-folder-path>               — render social media assets
+  ./tools/tmr social   <release-folder-path> --format reel — square | reel | carousel | all
+  ./tools/tmr push     <release-folder-path>               — CDN upload + data/releases.json
 """
 
 import click
@@ -65,11 +65,9 @@ def convert(release_path, force):
 
 @cli.command()
 @click.argument('release_path', type=click.Path(exists=True))
-@click.option('--preview-only', is_flag=True, default=False,
-              help='Upload preview clips only (export/preview/), not full MP3s.')
-def push(release_path, preview_only):
+def push(release_path):
     """Upload release assets to CDN and update data/releases.json."""
-    push_release(release_path, preview_only=preview_only)
+    push_release(release_path)
 
 @cli.command('sftp-test')
 def sftp_test():

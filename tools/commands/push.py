@@ -9,11 +9,15 @@ Output: CDN upload + data/releases.json updated
 
 import json
 import os
+import re
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
 from colorama import init, Fore, Style
+
+from commands.checks import PLATFORM_NAMES, publish_problems
 
 init(autoreset=True)
 
@@ -54,6 +58,12 @@ def load_env() -> dict:
             continue
         key, _, val = line.partition("=")
         env[key.strip()] = val.strip()
+
+    missing = [k for k in ("CDN_HOST", "CDN_USER") if not env.get(k)]
+    if missing:
+        fail(f"{', '.join(missing)} missing in {env_path}")
+        fail("Add the CDN_* credentials (see AGENTS.md / old OS repo .env).")
+        sys.exit(1)
     return env
 
 
@@ -248,7 +258,97 @@ def test_connection():
     print()
 
 
-def push_release(release_path: str, preview_only: bool = False):
+def build_platforms(release_platforms: dict, existing: list) -> list:
+    """Merge platform links. Links already in releases.json (e.g. DSP links added
+    after the release) are kept; release.json only adds missing, non-empty ones."""
+    out = [dict(p) for p in existing if p.get("url")]
+    have = {p["name"] for p in out}
+    for name in PLATFORM_NAMES:
+        url = (release_platforms or {}).get(name)
+        if url and name not in have:
+            out.append({"name": name, "url": url})
+    return out
+
+
+def upsert_release(data: dict, entry: dict) -> None:
+    """Replace the entry with the same catalog in place, or insert a new one on top."""
+    for i, r in enumerate(data["releases"]):
+        if r["catalog"] == entry["catalog"]:
+            data["releases"][i] = entry
+            return
+    data["releases"].insert(0, entry)
+
+
+def build_entry(release, about, cover, artwork, existing, urls) -> dict:
+    """Build the releases.json entry. `existing` (same catalog) keeps manual fields."""
+    existing = existing or {}
+    tracks = []
+    for i, t in enumerate(release.get("tracks", []), 1):
+        num = t.get("number", i)
+        u128, u320 = urls.get(num, ("", ""))
+        tracks.append({
+            "number": num,
+            "title": t.get("title", ""),
+            "runtime": t.get("runtime") or t.get("duration", ""),
+            "url": u128,
+            "url_320": u320,
+        })
+
+    release_date = release.get("release_date", "")
+    year = release.get("year") or (release_date[:4] if release_date[:4].isdigit() else "")
+
+    platforms = dict(release.get("platforms") or release.get("plaforms") or {})
+    if release.get("bandcamp_url") and not platforms.get("bandcamp"):
+        platforms["bandcamp"] = release["bandcamp_url"]
+
+    entry = {
+        **existing,
+        "catalog": release["catalog"],
+        "artist": release.get("artist", ""),
+        "title": release.get("title", ""),
+        "format": release.get("format") or existing.get("format", ""),
+        "year": year or existing.get("year", ""),
+        "genre": release.get("genre") or existing.get("genre", ""),
+        "about": about,
+        "cover": cover or existing.get("cover"),
+        "artwork": artwork or existing.get("artwork", {}),
+        "platforms": build_platforms(platforms, existing.get("platforms", [])),
+        "tracks": tracks,
+        "pushed_at": datetime.now(timezone.utc).isoformat(),
+    }
+    if release_date:
+        entry["release_date"] = release_date
+    return entry
+
+
+def write_releases(path: Path, data: dict) -> Path:
+    """Validate against the schema, back up the old file, write atomically.
+    Raises ValueError (file untouched) if the data violates the schema."""
+    import jsonschema
+
+    schema = json.loads((path.parent / "releases.schema.json").read_text())
+    errors = sorted(
+        jsonschema.Draft7Validator(schema).iter_errors(data),
+        key=lambda e: list(e.absolute_path),
+    )
+    if errors:
+        raise ValueError("; ".join(
+            f"{'/'.join(map(str, e.absolute_path)) or '<root>'}: {e.message[:120]}"
+            for e in errors[:5]
+        ))
+
+    backups = path.parent / "backups"
+    backups.mkdir(exist_ok=True)
+    backup = backups / f"releases.{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}.json"
+    shutil.copy2(path, backup)
+
+    tmp = path.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, indent=2))
+    os.replace(tmp, path)
+    return backup
+
+
+def push_release(release_path: str):
     path = Path(release_path)
 
     print(f"\n{Fore.RED}{Style.BRIGHT}THE MOON RECORDS — CDN PUSH{Style.RESET_ALL}")
@@ -258,14 +358,17 @@ def push_release(release_path: str, preview_only: bool = False):
     header("1. CREDENTIALS")
     env = load_env()
     cdn_base = env.get("CDN_BASE_PATH", "/releases")
-    cdn_public = env.get("CDN_PUBLIC_URL")
+    cdn_public = (env.get("CDN_PUBLIC_URL") or "").rstrip("/")
+    if not cdn_public:
+        fail("CDN_PUBLIC_URL missing in .env — URLs in releases.json would be broken")
+        sys.exit(1)
     ok(f"CDN: {env['CDN_HOST']}")
 
     # ── Load release.json ──────────────────────────────────────────────────────
     header("2. RELEASE DATA")
     json_path = path / "release.json"
     if not json_path.exists():
-        fail("release.json not found — run ./pg generate first")
+        fail("release.json not found — run ./tools/tmr generate first")
         sys.exit(1)
 
     with open(json_path) as f:
@@ -276,50 +379,49 @@ def push_release(release_path: str, preview_only: bool = False):
     title = data.get("title", "")
     ok(f"{catalog} — {artist} — {title}")
 
+    about_path = path / "about.md"
+    about = about_path.read_text(encoding="utf-8").strip() if about_path.exists() else ""
+    problems = publish_problems(data, about)
+    if problems:
+        for pr in problems:
+            fail(pr)
+        fail("Not publishable yet — nothing was uploaded.")
+        sys.exit(1)
+    ok("Release data complete (no placeholders)")
+
     # ── Resolve audio files ────────────────────────────────────────────────────
     header("3. ASSETS")
     slug = path.name
 
-    # Audio — prefer preview if --preview-only, else use 128k + 320k
-    preview_dir = path / "export" / "preview"
+    # Audio — 128k (web player) + 320k (download)
     mp3_128_dir = path / "export" / "mp3" / "128"
     mp3_320_dir = path / "export" / "mp3" / "320"
     # Legacy fallback: export/mp3/ (flat, old convert output)
     mp3_legacy_dir = path / "export" / "mp3"
 
-    if preview_only:
-        preview_files = (
-            sorted(preview_dir.glob("*.mp3")) if preview_dir.exists() else []
-        )
-        if not preview_files:
-            fail("No preview clips found — run ./pg convert --preview first")
-            sys.exit(1)
-        audio_plan = [("preview", preview_dir, preview_files)]
-        info(f"Mode: preview-only ({len(preview_files)} clip(s))")
-    else:
-        audio_plan = []
-        for label, d in [("128", mp3_128_dir), ("320", mp3_320_dir)]:
-            files = sorted(d.glob("*.mp3")) if d.exists() else []
-            # fallback: legacy flat mp3 dir
-            if not files and label == "320" and mp3_legacy_dir.exists():
-                legacy_files = [
-                    f
-                    for f in sorted(mp3_legacy_dir.glob("*.mp3"))
-                    if f.parent == mp3_legacy_dir
-                ]
-                if legacy_files:
-                    warn(
-                        f"No export/mp3/320/ found — using legacy export/mp3/ for 320k"
-                    )
-                    files = legacy_files
-            audio_plan.append((label, d, files))
+    audio_plan = []
+    for label, d in [("128", mp3_128_dir), ("320", mp3_320_dir)]:
+        files = sorted(d.glob("*.mp3")) if d.exists() else []
+        # fallback: legacy flat mp3 dir
+        if not files and label == "320" and mp3_legacy_dir.exists():
+            legacy_files = [
+                f
+                for f in sorted(mp3_legacy_dir.glob("*.mp3"))
+                if f.parent == mp3_legacy_dir
+            ]
+            if legacy_files:
+                warn(
+                    f"No export/mp3/320/ found — using legacy export/mp3/ for 320k"
+                )
+                files = legacy_files
+        audio_plan.append((label, d, files))
 
-        total_audio = sum(len(f) for _, _, f in audio_plan)
-        if total_audio == 0:
-            fail("No MP3s found — run ./pg convert first")
-            sys.exit(1)
-        for label, _, files in audio_plan:
-            ok(f"{len(files)} audio file(s) [{label}kbps]")
+    total_audio = sum(len(f) for _, _, f in audio_plan)
+    if total_audio == 0:
+        fail("No MP3s found — run ./tools/tmr convert first")
+        sys.exit(1)
+    for label, _, files in audio_plan:
+        ok(f"{len(files)} audio file(s) [{label}kbps]")
 
     # Artwork — processed variants preferred, fallback to raw artwork/
     artwork_export_dir = path / "export" / "artwork"
@@ -344,7 +446,7 @@ def push_release(release_path: str, preview_only: bool = False):
         artwork_variants = raw_covers
         if raw_covers:
             warn(
-                f"{len(raw_covers)} raw artwork file(s) — run ./pg convert first for optimised variants"
+                f"{len(raw_covers)} raw artwork file(s) — run ./tools/tmr convert first for optimised variants"
             )
         else:
             warn("No artwork found")
@@ -410,8 +512,6 @@ def push_release(release_path: str, preview_only: bool = False):
         name = art.name  # e.g. cover_600.jpg
         url = f"{art_base_url}/{name}"
         # Parse size from filename: cover_<size>.jpg / cover_<size>.webp
-        import re
-
         m = re.match(r"cover_(\d+)\.(jpg|webp)", name)
         if m:
             sz, fmt = m.group(1), m.group(2)
@@ -432,22 +532,6 @@ def push_release(release_path: str, preview_only: bool = False):
     with open(releases_path) as f:
         releases_data = json.load(f)
 
-    # Build track list — merge release.json metadata with CDN URLs
-    release_tracks = data.get("tracks", [])
-
-    # Determine track file list from 128k (primary for web) or preview
-    primary_label = "preview" if preview_only else "128"
-    primary_audio = cdn_audio_map.get(primary_label, {})
-    secondary_audio = cdn_audio_map.get("320", {})
-
-    # Build filename→url maps
-    def build_filename_map(label_map: dict) -> dict:
-        """Return {track_number_prefix: url} for matching by track number."""
-        return {name: url for name, url in label_map.items()}
-
-    primary_by_name = build_filename_map(primary_audio)
-    secondary_by_name = build_filename_map(secondary_audio)
-
     def find_url(url_map: dict, track_num: int) -> str:
         """Match by track number prefix (e.g. '01_')."""
         prefix = str(track_num).zfill(2) + "_"
@@ -456,70 +540,34 @@ def push_release(release_path: str, preview_only: bool = False):
                 return url
         return ""
 
-    tracks_out = []
-    for i, t in enumerate(release_tracks):
-        num = t.get("number", i + 1)
-        tracks_out.append(
-            {
-                "number": num,
-                "title": t.get("title", ""),
-                "runtime": t.get("runtime", ""),
-                "url": find_url(primary_audio, num),  # 128k for web player
-                "url_320": find_url(secondary_audio, num),  # 320k for download
-            }
+    urls = {
+        t.get("number", i): (
+            find_url(cdn_audio_map.get("128", {}), t.get("number", i)),
+            find_url(cdn_audio_map.get("320", {}), t.get("number", i)),
         )
-
-    # Build platforms array per schema
-    # Supports both nested "platforms" object and legacy flat "bandcamp_url"
-    platforms = []
-    platforms_data = data.get("platforms", data.get("plaforms", {})) or {}
-    platform_names = ["bandcamp", "spotify", "soundcloud", "apple_music", "beatport"]
-    for name in platform_names:
-        url = platforms_data.get(name)
-        if url:
-            platforms.append({"name": name, "url": url})
-    # legacy flat field fallback
-    bandcamp_url = data.get("bandcamp_url", "")
-    if bandcamp_url and not any(p["name"] == "bandcamp" for p in platforms):
-        platforms.append({"name": "bandcamp", "url": bandcamp_url})
-
-    about_path = path / "about.md"
-    about = about_path.read_text(encoding="utf-8").strip() if about_path.exists() else ""
-    if about:
-        ok("about.md loaded")
-    else:
-        warn("about.md not found or empty — 'about' will be blank")
-
-    entry = {
-        "catalog": catalog,
-        "artist": artist,
-        "title": title,
-        "format": data.get("format", ""),
-        "year": data.get("year", ""),
-        "genre": data.get("genre", ""),
-        "about": about,
-        "cover": cdn_cover,
-        "artwork": cdn_artwork,
-        "platforms": platforms,
-        "tracks": tracks_out,
-        "pushed_at": datetime.now(timezone.utc).isoformat(),
+        for i, t in enumerate(data.get("tracks", []), 1)
     }
 
-    # Only include release_date if present and non-empty
-    release_date = data.get("release_date", "")
-    if release_date:
-        entry["release_date"] = release_date
+    existing = next((r for r in releases_data["releases"] if r["catalog"] == catalog), None)
+    if existing:
+        info("Existing entry found — keeping its DSP links and manual fields")
 
-    existing = [r for r in releases_data["releases"] if r["catalog"] != catalog]
-    releases_data["releases"] = [entry] + existing
+    entry = build_entry(
+        {**data, "catalog": catalog}, about, cdn_cover, cdn_artwork, existing, urls
+    )
+    upsert_release(releases_data, entry)
     releases_data["_meta"]["generated"] = datetime.now(timezone.utc).isoformat()
 
-    with open(releases_path, "w") as f:
-        json.dump(releases_data, f, indent=2)
+    try:
+        backup = write_releases(releases_path, releases_data)
+    except ValueError as e:
+        fail(f"releases.json NOT written — schema violation: {e}")
+        sys.exit(1)
 
+    ok(f"Backup: {backup.relative_to(repo_root)}")
     ok(f"releases.json updated — {len(releases_data['releases'])} release(s)")
 
     header("8. DONE")
     ok(f"CDN: {cdn_public}/releases/{slug}/")
-    info("Next: commit data/releases.json, then push OS repo")
+    info("Next: commit data/releases.json and push the-moon-web")
     print()

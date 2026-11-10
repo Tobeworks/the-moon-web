@@ -44,3 +44,6 @@ Temporary Items
 # tmr toolchain venv
 tools/venv/
 __pycache__/
+
+# releases.json backups written by tmr push
+data/backups/

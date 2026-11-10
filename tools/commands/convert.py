@@ -7,6 +7,7 @@ Input:  release.json + audio/ + artwork/
 Output: export/mp3/320/, export/mp3/128/, export/artwork/
 """
 
+import io
 import json
 import sys
 import re
@@ -49,14 +50,38 @@ def slugify(s: str) -> str:
     return s.strip('_')
 
 
-def load_cover_bytes(artwork_dir: Path) -> tuple[bytes, str] | tuple[None, None]:
-    """Return (bytes, mime_type) of first PNG/JPG in artwork/."""
-    for ext, mime in [('*.png', 'image/png'), ('*.jpg', 'image/jpeg'),
-                      ('*.jpeg', 'image/jpeg')]:
-        covers = sorted(artwork_dir.glob(ext))
-        if covers:
-            return covers[0].read_bytes(), mime
-    return None, None
+ID3_COVER_MAX = 1500    # px — embedded in every MP3, so keep it small
+
+
+def find_cover(artwork_dir: Path) -> Path | None:
+    """First PNG/JPG/TIFF in artwork/ (same order everywhere)."""
+    for ext in ('*.png', '*.jpg', '*.jpeg', '*.tif', '*.tiff'):
+        found = sorted(artwork_dir.glob(ext))
+        if found:
+            return found[0]
+    return None
+
+
+def cover_for_id3(artwork_dir: Path) -> tuple[bytes, str] | tuple[None, None]:
+    """Return (jpeg bytes, mime) of the cover scaled down to ID3_COVER_MAX.
+    The 3000px master would add ~10 MB to every MP3."""
+    from PIL import Image
+
+    source = find_cover(artwork_dir)
+    if not source:
+        return None, None
+    with Image.open(source) as img:
+        img = img.convert('RGB')
+        img.thumbnail((ID3_COVER_MAX, ID3_COVER_MAX), Image.LANCZOS)
+        buf = io.BytesIO()
+        img.save(buf, format='JPEG', quality=90, optimize=True)
+    return buf.getvalue(), 'image/jpeg'
+
+
+def cover_is_newer(artwork_dir: Path, mp3s: list[Path]) -> bool:
+    """True if the cover file changed after any of the given MP3s were written."""
+    source = find_cover(artwork_dir)
+    return bool(source and any(source.stat().st_mtime > m.stat().st_mtime for m in mp3s))
 
 
 def tag_mp3(mp3_path: Path, track: dict, release: dict,
@@ -112,13 +137,7 @@ def process_artwork(artwork_dir: Path, export_dir: Path, force: bool = False) ->
         fail("Pillow not installed — run: pip install Pillow")
         sys.exit(1)
 
-    # Find source image
-    source = None
-    for ext in ('*.png', '*.jpg', '*.jpeg', '*.tif', '*.tiff'):
-        found = sorted(artwork_dir.glob(ext))
-        if found:
-            source = found[0]
-            break
+    source = find_cover(artwork_dir)
 
     if not source:
         warn("No artwork found — skipping image export")
@@ -184,7 +203,7 @@ def convert_release(release_path: str, force: bool = False):
 
     artwork_dir      = path / 'artwork'
     artwork_export   = path / 'export' / 'artwork'
-    cover_bytes, cover_mime = load_cover_bytes(artwork_dir)
+    cover_bytes, cover_mime = cover_for_id3(artwork_dir)
 
     if cover_bytes:
         ok(f"Cover for ID3 tags: {len(cover_bytes) // 1024} KB, {cover_mime}")
@@ -197,6 +216,11 @@ def convert_release(release_path: str, force: bool = False):
     header("3. CONVERTING")
 
     audio_dir = path / 'audio'
+
+    old_mp3s = list((path / 'export' / 'mp3').glob('*/*.mp3'))
+    if old_mp3s and not force and cover_is_newer(artwork_dir, old_mp3s):
+        warn("Cover is newer than the existing MP3s — run with --force "
+             "so the ID3 tags and artwork exports get the new cover")
 
     total_converted = 0
     total_skipped   = 0
@@ -268,5 +292,7 @@ def convert_release(release_path: str, force: bool = False):
         warn(f"{total_skipped} skipped (already exist)")
     if total_errors:
         fail(f"{total_errors} error(s)")
+        print()
+        sys.exit(1)
 
     print()

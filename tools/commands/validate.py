@@ -12,6 +12,8 @@ from pathlib import Path
 from colorama import init, Fore, Style
 from PIL import Image
 
+from commands.checks import about_is_placeholder, is_placeholder
+
 init(autoreset=True)
 
 REQUIRED_FIELDS = ['release_id', 'artist', 'title', 'format', 'label',
@@ -66,11 +68,24 @@ def validate_release(release_path: str, generate_md: bool = False):
     header("2. REQUIRED FIELDS")
 
     for field in REQUIRED_FIELDS:
-        if field not in data or data[field] in [None, '', 'YYYY-MM-DD']:
+        value = data.get(field)
+        empty = value in ([], {}) if isinstance(value, (list, dict)) else is_placeholder(value)
+        if empty:
             fail(f"{field} — missing or empty")
             errors.append(field)
         else:
             ok(f"{field}: {str(data[field])[:60]}")
+
+    if isinstance(data.get('artwork'), dict) and is_placeholder(data['artwork'].get('cover')):
+        fail("artwork.cover — still a placeholder")
+        errors.append('artwork.cover')
+
+    about_path = path / 'about.md'
+    if not about_path.exists() or about_is_placeholder(about_path.read_text(encoding='utf-8')):
+        fail("about.md — missing or still the placeholder text")
+        errors.append('about.md')
+    else:
+        ok("about.md written")
 
     # ── 3. Tracks ─────────────────────────────────────────────────────────────
     header("3. TRACKS")
@@ -115,11 +130,14 @@ def validate_release(release_path: str, generate_md: bool = False):
     header("4. ARTWORK")
 
     artwork_dir = path / 'artwork'
-    pngs = sorted(artwork_dir.glob('*.png')) if artwork_dir.exists() else []
-    artwork_path = pngs[0] if pngs else None
+    covers = sorted(
+        f for ext in ('png', 'jpg', 'jpeg', 'tif', 'tiff')
+        for f in artwork_dir.glob(f'*.{ext}')
+    ) if artwork_dir.exists() else []
+    artwork_path = covers[0] if covers else None
 
     if not artwork_path:
-        fail("No PNG found in artwork/")
+        fail("No cover (PNG/JPG/TIFF) found in artwork/")
         errors.append('cover')
     else:
         ok(f"artwork/{artwork_path.name} found")

@@ -15,8 +15,8 @@ source venv/bin/activate
 pip install --quiet --upgrade pip
 pip install --quiet -r requirements.txt
 
-echo "→ Making pg executable..."
-chmod +x pg
+echo "→ Making tmr executable..."
+chmod +x tmr
 
 echo ""
 echo "✓ Setup complete."
