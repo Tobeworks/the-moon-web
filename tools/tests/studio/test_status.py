@@ -8,7 +8,7 @@ import soundfile as sf
 
 from studio.config import Config
 from studio.status import (committed_entries, days_until, find_folder, list_releases,
-                           next_step, release_status)
+                           next_step, release_status, validation_problems)
 
 TODAY = date(2026, 11, 10)
 
@@ -44,6 +44,34 @@ def test_v_open_with_fill_in(release_dir):
     d["artist"] = "FILL_IN"
     p.write_text(json.dumps(d))
     assert release_status(None, release_dir, None)["V"] == "open"
+
+
+def test_validation_problems_name_each_reason(tmp_path):
+    from studio.folders import create_release
+    d = create_release(tmp_path, "TMR-050", "Aethery Fields", "Old Fog Horn")  # no tracks, no cover, no about
+    problems = validation_problems(d)
+    assert any("Release-Datum" in p for p in problems)
+    assert any("Tracks einlesen" in p for p in problems)
+    assert any("about.md" in p for p in problems)
+    assert validation_problems(tmp_path / "missing") == ["release.json fehlt"]
+
+
+def test_validation_problems_empty_for_complete_release(release_dir):
+    assert validation_problems(release_dir) == []
+
+
+def test_missing_audio_file_is_a_problem(release_dir):
+    (release_dir / "audio" / "01_first.wav").unlink()
+    assert any("01_first.wav" in p for p in validation_problems(release_dir))
+
+
+def test_pushed_release_does_not_count_open_a_v_k_but_keeps_stale(release_dir):
+    assert release_status(entry(), release_dir, None)["V"] == "ok"
+    (release_dir / "about.md").write_text("# T\n")
+    s = release_status(entry(), release_dir, None)
+    assert (s["A"], s["V"], s["K"]) == ("ok", "na", "na")
+    mp3s(release_dir, cover_newer=True)
+    assert release_status(entry(), release_dir, None)["K"] == "stale"
 
 
 def test_k_stale_when_cover_newer(release_dir):

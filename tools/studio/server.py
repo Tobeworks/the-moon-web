@@ -12,12 +12,11 @@ from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from pydantic import BaseModel
 
-from commands.checks import publish_problems
 from studio import ai, dsp, folders, gitops
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
 from studio.progress import progress
-from studio.status import find_folder, list_releases, release_status
+from studio.status import _step_converted, find_folder, list_releases, validation_problems
 
 CATALOG_RE = re.compile(r"^TMR-\d{3,}$")
 RUN_STEPS = {"generate", "validate", "convert", "social"}
@@ -141,12 +140,14 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                 + [{"name": f.name, "size": f.stat().st_size} for f in art])
 
     def push_problems(catalog, folder, entry) -> list[str]:
-        problems = publish_problems(release_json(folder), about_of(folder))
-        st = release_status(entry, folder, None)
-        if st["K"] == "stale":
-            problems.append("cover changed after conversion — convert again with force")
-        elif st["K"] != "ok":
-            problems.append("not converted yet")
+        if folder is None:
+            return ["kein Asset-Ordner für dieses Release"]
+        problems = validation_problems(folder)
+        k = _step_converted(folder)
+        if k == "stale":
+            problems.append("Cover ist neuer als die MP3s: mit „Überschreiben“ neu konvertieren")
+        elif k != "ok":
+            problems.append("Noch nicht konvertiert")
         return problems
 
     def start(argv, label, kind=None, total=None):
@@ -212,6 +213,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             f.name for f in (folder / sub).glob("*") if f.suffix.lower() in exts) if folder else []
         return {"summary": row(catalog), "release": release_json(folder), "entry": entry,
                 "about": about_of(folder),
+                "problems": {"validation": validation_problems(folder) if folder else [],
+                             "push": push_problems(catalog, folder, entry)},
                 "files": {"audio": names("audio", folders.AUDIO_EXT),
                           "artwork": names("artwork", folders.IMAGE_EXT),
                           "mp3": [f"{f.parent.name}/{f.name}" for f in mp3_files(folder)] if folder else [],

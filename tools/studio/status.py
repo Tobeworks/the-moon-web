@@ -40,18 +40,31 @@ def _step_assets(folder: Path) -> str:
     return "ok" if ok else "open"
 
 
-def _step_validated(folder: Path) -> str:
+PROBLEM_DE = {
+    "artist": "Artist fehlt", "title": "Titel fehlt", "catalog": "Katalognummer fehlt",
+    "release_date": "Release-Datum fehlt", "artwork.cover": "Cover-Name fehlt (Tracks einlesen)",
+    "about.md": "about.md ist leer oder noch der Platzhalter",
+}
+
+
+def validation_problems(folder: Path) -> list[str]:
+    """Why the release data is not complete yet, in plain German. Empty list = complete."""
     release = _read_release(folder)
     if release is None:
-        return "open"
+        return ["release.json fehlt"]
     about_path = folder / "about.md"
     about = about_path.read_text(encoding="utf-8") if about_path.exists() else ""
-    if publish_problems(release, about):
-        return "open"
+    problems = [PROBLEM_DE.get(p.split(" ")[0], p) for p in publish_problems(release, about)]
     tracks = release.get("tracks") or []
-    if not tracks or any(not (folder / "audio" / t.get("file", "")).is_file() for t in tracks):
-        return "open"
-    return "ok"
+    if not tracks:
+        problems.append("Keine Tracks: Audiodateien hinzufügen und „Tracks einlesen“ klicken")
+    problems += [f"Audiodatei fehlt: {t.get('file', '?')}" for t in tracks
+                 if not (folder / "audio" / t.get("file", "")).is_file()]
+    return problems
+
+
+def _step_validated(folder: Path) -> str:
+    return "open" if validation_problems(folder) else "ok"
 
 
 def _step_converted(folder: Path) -> str:
@@ -77,6 +90,10 @@ def release_status(entry: dict | None, folder: Path | None, committed: dict | No
     else:
         s["A"], s["V"], s["K"] = _step_assets(folder), _step_validated(folder), _step_converted(folder)
     s["P"] = "ok" if entry and entry.get("pushed_at") else "open"
+    if s["P"] == "ok":  # already published: unfinished A/V/K of old releases are history, not to-dos
+        for k in "AVK":
+            if s[k] == "open":
+                s[k] = "na"
     if not entry:
         s["G"] = "open"
     else:

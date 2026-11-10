@@ -130,14 +130,15 @@ Push → committen (Studio) → `git push` (Terminal) → Wochen später DSP-Lin
 
 ## 4. Gesperrter Push, was heißt das?
 
-Der Knopf ist grau oder der Dialog zeigt `!`, wenn:
+Der Knopf ist grau, wenn eine der Meldungen darunter steht (auch im Panel Metadaten und im Push-Dialog):
 
 | Meldung | Ursache |
 |---|---|
-| `artist … is missing or still a placeholder` | `FILL_IN` oder leer, bitte unter Metadaten ausfüllen |
-| `about.md … placeholder text` | Releasetext fehlt oder ist noch der Platzhalter |
-| `not converted yet` | erst Konvertieren |
-| `cover changed after conversion` | Konvertieren mit **Überschreiben** |
+| `Artist fehlt`, `Titel fehlt`, `Release-Datum fehlt` | unter Metadaten ausfüllen und speichern |
+| `Keine Tracks …` / `Cover-Name fehlt` | Audiodateien hinzufügen, dann **Tracks einlesen** |
+| `about.md ist leer oder noch der Platzhalter` | Releasetext schreiben (oder mit KI entwerfen) und speichern |
+| `Noch nicht konvertiert` | erst Konvertieren |
+| `Cover ist neuer als die MP3s` | Konvertieren mit **Überschreiben** |
 | `missing in .env: …` | CDN-Schlüssel in der `.env` im Repo-Root fehlen |
 
 ---

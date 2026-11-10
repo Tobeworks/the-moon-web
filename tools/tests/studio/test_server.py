@@ -161,6 +161,12 @@ def test_push_starts_job_when_ready(client, folder, jobs, studio_env):
     assert jobs.started == [[str(studio_env.tmr), "push", str(folder)]]
 
 
+def test_detail_lists_problems(client, folder):
+    (folder / "about.md").write_text("# T\n")
+    p = client.get("/api/releases/TMR-099").json()["problems"]
+    assert any("about.md" in x for x in p["validation"]) and any("about.md" in x for x in p["push"])
+
+
 def test_push_needs_no_platform_url(client, folder, jobs, studio_env):
     p = folder / "release.json"
     d = json.loads(p.read_text())

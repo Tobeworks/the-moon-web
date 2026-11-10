@@ -315,7 +315,7 @@ async function viewDetail(app, catalog, focus) {
       })}, 'Speichern'),
       h('button', {class: 'btn', onclick: () => run('generate')}, 'Tracks einlesen'),
       h('button', {class: 'btn ghost', onclick: () => run('validate')}, 'Validieren')),
-    st.V === 'open' && h('p', {class: 'note', style: 'color:var(--warn)'}, '! Daten unvollständig oder about.md noch Platzhalter — Push bleibt gesperrt.'));
+    st.V === 'open' && d.problems.validation.map(p => h('p', {class: 'note', style: 'color:var(--warn)'}, '! ' + p)));
 
   // convert
   const force = h('input', {type: 'checkbox', checked: st.K === 'stale'});
@@ -327,8 +327,9 @@ async function viewDetail(app, catalog, focus) {
   // push
   const pushPanel = h('div', {class: 'panel', id: 'panel-P'}, h('h2', {}, '4 · Push ans CDN'),
     h('p', {class: 'note'}, st.P === 'ok' ? 'Bereits gepusht. Ein erneuter Push behält DSP-Links und manuelle Felder.' : 'Lädt MP3s und Artwork hoch und schreibt den Eintrag in data/releases.json (mit Backup).'),
-    h('div', {class: 'row gap'}, h('button', {class: 'btn danger', disabled: !d.summary || st.K !== 'ok' || st.V !== 'ok' || !state.cdn_configured,
+    h('div', {class: 'row gap'}, h('button', {class: 'btn danger', disabled: d.problems.push.length > 0 || !state.cdn_configured,
       onclick: guard(() => pushDialog(catalog))}, 'Freigeben und hochladen …')),
+    d.problems.push.map(p => h('p', {class: 'note', style: 'color:var(--warn)'}, '! ' + p)),
     !state.cdn_configured && h('p', {class: 'note'}, `In .env fehlt: ${state.cdn_missing.join(', ')}`),
     st.G === 'warn' && h('p', {class: 'note', style: 'color:var(--warn)'}, '! releases.json nicht committet — Commit-Feld oben auf der Seite.'));
 
