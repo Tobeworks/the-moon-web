@@ -45,3 +45,17 @@ def test_unreadable_audio_aborts_without_touching_release_json(release_dir):
         generate_release(str(release_dir))
     assert e.value.code == 1
     assert (release_dir / "release.json").read_text() == before
+
+
+def test_rerun_keeps_a_hand_set_track_order_and_appends_new_files(release_dir):
+    import shutil
+    audio = release_dir / "audio"
+    shutil.copy(audio / "01_first.wav", audio / "02_second.wav")
+    generate_release(str(release_dir))
+    data = read(release_dir)
+    data["tracks"].reverse()  # second before first
+    (release_dir / "release.json").write_text(json.dumps(data))
+    shutil.copy(audio / "01_first.wav", audio / "00_new.wav")
+    generate_release(str(release_dir))
+    assert [t["file"] for t in read(release_dir)["tracks"]] == ["02_second.wav", "01_first.wav", "00_new.wav"]
+    assert [t["number"] for t in read(release_dir)["tracks"]] == [1, 2, 3]

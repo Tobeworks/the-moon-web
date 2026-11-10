@@ -48,6 +48,10 @@ Verbindung zum CDN testen (lädt nichts hoch):
   ist bei jedem Start neu. Ohne ihn lässt der Server nichts zu.
 - **Beenden:** `Strg+C` im Terminal. Ein laufender Job bricht dabei ab.
 - Das Studio läuft nur auf deinem Rechner (`127.0.0.1`) und nie auf dem Server.
+- Die Oberfläche ist ein Vue-3-Projekt (`tools/studio/frontend`). Beim Start baut `tmr studio` sie selbst,
+  wenn sie fehlt oder der Quelltext neuer ist (braucht `pnpm`, einmalig dauert das ein paar Sekunden).
+  Zum Entwickeln: Studio laufen lassen, einmal die Adresse mit `?key=` öffnen, dann
+  `pnpm --dir tools/studio/frontend dev` (Vite auf `:5173`, leitet `/api` an das Studio weiter).
 
 ---
 
@@ -84,6 +88,9 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
 
 1. **Assets**: WAVs und Cover mit **Dateien wählen …**, **Ordner wählen …** oder
    **Cover wählen …** (macOS-Dialog, kopiert direkt) oder per Drag & Drop in die Fläche ziehen.
+   **Reihenfolge der Tracks:** die Audio-Zeilen per Drag & Drop am Griff ⠿ ziehen (oder Alt + Pfeil hoch/runter).
+   Das gilt auch für schon gepushte Releases. Danach neu konvertieren (Überschreiben) und pushen, damit die
+   Dateinamen auf dem CDN zur neuen Nummerierung passen. **×** schiebt eine Datei in den macOS-Papierkorb.
    Gibt es eine Datei mit anderem Inhalt schon, wirst du gefragt, ob sie überschrieben werden soll.
    Sobald Audiodateien dazukommen, liest das Studio die Tracks selbst ein (wie **Tracks einlesen**).
 2. **Metadaten**: Artist, Titel, Datum, Genre, Bandcamp-URL, die **Tracktitel** und den Releasetext (`about.md`) eintragen →
@@ -202,6 +209,7 @@ the-moon-assets/tmr-018-artist-title/
 | Problem | Lösung |
 |---|---|
 | `venv not found` | `bash tools/setup.sh` |
+| `pnpm fehlt` / Bauen der Oberfläche schlägt fehl | pnpm installieren, dann `pnpm --dir tools/studio/frontend install && pnpm --dir tools/studio/frontend build` |
 | `ModuleNotFoundError` im Studio | `source tools/venv/bin/activate && pip install -r tools/requirements.txt` |
 | Port belegt | wird automatisch der nächste freie genommen (Standard 8777; 8765 gehört Release Studio), oder `--port` setzen |
 | Oben rechts `CDN: .env unvollständig` | `.env` im Repo-Root ergänzen (Schlüssel siehe Abschnitt 1) |
@@ -223,7 +231,8 @@ python -m pytest tests
 |---|---|
 | `tools/the-moon.py`, `tools/tmr` | CLI-Einstieg |
 | `tools/commands/` | `generate`, `validate`, `convert`, `push`, `social`, gemeinsame Prüfungen (`checks.py`) |
-| `tools/studio/` | `status.py` (Stand berechnen), `folders.py` (Ordner, Dateien, Metadaten), `jobs.py`, `dsp.py`, `server.py` (API), `index.html` (die ganze Oberfläche) |
+| `tools/studio/` | `status.py` (Stand berechnen), `folders.py` (Ordner, Dateien, Metadaten), `jobs.py`, `dsp.py`, `server.py` (API), `frontend_build.py` |
+| `tools/studio/frontend/` | die Oberfläche: Vue 3, TypeScript, Pinia, Vue Router, Vite (`src/views`, `src/components`, `src/stores`, `src/api`). Gebaut nach `tools/studio/dist/` (nicht in Git) |
 | `tools/tests/` | Tests, nutzen nur Temp-Ordner und erreichen nie das CDN |
 
 Design und Plan: `docs/superpowers/specs/2026-11-10-tmr-studio-design.md`,

@@ -85,3 +85,17 @@ def test_unknown_release_and_no_change_write_nothing(studio_env):
     after_put = studio_env.releases_path.read_text()
     assert update_entry(studio_env.releases_path, "TMR-099", {"genre": "Dark Ambient"}, None) == []
     assert studio_env.releases_path.read_text() == after_put and before != after_put
+
+
+def test_track_order_reorders_and_renumbers_the_entry(studio_env):
+    path = studio_env.releases_path
+    data = json.loads(path.read_text())
+    entry = {**ENTRY, "pushed_at": "2026-01-01T00:00:00+00:00", "tracks": [{**ENTRY["tracks"][0], "number": n, "title": t}
+                                 for n, t in ((1, "A"), (2, "B"), (3, "C"))]}
+    data["releases"].insert(0, entry)
+    path.write_text(json.dumps(data))
+    assert "track_order" in update_entry(path, "TMR-099", {"track_order": [2, 3, 1]}, None)
+    after = next(r for r in json.loads(path.read_text())["releases"] if r["catalog"] == "TMR-099")
+    assert [(t["number"], t["title"]) for t in after["tracks"]] == [(1, "B"), (2, "C"), (3, "A")]
+    with pytest.raises(ValueError):
+        update_entry(path, "TMR-099", {"track_order": [1, 1, 2]}, None)

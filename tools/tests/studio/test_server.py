@@ -328,7 +328,13 @@ def test_dsp_scan_and_apply(client, studio_env, monkeypatch):
                        json={"links": [{"name": "deezer", "url": ""}]}).status_code == 400
 
 
-def test_index_served_with_key(studio_env):
+def test_index_served_with_key(studio_env, tmp_path, monkeypatch):
+    from studio import server
+    dist = tmp_path / "dist"
+    (dist / "assets").mkdir(parents=True)
+    (dist / "index.html").write_text("<title>tmr studio</title>")
+    (dist / "assets" / "app.js").write_text("//js")
+    monkeypatch.setattr(server, "DIST", dist)
     c = TestClient(create_app(studio_env, TOKEN, FakeJobs()), base_url=BASE)
     assert c.get("/").status_code == 401
     assert c.get("/?key=wrong").status_code == 401
@@ -336,6 +342,15 @@ def test_index_served_with_key(studio_env):
     assert r.status_code == 303 and "studio=" in r.headers["set-cookie"]
     page = c.get("/")
     assert page.status_code == 200 and "tmr studio" in page.text
+    assert c.get("/assets/app.js").text == "//js"
+
+
+def test_missing_build_says_how_to_build(studio_env, tmp_path, monkeypatch):
+    from studio import server
+    monkeypatch.setattr(server, "DIST", tmp_path / "nothing")
+    c = TestClient(create_app(studio_env, TOKEN, FakeJobs()), base_url=BASE, cookies={"studio": TOKEN})
+    r = c.get("/")
+    assert r.status_code == 503 and "pnpm" in r.text
 
 
 def test_git_commit_endpoint(client, studio_env):
@@ -395,3 +410,17 @@ def test_saving_an_unpublished_release_touches_no_releases_json(client, folder, 
     before = studio_env.releases_path.read_text()
     r = client.put("/api/releases/TMR-099/meta", json={"fields": {"genre": "Ambient"}})
     assert r.json()["published"] == [] and studio_env.releases_path.read_text() == before
+
+
+def test_remove_file_goes_to_trash_and_rereads_tracks(client, folder, jobs, studio_env, tmp_path, monkeypatch):
+    from studio import folders
+    monkeypatch.setattr(folders, "TRASH", tmp_path / "trash")
+    (tmp_path / "trash").mkdir()
+    wav = next((folder / "audio").iterdir())
+    r = client.delete(f"/api/releases/TMR-099/files/audio/{wav.name}")
+    assert r.status_code == 200 and r.json()["job_id"] == "job1"
+    assert not wav.exists() and (tmp_path / "trash" / wav.name).exists()
+    assert jobs.started[-1] == [str(studio_env.tmr), "generate", str(folder)]
+    assert client.delete(f"/api/releases/TMR-099/files/audio/{wav.name}").status_code == 404
+    assert client.delete("/api/releases/TMR-099/files/export/x.mp3").status_code == 400
+    assert client.delete("/api/releases/TMR-099/files/audio/..%2Frelease.json").status_code == 404

@@ -96,3 +96,13 @@ def test_write_meta_updates_and_rejects_unknown(rd):
     (rd / "release.json").unlink()
     with pytest.raises(ValueError):
         write_meta(rd, {"artist": "x"}, None)
+
+
+def test_write_meta_reorders_and_renumbers_tracks(rd):
+    release = json.loads((rd / "release.json").read_text())
+    release["tracks"] = [{"number": n, "title": t, "file": f"{t}.wav"} for n, t in ((1, "A"), (2, "B"), (3, "C"))]
+    (rd / "release.json").write_text(json.dumps(release))
+    r = write_meta(rd, {"track_titles": {"3": "Cee"}, "track_order": [3, 1, 2]}, None)
+    assert [(t["number"], t["title"]) for t in r["tracks"]] == [(1, "Cee"), (2, "A"), (3, "B")]
+    with pytest.raises(ValueError):
+        write_meta(rd, {"track_order": [1, 1, 2]}, None)

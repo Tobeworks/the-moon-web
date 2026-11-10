@@ -96,6 +96,15 @@ def update_entry(releases_path: Path, catalog: str, fields: dict, about: str | N
     if renamed:
         done.append("track_titles")
 
+    order = fields.get("track_order")
+    if order is not None:
+        by_number = {t.get("number"): t for t in entry.get("tracks") or []}
+        if sorted(order) != sorted(by_number):
+            raise ValueError("track_order must list every track number exactly once")
+        if list(order) != sorted(order):
+            entry["tracks"] = [{**by_number[n], "number": i} for i, n in enumerate(order, 1)]
+            done.append("track_order")
+
     if about is not None:
         text = "" if about_is_placeholder(about) else about
         if (entry.get("about") or "") != text:

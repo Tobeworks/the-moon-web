@@ -86,7 +86,15 @@ def studio(port, no_open):
 
     import uvicorn
     from studio.config import free_port, load_config
+    from studio.frontend_build import build, needs_build
     from studio.server import create_app
+
+    if needs_build():
+        click.echo("Baue die Oberfläche (einmalig, dauert kurz) …")
+        try:
+            build()
+        except RuntimeError as e:
+            raise click.ClickException(str(e))
 
     port = free_port(port)
     token = secrets.token_urlsafe(16)

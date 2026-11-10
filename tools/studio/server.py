@@ -9,7 +9,8 @@ from datetime import date
 from pathlib import Path
 
 from fastapi import FastAPI, File, Form, HTTPException, Request, UploadFile
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from commands.convert import mp3_name
@@ -24,7 +25,7 @@ from studio.status import (_step_converted, find_folder, list_releases, validati
 CATALOG_RE = re.compile(r"^TMR-\d{3,}$")
 RUN_STEPS = {"generate", "validate", "convert", "social"}
 CDN_KEYS = ("CDN_HOST", "CDN_USER", "CDN_PUBLIC_URL")
-INDEX = Path(__file__).parent / "index.html"
+DIST = Path(__file__).parent / "dist"  # built by `pnpm build` in studio/frontend (see tools/README.md)
 MEDIA = {  # kind → (subfolder, allowed extensions): only files listed here can be fetched
     "audio": ("audio", folders.AUDIO_EXT),
     "mp3-128": ("export/mp3/128", {".mp3"}),
@@ -171,6 +172,9 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             return None
 
     # ── pages ────────────────────────────────────────────────────────────────
+    if (DIST / "assets").is_dir():  # the built JS/CSS: not secret, only the page and the API need the key
+        app.mount("/assets", StaticFiles(directory=DIST / "assets"), name="assets")
+
     @app.get("/")
     def index(request: Request, key: str | None = None):
         if key is not None:
@@ -181,7 +185,10 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             return resp
         if not secrets.compare_digest(request.cookies.get("studio", ""), token):
             raise HTTPException(401, "open the URL printed by `tmr studio`")
-        return FileResponse(INDEX)
+        if not (DIST / "index.html").is_file():
+            return HTMLResponse("<p>Oberfläche nicht gebaut. Im Repo: <code>pnpm --dir tools/studio/frontend install "
+                                "&amp;&amp; pnpm --dir tools/studio/frontend build</code></p>", status_code=503)
+        return FileResponse(DIST / "index.html")
 
     # ── state and releases ───────────────────────────────────────────────────
     @app.get("/api/state")
@@ -211,9 +218,9 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             raise HTTPException(409, "catalog exists")
         return {"catalog": catalog, "folder": d.name}
 
-    def cover_name(folder: Path | None) -> str | None:
-        """Small exported cover for the page header (300px, else 600px)."""
-        for name in ("cover_300.jpg", "cover_600.jpg"):
+    def cover_name(folder: Path | None, sizes=("300", "600")) -> str | None:
+        """Exported cover: small for the page header, the largest available for the lightbox."""
+        for name in (f"cover_{n}.jpg" for n in sizes):
             if folder and (folder / "export" / "artwork" / name).is_file():
                 return name
         return None
@@ -224,7 +231,10 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         names = lambda sub, exts: sorted(  # noqa: E731
             f.name for f in (folder / sub).glob("*") if f.suffix.lower() in exts) if folder else []
         v = published.view(folder, entry)  # live release: the entry is the truth, else the folder files
+        local = published._folder_release(folder).get("tracks") or []
         return {"summary": row(catalog), "release": v["release"], "entry": entry,
+                "local_tracks": [{"number": t.get("number"), "file": t.get("file", ""), "title": t.get("title", "")}
+                                 for t in local],
                 "about": v["about"], "tracks": v["tracks"],
                 "problems": {"validation": validation_problems(folder, entry) if folder else [],
                              "push": push_problems(catalog, folder, entry)},
@@ -232,7 +242,8 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                 "files": {"audio": names("audio", folders.AUDIO_EXT),
                           "artwork": names("artwork", folders.IMAGE_EXT),
                           "mp3": [f"{f.parent.name}/{f.name}" for f in mp3_files(folder)] if folder else [],
-                          "cover": cover_name(folder)}}
+                          "cover": cover_name(folder),
+                          "cover_large": cover_name(folder, ("3000", "1500", "600"))}}
 
     @app.get("/api/releases/{catalog}/media/{kind}/{name}")
     def media(catalog: str, kind: str, name: str):
@@ -251,7 +262,12 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
         catalog, folder, entry = ctx(catalog)
         try:
             if entry is not None:  # live release: save into releases.json (no CDN upload)
-                done = published.update_entry(cfg.releases_path, catalog, body.fields, body.about)
+                fields, order = body.fields, body.fields.get("track_order")
+                if order is not None and sorted(order) != sorted(t.get("number") for t in entry.get("tracks") or []):
+                    fields = {k: v for k, v in fields.items() if k != "track_order"}  # folder has tracks not pushed yet
+                done = published.update_entry(cfg.releases_path, catalog, fields, body.about)
+                if order is not None and folder is not None and (folder / "release.json").exists():
+                    folders.write_meta(folder, {"track_order": order}, None)  # convert/push read the folder's tracklist
                 return {"release": published.view(folder, next(
                     e for e in entries() if e["catalog"].upper() == catalog))["release"], "published": done}
             return {"release": folders.write_meta(need_folder(folder), body.fields, body.about), "published": []}
@@ -259,6 +275,18 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             raise HTTPException(400, str(e))
 
     # ── files ────────────────────────────────────────────────────────────────
+    @app.delete("/api/releases/{catalog}/files/{kind}/{name}")
+    def remove_file(catalog: str, kind: str, name: str):
+        _, folder, _ = ctx(catalog)
+        try:
+            folders.remove_file(need_folder(folder), kind, name)
+        except FileNotFoundError:
+            raise HTTPException(404, "not found")
+        except ValueError as e:
+            raise HTTPException(400, str(e))
+        # audio gone → tracklist in release.json must follow (generate drops the missing file)
+        return {"job_id": read_tracks(folder, [name]) if kind == "audio" else None}
+
     @app.post("/api/releases/{catalog}/files")
     def add_files(catalog: str, body: Paths):
         _, folder, _ = ctx(catalog)

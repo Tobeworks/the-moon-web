@@ -79,6 +79,13 @@ def generate_release(release_path: str):
         fail("No WAV or AIFF files found in audio/")
         sys.exit(1)
 
+    # keep a track order set by hand (Studio): known files first in their saved order, new ones after
+    try:
+        saved = [t.get("file") for t in json.loads((path / 'release.json').read_text()).get("tracks", [])]
+    except Exception:
+        saved = []
+    audio_files.sort(key=lambda f: saved.index(f.name) if f.name in saved else len(saved))
+
     ok(f"{len(audio_files)} audio file(s) found")
 
     # ── Scan artwork folder ───────────────────────────────────────────────────

@@ -11,8 +11,10 @@ from pathlib import Path
 
 from studio.folders_types import AUDIO_EXT, IMAGE_EXT  # noqa: F401  (re-exported)
 
+TRASH = Path.home() / ".Trash"  # removed files go here, never deleted for good
+
 META_FIELDS = {"artist", "title", "release_date", "format", "genre", "year"}
-EXTRA_FIELDS = {"bandcamp", "track_titles"}
+EXTRA_FIELDS = {"bandcamp", "track_titles", "track_order"}
 
 
 def slug(text: str) -> str:
@@ -71,6 +73,22 @@ def copy_files(release_dir: Path, sources: list[Path],
     return res
 
 
+def remove_file(release_dir: Path, kind: str, name: str) -> str:
+    """Move one audio/artwork file to the Trash. The name is looked up, not joined into a path."""
+    if kind not in ("audio", "artwork"):
+        raise ValueError("kind must be audio or artwork")
+    match = next((f for f in (release_dir / kind).glob("*") if f.name == name and f.is_file()), None)
+    if match is None:
+        raise FileNotFoundError(name)
+    target = TRASH / match.name
+    n = 1
+    while target.exists():
+        target = TRASH / f"{match.stem} ({n}){match.suffix}"
+        n += 1
+    shutil.move(str(match), target)
+    return match.name
+
+
 def write_meta(release_dir: Path, fields: dict, about: str | None) -> dict:
     path = release_dir / "release.json"
     if not path.exists():
@@ -88,12 +106,20 @@ def write_meta(release_dir: Path, fields: dict, about: str | None) -> dict:
                 if not str(title).strip():
                     raise ValueError(f"track {number}: title is empty")
                 by_number[str(number)]["title"] = str(title).strip()
+        elif k == "track_order":
+            continue  # applied below, after the titles (which are keyed by the old numbers)
         elif k == "bandcamp":
             platforms = release.get("platforms") or {}
             platforms["bandcamp"] = v or None
             release["platforms"] = platforms
         else:
             release[k] = v
+    if "track_order" in fields:
+        by_number = {t.get("number"): t for t in release.get("tracks") or []}
+        order = fields["track_order"]
+        if sorted(order) != sorted(by_number):
+            raise ValueError("track_order must list every track number exactly once")
+        release["tracks"] = [{**by_number[n], "number": i} for i, n in enumerate(order, 1)]
     path.write_text(json.dumps(release, indent=2))
     if about is not None:
         (release_dir / "about.md").write_text(about, encoding="utf-8")
