@@ -34,6 +34,25 @@ The `release-path` is the asset folder in `the-moon-assets/`, e.g.:
 
 ---
 
+## Studio (browser UI)
+
+```bash
+./tools/tmr studio            # opens http://127.0.0.1:8765/?key=<token>
+./tools/tmr studio --no-open --port 8800
+```
+
+Local-only UI over the commands below: overview of all releases with their
+step status (A assets, V data complete, K converted, P pushed, G committed,
+D DSP links), file/folder pickers and drag & drop, metadata + `about.md`,
+convert/push with live log, DSP links via `dsp_scraper`. Status is computed
+from `data/releases.json`, the asset folders and git — there is no extra
+database. Push needs `CDN_HOST`, `CDN_USER`, `CDN_PUBLIC_URL` (and the other
+`CDN_*` keys) in the repo-root `.env`, and always asks for a typed confirmation.
+
+Tests: `cd tools && source venv/bin/activate && pip install -r requirements-dev.txt && python -m pytest tests`
+
+---
+
 ## Commands
 
 ### `generate`
@@ -187,4 +206,4 @@ New commands go in `tools/commands/`. Register them in `tools/the-moon.py` follo
 
 ---
 
-*Part of the-moon-os — github.com/Tobeworks/the-moon-os*
+*Part of the-moon-web*

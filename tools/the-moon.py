@@ -12,6 +12,7 @@ Usage:
   ./tools/tmr social   <release-folder-path>               — render social media assets
   ./tools/tmr social   <release-folder-path> --format reel — square | reel | carousel | all
   ./tools/tmr push     <release-folder-path>               — CDN upload + data/releases.json
+  ./tools/tmr studio                                       — local browser UI for all of the above
 """
 
 import click
@@ -73,6 +74,26 @@ def push(release_path):
 def sftp_test():
     """Test SFTP connection and write permissions — no upload."""
     test_connection()
+
+@cli.command()
+@click.option('--port', default=8765, show_default=True, help='Local port.')
+@click.option('--no-open', is_flag=True, default=False, help="Don't open the browser.")
+def studio(port, no_open):
+    """Start the local browser UI (127.0.0.1 only)."""
+    import secrets
+    import webbrowser
+
+    import uvicorn
+    from studio.config import load_config
+    from studio.server import create_app
+
+    token = secrets.token_urlsafe(16)
+    url = f"http://127.0.0.1:{port}/?key={token}"
+    click.echo(f"tmr studio → {url}\n(Ctrl+C to stop)")
+    if not no_open:
+        webbrowser.open(url)
+    uvicorn.run(create_app(load_config(), token), host="127.0.0.1", port=port, log_level="warning")
+
 
 if __name__ == '__main__':
     cli()

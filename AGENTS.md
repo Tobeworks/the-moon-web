@@ -9,3 +9,12 @@ Verbindliche Regeln für Agents in `the-moon-web`.
 - **Ist eine Änderung commit-reif, eine Commit-Message zurückgeben** (im Chat, nicht per `git commit`).
 
 Änderungen bleiben im Working Tree. Committen und Pushen macht der Nutzer.
+
+## Toolchain (`tools/`)
+
+- `./tools/tmr generate|validate|convert|push|social <asset-ordner>` — Assets liegen in `../the-moon-assets/tmr-NNN-artist-title/`. `./tools/tmr studio` startet die lokale Oberfläche dafür. Details: [tools/README.md](tools/README.md).
+- Ablauf: `push` lädt ans CDN und schreibt `data/releases.json` (Quelle der Wahrheit, mit Backup in `data/backups/`) → Nutzer committet und pusht → Build.
+- **`push` geht nach außen** — nur nach ausdrücklicher Freigabe starten. `push` bricht bei Platzhaltern (`FILL_IN`, Platzhalter-`about.md`) ab.
+- Plattformnamen sind an `src/assets/dsp/*.svg` gekoppelt: `spotify`, `apple_music`, `amazon_music`, `soundcloud`, `deezer`, `beatport`, `bandcamp`. Nie leere URLs eintragen; Scraper-Treffer nur mit `confidence ≥ 85` und passendem Künstler.
+- Vor `release_date` blendet die Detailseite Plattform-Links aus („Releasing") — Absicht.
+- Tests: `cd tools && source venv/bin/activate && python -m pytest tests`.
