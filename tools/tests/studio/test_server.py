@@ -178,6 +178,23 @@ def test_state_genres_include_existing_and_defaults(client):
     assert {"Ambient", "Dark Ambient"} <= set(genres) and genres == sorted(genres)
 
 
+def test_media_serves_mp3_cover_and_wav_with_range(client, folder):
+    r = client.get("/api/releases/TMR-099/media/mp3-128/01_first.mp3", headers={"Range": "bytes=0-3"})
+    assert r.status_code == 206 and r.content == b"xxxx"
+    assert client.get("/api/releases/TMR-099/media/cover/cover_600.jpg").status_code == 200
+    assert client.get("/api/releases/TMR-099/media/audio/01_first.wav").status_code == 200
+
+
+@pytest.mark.parametrize("path", ["media/audio/..%2Frelease.json", "media/audio/release.json",
+                                  "media/secrets/x", "media/mp3-128/missing.mp3"])
+def test_media_rejects_other_files(client, folder, path):
+    assert client.get(f"/api/releases/TMR-099/{path}").status_code == 404
+
+
+def test_detail_lists_cover_name(client, folder):
+    assert client.get("/api/releases/TMR-099").json()["files"]["cover"] == "cover_600.jpg"
+
+
 def test_cdn_configured_flag_does_not_leak_values(client):
     r = client.get("/api/state")
     assert r.json()["cdn_configured"] is True

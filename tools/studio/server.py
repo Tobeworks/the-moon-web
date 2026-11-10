@@ -23,6 +23,12 @@ CATALOG_RE = re.compile(r"^TMR-\d{3,}$")
 RUN_STEPS = {"generate", "validate", "convert", "social"}
 CDN_KEYS = ("CDN_HOST", "CDN_USER", "CDN_PUBLIC_URL")
 INDEX = Path(__file__).parent / "index.html"
+MEDIA = {  # kind → (subfolder, allowed extensions): only files listed here can be fetched
+    "audio": ("audio", folders.AUDIO_EXT),
+    "mp3-128": ("export/mp3/128", {".mp3"}),
+    "mp3-320": ("export/mp3/320", {".mp3"}),
+    "cover": ("export/artwork", {".jpg"}),
+}
 GENRES = ["Ambient", "Dark Ambient", "Drone", "Cinematic", "Electronic"]  # extend here
 
 
@@ -186,6 +192,13 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
             raise HTTPException(409, "catalog exists")
         return {"catalog": catalog, "folder": d.name}
 
+    def cover_name(folder: Path | None) -> str | None:
+        """Small exported cover for the page header (300px, else 600px)."""
+        for name in ("cover_300.jpg", "cover_600.jpg"):
+            if folder and (folder / "export" / "artwork" / name).is_file():
+                return name
+        return None
+
     @app.get("/api/releases/{catalog}")
     def detail(catalog: str):
         catalog, folder, entry = ctx(catalog)
@@ -195,7 +208,20 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
                 "about": about_of(folder),
                 "files": {"audio": names("audio", folders.AUDIO_EXT),
                           "artwork": names("artwork", folders.IMAGE_EXT),
-                          "mp3": [f"{f.parent.name}/{f.name}" for f in mp3_files(folder)] if folder else []}}
+                          "mp3": [f"{f.parent.name}/{f.name}" for f in mp3_files(folder)] if folder else [],
+                          "cover": cover_name(folder)}}
+
+    @app.get("/api/releases/{catalog}/media/{kind}/{name}")
+    def media(catalog: str, kind: str, name: str):
+        _, folder, _ = ctx(catalog)
+        if kind not in MEDIA or folder is None:
+            raise HTTPException(404, "not found")
+        sub, exts = MEDIA[kind]
+        # look the name up in a directory listing instead of joining user input into a path
+        match = next((f for f in (folder / sub).glob("*") if f.name == name and f.suffix.lower() in exts), None)
+        if match is None:
+            raise HTTPException(404, "not found")
+        return FileResponse(match)
 
     @app.put("/api/releases/{catalog}/meta")
     def meta(catalog: str, body: Meta):

@@ -77,6 +77,10 @@
   dialog::backdrop{background:rgba(0,0,0,.8)}
   .problem{color:var(--warn);margin:8px 0}
   .gap{margin-top:24px}
+  .track{display:grid;grid-template-columns:56px 1fr 130px;gap:20px;align-items:center;padding:14px 0;border-top:1px solid var(--accent-border)}
+  .track progress{cursor:pointer;height:10px;margin-top:8px}
+  .track .btn{min-width:56px;padding:0}
+  .cover{width:96px;height:96px;object-fit:cover;border:1px solid var(--accent-border)}
   progress{appearance:none;-webkit-appearance:none;border:0;height:8px;width:100%;background:var(--high);overflow:hidden;color:var(--accent)}
   progress::-webkit-progress-bar{background:var(--high)}
   progress::-webkit-progress-value{background:var(--accent)}
@@ -104,7 +108,7 @@ const STEP_NAMES = {A:'Assets', V:'Daten vollständig', K:'Konvertiert', P:'Gepu
 const NEXT_LABEL = {A:'Dateien', V:'Metadaten', K:'Konvertieren', P:'Pushen', G:'Committen', D:'DSP-Links'};
 const GLYPH = {ok:'✓', open:'·', stale:'↻', na:'–', warn:'!'};
 const $ = s => document.querySelector(s);
-let state = null, jobTimer = null, currentJobId = null, logText = 'Noch kein Job gestartet.';
+let state = null, activeAudio = null, jobTimer = null, currentJobId = null, logText = 'Noch kein Job gestartet.';
 
 const h = (tag, props = {}, ...kids) => {
   const e = document.createElement(tag);
@@ -183,6 +187,7 @@ function commitBar() {
 
 // ── router ─────────────────────────────────────────────────────────────────
 async function route() {
+  if (activeAudio) { activeAudio.pause(); activeAudio = null; }
   const hash = location.hash || '#/';
   $('#nav-over').classList.toggle('on', hash === '#/');
   $('#nav-new').classList.toggle('on', hash === '#/new');
@@ -340,16 +345,57 @@ async function viewDetail(app, catalog, focus) {
   const logBox = h('div', {class: 'log mono', id: 'log'}, logText);
   app.append(
     h('div', {class: 'crumb'}, h('a', {href: '#/'}, 'Releases'), ` / ${catalog}`),
-    h('div', {class: 'row'}, h('div', {}, h('div', {class: 'label'}, s.artist), h('h1', {}, s.title || catalog)),
+    h('div', {class: 'row'}, d.files.cover && h('img', {class: 'cover', alt: 'Cover', src: `/api/releases/${catalog}/media/cover/${d.files.cover}`}),
+      h('div', {}, h('div', {class: 'label'}, s.artist), h('h1', {}, s.title || catalog)),
       h('div', {class: 'spacer'}), when(s), h('span', {class: 'mono'}, fmtDate(s.release_date))),
     h('div', {class: 'gap'}, pipe(s)),
     h('div', {class: 'gap'}, commitBar(),
       h('div', {class: 'panel', id: 'panel-A'}, h('h2', {}, '1 · Assets'), drop,
         h('div', {class: 'files mono'}, [...d.files.audio, ...d.files.artwork].map(n => h('div', {}, n)))),
-      metaPanel, convPanel, pushPanel, dspPanel,
+      metaPanel, convPanel, playerPanel(catalog, d), pushPanel, dspPanel,
       h('div', {class: 'panel'}, h('h2', {}, 'Protokoll'), logBox)));
   const target = focus && $('#panel-' + focus);
   if (target) target.scrollIntoView({block: 'start'});
+}
+
+// ── player ─────────────────────────────────────────────────────────────────
+const mmss = s => isFinite(s) ? `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}` : '0:00';
+
+function playerPanel(catalog, d) {
+  const tracks = (d.release && d.release.tracks) || [];
+  if (!tracks.length) return null;
+  const audio = new Audio(); audio.preload = 'none';
+  let cur = null;
+  const stop = () => { if (cur) { cur.btn.textContent = '▶'; cur.fill.value = 0; cur.time.textContent = cur.total; } };
+  const rows = tracks.map(t => {
+    const pad = String(t.number).padStart(2, '0');
+    const mp3 = d.files.mp3.find(n => n.startsWith('128/' + pad + '_'));
+    const wav = t.file && d.files.audio.includes(t.file);
+    const src = mp3 ? `/api/releases/${catalog}/media/mp3-128/${encodeURIComponent(mp3.slice(4))}`
+      : wav ? `/api/releases/${catalog}/media/audio/${encodeURIComponent(t.file)}` : null;
+    const row = {src, total: t.duration || '', btn: h('button', {class: 'btn ghost', disabled: !src, 'aria-label': `Abspielen: ${t.title}`}, '▶'),
+      fill: h('progress', {max: 100, value: 0, 'aria-label': `Position: ${t.title}`}), time: h('span', {class: 'mono note'}, t.duration || '')};
+    row.btn.addEventListener('click', () => {
+      if (cur === row && !audio.paused) { audio.pause(); row.btn.textContent = '▶'; return; }
+      if (cur !== row) { stop(); cur = row; audio.src = src; }
+      audio.play(); activeAudio = audio; row.btn.textContent = '❚❚';
+    });
+    row.fill.addEventListener('click', e => {
+      if (cur === row && audio.duration) audio.currentTime = (e.offsetX / row.fill.clientWidth) * audio.duration;
+    });
+    row.el = h('div', {class: 'track'}, row.btn,
+      h('div', {}, `${t.number}. ${t.title || '—'}`, h('span', {class: 'label', style: 'margin-left:12px'}, mp3 ? 'MP3 128k' : wav ? 'WAV Original' : 'keine Datei'), row.fill), row.time);
+    return row;
+  });
+  audio.addEventListener('timeupdate', () => {
+    if (!cur || !audio.duration) return;
+    cur.fill.value = (audio.currentTime / audio.duration) * 100;
+    cur.time.textContent = `${mmss(audio.currentTime)} / ${mmss(audio.duration)}`;
+  });
+  audio.addEventListener('ended', () => { stop(); cur = null; });
+  return h('div', {class: 'panel'}, h('h2', {}, 'Anhören'),
+    h('p', {class: 'note'}, 'Spielt die konvertierten MP3s (128k), sonst die WAV-Originale. Klick auf den Balken springt an die Stelle.'),
+    rows.map(r => r.el));
 }
 
 // ── push dialog ────────────────────────────────────────────────────────────
