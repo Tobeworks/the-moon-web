@@ -1,7 +1,7 @@
 {
   "$schema": "./releases.schema.json",
   "_meta": {
-    "generated": "2026-11-10T10:09:11.898786+00:00",
+    "generated": "2026-11-10T13:17:52.480377+00:00",
     "label": "The Moon Records",
     "version": "1"
   },
@@ -44,11 +44,18 @@
           "number": 1,
           "title": "Aethery Fields  - Old Fog Horn",
           "runtime": "5:24",
-          "url": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/128/01_aethery_fields_old_fog_horn.mp3",
-          "url_320": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/320/01_aethery_fields_old_fog_horn.mp3"
+          "url": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/128/01_old_fog_horn.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/320/01_old_fog_horn.mp3"
+        },
+        {
+          "number": 2,
+          "title": "Autnumn Studies",
+          "runtime": "3:21",
+          "url": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/128/02_autnumn_studies.mp3",
+          "url_320": "https://cdn.the-moon-records.de/releases/tmr-018-aethery-fields-old-fog-horn/audio/320/02_autnumn_studies.mp3"
         }
       ],
-      "pushed_at": "2026-11-10T10:09:11.898398+00:00",
+      "pushed_at": "2026-11-10T13:17:52.479959+00:00",
       "release_date": "2026-11-27"
     },
     {
