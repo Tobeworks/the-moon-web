@@ -110,6 +110,14 @@ Das erzeugt `the-moon-assets/tmr-NNN-artist-title/` mit `audio/` und `artwork/`.
 Unten auf der Seite zeigt das **Protokoll** die Ausgabe des laufenden Befehls.
 Es läuft immer nur ein Job gleichzeitig.
 
+### Alte Daten übernehmen (automatisch)
+
+Beim Start des Studios (und mit `./tools/tmr migrate`) werden die schon veröffentlichten Daten aus
+`data/releases.json` in die Asset-Ordner übernommen: DSP-Links, Genre, Jahr, Datum, fehlende Tracktitel
+und ein fehlender Releasetext. Es wird **nur ergänzt, was in der `release.json` leer oder Platzhalter ist**,
+vorhandene Werte bleiben. Von jeder geänderten Datei liegt eine Sicherung `release.json.before-migrate` daneben.
+`./tools/tmr migrate --dry-run` zeigt vorher, was passieren würde.
+
 ### Nach dem Push: Git
 
 Nach einem Push (oder nach übernommenen DSP-Links) zeigt das Studio `!` bei **G** und oben ein

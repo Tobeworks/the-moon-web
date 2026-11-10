@@ -23,6 +23,11 @@ def test_free_port_skips_busy_port():
         assert free_port(busy) != busy
 
 
+def test_migrate_command_is_registered():
+    res = CliRunner().invoke(load_cli(), ["migrate", "--help"])
+    assert res.exit_code == 0 and "--dry-run" in res.output
+
+
 def test_studio_command_is_registered():
     res = CliRunner().invoke(load_cli(), ["studio", "--help"])
     assert res.exit_code == 0 and "--port" in res.output and "--no-open" in res.output
