@@ -359,3 +359,24 @@ def test_git_commit_endpoint(client, studio_env):
     r = client.post("/api/git/commit", json={"message": "feat: tmr-017 assets"})
     assert r.status_code == 200 and r.json()["commit"]
     assert client.get("/api/state").json()["releases_dirty"] is False
+
+
+def test_saving_metadata_of_a_published_release_updates_releases_json(client, folder, studio_env):
+    data = json.loads(studio_env.releases_path.read_text())
+    entry = {**data["releases"][0], "catalog": "TMR-099", "platforms": [], "title": "Published Title"}
+    data["releases"].insert(0, entry)
+    studio_env.releases_path.write_text(json.dumps(data))
+    r = client.put("/api/releases/TMR-099/meta", json={"fields": {
+        "bandcamp": "https://x.bandcamp.com/album/y", "title": "Test Title"}})  # title equals the folder's value
+    assert r.status_code == 200 and r.json()["published"] == ["bandcamp"]
+    saved = next(x for x in json.loads(studio_env.releases_path.read_text())["releases"] if x["catalog"] == "TMR-099")
+    assert saved["platforms"] == [{"name": "bandcamp", "url": "https://x.bandcamp.com/album/y"}]
+    assert saved["title"] == "Published Title"  # untouched: the user did not change it
+    again = client.put("/api/releases/TMR-099/meta", json={"fields": {"bandcamp": "https://x.bandcamp.com/album/y"}})
+    assert again.json()["published"] == []
+
+
+def test_saving_an_unpublished_release_touches_no_releases_json(client, folder, studio_env):
+    before = studio_env.releases_path.read_text()
+    r = client.put("/api/releases/TMR-099/meta", json={"fields": {"genre": "Ambient"}})
+    assert r.json()["published"] == [] and studio_env.releases_path.read_text() == before

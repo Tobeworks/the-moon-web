@@ -325,8 +325,9 @@ async function viewDetail(app, catalog, focus) {
           : 'ANTHROPIC_API_KEY fehlt in der .env im Repo-Root.')))),
     h('div', {class: 'row gap'},
       h('button', {class: 'btn fill', onclick: guard(async () => {
-        await api(`/api/releases/${catalog}/meta`, {method: 'PUT', json: {fields: {...Object.fromEntries(['artist', 'title', 'release_date', 'genre', 'bandcamp'].map(k => [k, m[k].value])), track_titles: Object.fromEntries(Object.entries(tt).map(([n, i]) => [n, i.value]))}, about: m.about.value}});
-        banner('Gespeichert', false); reload();
+        const saved = await api(`/api/releases/${catalog}/meta`, {method: 'PUT', json: {fields: {...Object.fromEntries(['artist', 'title', 'release_date', 'genre', 'bandcamp'].map(k => [k, m[k].value])), track_titles: Object.fromEntries(Object.entries(tt).map(([n, i]) => [n, i.value]))}, about: m.about.value}});
+        banner(saved.published.length ? `Gespeichert. Auch in releases.json aktualisiert: ${saved.published.join(', ')}. Zum Veröffentlichen committen und pushen.` : 'Gespeichert', false);
+        reload();
       })}, 'Speichern'),
       h('button', {class: 'btn', onclick: () => run('generate')}, 'Tracks einlesen'),
       h('button', {class: 'btn ghost', onclick: () => run('validate')}, 'Validieren')),

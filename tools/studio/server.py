@@ -14,7 +14,7 @@ from pydantic import BaseModel
 
 from commands.convert import mp3_name
 
-from studio import ai, dsp, folders, gitops
+from studio import ai, dsp, folders, gitops, sync
 from studio.config import Config
 from studio.jobs import JobBusy, Jobs
 from studio.progress import progress
@@ -250,12 +250,30 @@ def create_app(cfg: Config, token: str, jobs: Jobs | None = None) -> FastAPI:
 
     @app.put("/api/releases/{catalog}/meta")
     def meta(catalog: str, body: Meta):
-        _, folder, _ = ctx(catalog)
+        catalog, folder, entry = ctx(catalog)
+        before, before_about = release_json(folder), about_of(folder)
         try:
             release = folders.write_meta(need_folder(folder), body.fields, body.about)
         except ValueError as e:
             raise HTTPException(400, str(e))
-        return {"release": release}
+        published = []
+        if entry is not None:  # already live: pass the user's edits on to releases.json (no CDN upload)
+            changed = {}
+            for key, value in body.fields.items():
+                if key == "track_titles":
+                    old = {str(t.get("number")): t.get("title") for t in before.get("tracks") or []}
+                    changed[key] = {n: t for n, t in value.items() if old.get(str(n)) != str(t).strip()}
+                else:
+                    old = (before.get("platforms") or {}).get("bandcamp") if key == "bandcamp" else before.get(key)
+                    if (value or "") != (old or ""):
+                        changed[key] = value
+            about_changed = body.about is not None and body.about != before_about
+            try:
+                published = sync.sync_published(cfg.releases_path, catalog, changed,
+                                                body.about if about_changed else None)
+            except ValueError as e:
+                raise HTTPException(400, f"releases.json not updated: {e}")
+        return {"release": release, "published": published}
 
     # ── files ────────────────────────────────────────────────────────────────
     @app.post("/api/releases/{catalog}/files")
