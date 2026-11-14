@@ -1,3 +1,5 @@
+import type { AiInput, AiResult } from './newsletterAi';
+
 export interface Campaign {
   id: string;
   subject: string;
@@ -81,6 +83,16 @@ export const adminApi = {
       body: JSON.stringify({ id, email }),
     });
     return res.json();
+  },
+
+  async aiNewsletter(input: AiInput): Promise<AiResult> {
+    const res = await fetch(`${base}/ai`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(input),
+    });
+    if (res.status === 401) return { ok: false, error: 'Session abgelaufen. Bitte neu einloggen.' };
+    return res.json().catch(() => ({ ok: false, error: 'Unerwartete Antwort vom Server.' }));
   },
 };
 

@@ -203,13 +203,16 @@ export async function sendPromoEmail(
     <a href="${promoUrl}" style="display:inline-block;background:#C4B98A;color:#1A1710;font-size:12px;font-weight:700;letter-spacing:0.3em;text-transform:uppercase;padding:13px 28px;text-decoration:none;">
       ACCESS PROMO
     </a>
+    <p style="margin:2rem 0 0;color:rgba(232,228,216,0.65);font-size:13px;letter-spacing:0.05em;line-height:1.8;">
+      Feedback is welcome: write a short review on your promo page. We publish it on the release page of our website, and as a thank-you we link back to your site.
+    </p>
     <p style="margin:2.5rem 0 0;color:rgba(232,228,216,0.2);font-size:11px;letter-spacing:0.08em;line-height:1.7;">
       This link is personal and generated for you only. Please do not share it publicly.<br>
       <a href="${unsubscribeUrl}" style="color:rgba(196,185,138,0.5);text-decoration:underline;">Unsubscribe from promo list</a>
     </p>
   `);
 
-  const text = `${greeting}\n\nNew release: ${releaseTitle} — ${releaseArtist}\n${aboutText ? `\n${aboutText}\n` : ''}\nYour personal promo link:\n${promoUrl}\n\nPlease do not share this link publicly.\n\nUnsubscribe: ${unsubscribeUrl}`;
+  const text = `${greeting}\n\nNew release: ${releaseTitle} — ${releaseArtist}\n${aboutText ? `\n${aboutText}\n` : ''}\nYour personal promo link:\n${promoUrl}\n\nFeedback is welcome: write a short review on your promo page. We publish it on the release page of our website, and as a thank-you we link back to your site.\n\nPlease do not share this link publicly.\n\nUnsubscribe: ${unsubscribeUrl}`;
 
   await transporter.sendMail({ from: FROM, to, subject: `Promo: ${releaseTitle} — THE MOON RECORDS`, html, text });
 }

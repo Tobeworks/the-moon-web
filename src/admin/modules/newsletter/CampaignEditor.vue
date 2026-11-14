@@ -13,7 +13,12 @@
       <!-- Subject -->
       <div class="flex flex-col gap-1.5">
         <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">Subject</label>
-        <input v-model="subject" type="text" class="tmr-input w-full" :disabled="status === 'sent'" />
+        <div class="flex gap-3">
+          <input v-model="subject" type="text" class="tmr-input w-full" :disabled="status === 'sent'" />
+          <button v-if="status !== 'sent'" @click="suggestSubject" :disabled="aiBusy" class="btn btn--muted whitespace-nowrap">
+            Suggest subject
+          </button>
+        </div>
       </div>
 
       <!-- Editor + Preview -->
@@ -26,6 +31,7 @@
         </label>
         <div class="grid grid-cols-2 gap-4">
           <textarea
+            ref="bodyEl"
             v-model="bodyMd"
             rows="20"
             class="tmr-input w-full font-mono text-[0.75rem] resize-y"
@@ -33,6 +39,29 @@
             :disabled="status === 'sent'"
           ></textarea>
           <div class="border border-border p-4 bg-surface text-fg-dim text-[0.8rem] leading-relaxed overflow-auto preview-content" v-html="renderedHtml"></div>
+        </div>
+      </div>
+
+      <!-- AI -->
+      <div v-if="status !== 'sent'" class="flex flex-col gap-1.5">
+        <label class="font-mono text-[0.55rem] tracking-[0.2em] uppercase text-fg-dim">
+          AI
+          <span class="text-fg-dim normal-case tracking-normal" style="font-size:0.6rem;">
+            (empty text: writes a new one · selected text: rewrites only the selection · otherwise rewrites everything)
+          </span>
+        </label>
+        <div class="flex gap-3">
+          <input
+            v-model="aiInstruction"
+            type="text"
+            class="tmr-input w-full"
+            placeholder="e.g. Write the mail for TMR-017 / shorter, less promotional"
+            @keydown.enter.prevent="runAi"
+          />
+          <button @click="runAi" :disabled="aiBusy" class="btn btn--muted whitespace-nowrap">
+            {{ aiBusy ? 'Thinking…' : 'Mit KI' }}
+          </button>
+          <button v-if="undoBody !== null" @click="undo" class="btn btn--muted whitespace-nowrap">Undo</button>
         </div>
       </div>
 
@@ -68,6 +97,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { marked } from 'marked';
 import { adminApi } from '../../../lib/admin-api';
+import { spliceSelection } from '../../../lib/newsletterAi';
 
 const route = useRoute();
 const id    = route.params.id as string;
@@ -86,6 +116,11 @@ const sending      = ref(false);
 const testing      = ref(false);
 const msg          = ref('');
 const msgColor     = ref('text-fg-dim');
+
+const bodyEl        = ref<HTMLTextAreaElement | null>(null);
+const aiInstruction = ref('');
+const aiBusy        = ref(false);
+const undoBody      = ref<string | null>(null);
 
 const renderedHtml = computed(() => marked.parse(bodyMd.value) as string);
 
@@ -109,6 +144,48 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+async function runAi() {
+  if (aiBusy.value) return;
+  const start = bodyEl.value?.selectionStart ?? 0;
+  const end   = bodyEl.value?.selectionEnd ?? 0;
+  const selection = start !== end ? bodyMd.value.slice(start, end) : undefined;
+  aiBusy.value = true;
+  msg.value = '';
+  try {
+    const r = await adminApi.aiNewsletter({ mode: 'text', instruction: aiInstruction.value, body: bodyMd.value, selection });
+    if (!r.ok) throw new Error(r.error);
+    undoBody.value = bodyMd.value;
+    bodyMd.value = selection ? spliceSelection(bodyMd.value, start, end, r.text) : r.text;
+  } catch (e) {
+    msg.value = (e as Error).message;
+    msgColor.value = 'text-red-400';
+  } finally {
+    aiBusy.value = false;
+  }
+}
+
+async function suggestSubject() {
+  if (aiBusy.value) return;
+  aiBusy.value = true;
+  msg.value = '';
+  try {
+    const r = await adminApi.aiNewsletter({ mode: 'subject', instruction: aiInstruction.value, body: bodyMd.value });
+    if (!r.ok) throw new Error(r.error);
+    subject.value = r.text;
+  } catch (e) {
+    msg.value = (e as Error).message;
+    msgColor.value = 'text-red-400';
+  } finally {
+    aiBusy.value = false;
+  }
+}
+
+function undo() {
+  if (undoBody.value === null) return;
+  bodyMd.value = undoBody.value;
+  undoBody.value = null;
+}
 
 async function save() {
   saving.value = true;
